@@ -1,7 +1,7 @@
 # Catalogo de proyectos Erlang/OTP
 
 81 temas para 40 estudiantes: **12 trios + 2 binas = 14 equipos**. Cada equipo elige un
-numero distinto (primero en llegar se queda). Toda UI se disena en Google Stitch
+numero distinto (primero en llegar se queda). Toda UI se disena en Google Stitch.
 
 ## Roles del trio
 
