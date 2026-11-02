@@ -14,3 +14,15 @@ rebar.lock.bak
 .env
 *.pem
 *.key
+
+# Herramientas de agentes y notas internas (no públicas)
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+GEMINI.md
+opencode.json
+.opencode/
+.codex/
+.cursor/
+bitacora/
+.obsidian/

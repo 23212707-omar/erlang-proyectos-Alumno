@@ -1,6 +1,6 @@
 # Guía de contribución
 
-Gracias por contribuir. Este repositorio sigue las convenciones de [`AGENTS.md`](AGENTS.md).
+Gracias por contribuir. Convenciones del repositorio:
 
 ## Flujo
 
@@ -21,7 +21,7 @@ Gracias por contribuir. Este repositorio sigue las convenciones de [`AGENTS.md`]
 - Tests: eunit (unitarios), common_test (integración).
 - No agregues dependencias fuera del stack sin aprobación.
 - **Nunca** subas cookies, contraseñas o certificados reales; usa valores de ejemplo en `sys.config`.
-- UI: se diseña en Google Stitch y vive en `design/` (ver `AGENTS.md`).
+- UI: se diseña en Google Stitch y vive en `design/`.
 
 ## Commits
 

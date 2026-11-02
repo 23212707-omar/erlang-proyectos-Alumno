@@ -16,8 +16,6 @@ Tecnológico de Tijuana), pensados para desplegarse en un Raspberry Pi Compute M
 | [`demos/`](demos/) | Demos de clase (p. ej. [Cowboy: REST, SSE, WebSocket](demos/cowboy_demo/)) |
 | [`PROYECTOS.md`](PROYECTOS.md) | Catálogo, roles del equipo y niveles sugeridos |
 | [`exposicion/`](exposicion/) | Diapositivas de la exposición |
-| [`bitacora/`](bitacora/) | Bitácora (Obsidian): eventos, acuerdos y tareas |
-| [`AGENTS.md`](AGENTS.md) | Convenciones técnicas y flujo de trabajo |
 
 ## Requisitos
 
@@ -35,7 +33,7 @@ rebar3 shell
 ## Stack
 
 cowboy 2.x · recon · prometheus.erl · PostgreSQL (epgsql + poolboy) · releases con relx.
-Detalles y convenciones en [`AGENTS.md`](AGENTS.md).
+Convenciones en [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Contribuir
 
