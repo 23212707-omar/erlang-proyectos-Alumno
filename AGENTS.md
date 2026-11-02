@@ -1,5 +1,19 @@
 # Proyectos Erlang/OTP — contexto para opencode
 
+## Registro de trabajo en Obsidian
+
+- Mantén la bóveda `bitacora/` actualizada al realizar trabajo en este repositorio.
+- Usa esta única bitácora para todos los agentes (Codex, Claude u opencode).
+  Antes de crear notas, revisa las existentes y fusiona contenido relacionado sin
+  duplicar eventos, acuerdos ni tareas; conserva fechas, contexto e historial.
+- Registra eventos, cambios y resultados de verificaciones en `bitacora/LOG.md`,
+  con fecha y entradas nuevas arriba; conserva el historial.
+- Registra los acuerdos explícitos con el usuario en `bitacora/ACUERDOS.md`,
+  con fecha y contexto. Distingue propuestas pendientes de acuerdos confirmados.
+- Mantén tareas y seguimientos en `bitacora/TODO.md` con casillas Markdown;
+  marca como completado solo lo que se haya realizado y verificado.
+- No inventes responsables, fechas límite, acuerdos ni resultados de pruebas.
+
 Este repositorio contiene proyectos de estudiantes en Erlang/OTP. Los proyectos se
 despliegan (o simulan) en un Raspberry Pi Compute Module 5; el desarrollo puede
 ocurrir en otra maquina (macOS/Linux), asi que no asumas hardware en el codigo.

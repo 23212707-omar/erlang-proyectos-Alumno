@@ -4,3 +4,13 @@ _build/
 .claude/
 erl_crash.dump
 rebar3.crashdump
+*.swp
+.idea/
+.vscode/
+.rebar3/
+rebar.lock.bak
+*.ez
+*.plt
+.env
+*.pem
+*.key

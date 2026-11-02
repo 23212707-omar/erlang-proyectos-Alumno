@@ -4,6 +4,14 @@ tags: [erlang, todo, repaso]
 
 # TODO — Repaso de los 81 proyectos
 
+## Registro de trabajo — 2026-10-31
+
+- [x] Organizar el registro en Obsidian conservando la bóveda existente.
+- [x] Crear [[ACUERDOS]] para los acuerdos confirmados.
+- [x] Registrar la configuración en [[LOG]] y documentar el mantenimiento en `AGENTS.md`.
+
+## Repaso de proyectos
+
 Repasados: **81/81** · ver [[LOG]]
 
 Criterio de repaso: compila (`erlc -Werror`), prueba eunit pasa, README con *Diseno OTP sugerido*.
@@ -131,3 +139,6 @@ Criterio de repaso: compila (`erlc -Werror`), prueba eunit pasa, README con *Dis
 - [x] **79** Acuacultura (atun, ostion) — `proyectos/79-acuacultura-atun-ostion`
 - [x] **80** Cerveceria artesanal — `proyectos/80-cerveceria-artesanal`
 - [x] **81** Gestion de ganado — `proyectos/81-gestion-de-ganado`
+
+- [ ] Confirmar licencia (MIT puesta por defecto) y agregar topics/descripción en GitHub (erlang, otp, cowboy, education).
+- [ ] Verificar que el CI de GitHub Actions pasa y ampliar la matriz a los 81 proyectos.

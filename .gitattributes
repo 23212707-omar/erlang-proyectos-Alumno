@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.pdf binary
+*.png binary
+*.jpg binary
+*.beam binary
+*.erl diff=erlang linguist-language=Erlang
+*.hrl linguist-language=Erlang
+*.app.src linguist-language=Erlang
