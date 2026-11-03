@@ -4,7 +4,7 @@
 
 No abras un issue público. Usa los
 [avisos de seguridad privados de GitHub](https://github.com/tectijuana/erlang-proyectos/security/advisories/new)
-o escribe a **rene.solis@tectijuana.edu.mx**. Se responde en un plazo razonable.
+y se responde en un plazo razonable.
 
 ## Alcance
 

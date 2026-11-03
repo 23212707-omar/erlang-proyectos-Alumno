@@ -5,7 +5,6 @@ type: software
 authors:
   - family-names: "Solis R."
     given-names: "René"
-    email: "rene.solis@tectijuana.edu.mx"
     affiliation: "Tecnológico Nacional de México, Instituto Tecnológico de Tijuana"
 repository-code: "https://github.com/tectijuana/erlang-proyectos"
 license: MIT
