@@ -13,7 +13,7 @@ Tecnológico de Tijuana), pensados para desplegarse en un Raspberry Pi Compute M
 | Ruta | Descripción |
 |---|---|
 | [`proyectos/`](proyectos/) | 81 proyectos (`NN-nombre/`), cada uno una aplicación OTP con `rebar.config`, `src/`, `test/` y `README.md` |
-| [`demos/`](demos/) | Demos de clase (p. ej. [Cowboy: REST, SSE, WebSocket](demos/cowboy_demo/)) |
+| [`demos/`](demos/) | Demos de clase: Cowboy, supervisión, código en caliente y behaviours |
 | [`PROYECTOS.md`](PROYECTOS.md) | Catálogo, roles del equipo y niveles sugeridos |
 | [`exposicion/`](exposicion/) | Diapositivas de la exposición |
 

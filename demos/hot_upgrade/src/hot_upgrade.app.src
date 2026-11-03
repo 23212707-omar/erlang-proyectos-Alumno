@@ -1,0 +1,8 @@
+{application, hot_upgrade, [
+  {description, "Demo: cambiar el codigo de un gen_server en caliente sin perder su estado"},
+  {vsn, "0.1.0"},
+  {registered, [hot_upgrade_sup, hot_upgrade_counter]},
+  {mod, {hot_upgrade_app, []}},
+  {applications, [kernel, stdlib]},
+  {env, [{tick_ms, 1000}]}
+]}.

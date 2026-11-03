@@ -1,0 +1,13 @@
+{application, plugin_sinks, [
+  {description, "Demo: un sensor, varias salidas intercambiables mediante un behaviour"},
+  {vsn, "0.1.0"},
+  {registered, [plugin_sinks_sup, plugin_sinks_sink_sup, plugin_sinks_sensor]},
+  {mod, {plugin_sinks_app, []}},
+  {applications, [kernel, stdlib]},
+  {env, [
+    {interval_ms, 1000},
+    %% Cambiar esta lista cambia el comportamiento sin tocar el sensor.
+    {sinks, [{plugin_sinks_console, #{}},
+             {plugin_sinks_memory, #{max => 5}}]}
+  ]}
+]}.

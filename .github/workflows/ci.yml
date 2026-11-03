@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [demos/cowboy_demo, proyectos/01-vinedos, proyectos/02-invernadero, proyectos/03-riego-por-zonas]
+        project: [demos/cowboy_demo, demos/let_it_crash, demos/hot_upgrade, demos/plugin_sinks, proyectos/01-vinedos, proyectos/02-invernadero, proyectos/03-riego-por-zonas]
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1

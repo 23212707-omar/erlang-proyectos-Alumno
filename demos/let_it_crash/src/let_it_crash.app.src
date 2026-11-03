@@ -1,0 +1,8 @@
+{application, let_it_crash, [
+  {description, "Demo: un proceso muere y su supervisor lo reinicia (one_for_one y rest_for_one)"},
+  {vsn, "0.1.0"},
+  {registered, [let_it_crash_sup, let_it_crash_store, let_it_crash_agg]},
+  {mod, {let_it_crash_app, []}},
+  {applications, [kernel, stdlib]},
+  {env, []}
+]}.
