@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100vh;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-fixed": "#00164e", "surface-container": "#eaedff", "on-primary": "#ffffff", "primary-fixed": "#d5e3ff", "outline-variant": "#c4c6ce", "on-surface-variant": "#44474d", "error": "#ba1a1a", "background": "#faf8ff", "surface-container-highest": "#dae2fd", "on-surface": "#131b2e", "tertiary-fixed": "#ffdcbf", "tertiary-fixed-dim": "#efbd90", "on-primary-fixed": "#031c38", "surface-tint": "#4b5f7f", "tertiary": "#180900", "on-error": "#ffffff", "inverse-primary": "#b3c7ec", "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "secondary-container": "#8fa7fe", "surface": "#faf8ff", "on-error-container": "#93000a", "on-tertiary-fixed": "#2d1600", "tertiary-container": "#371c00", "surface-dim": "#d2d9f4", "surface-container-high": "#e2e7ff", "primary": "#000d21", "on-tertiary-container": "#ac8159", "on-secondary-fixed-variant": "#264191", "outline": "#74777e", "surface-bright": "#faf8ff", "error-container": "#ffdad6", "on-background": "#131b2e", "on-secondary": "#ffffff", "secondary": "#4059aa", "inverse-on-surface": "#eef0ff", "on-primary-container": "#778bad", "primary-container": "#0c2340", "on-secondary-container": "#1d3989", "surface-variant": "#dae2fd", "on-tertiary-fixed-variant": "#613f1d", "surface-container-low": "#f2f3ff", "secondary-fixed": "#dce1ff", "primary-fixed-dim": "#b3c7ec", "inverse-surface": "#283044", "secondary-fixed-dim": "#b6c4ff", "on-primary-fixed-variant": "#334766" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter-mobile": "0.75rem", "margin-mobile": "1rem", "margin": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "gutter": "1rem", "space-lg": "1.5rem", "space-md": "1rem", "space-xl": "2rem" }, "fontFamily": { "headline-lg-mobile": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "body-sm": ["Inter"], "title-md": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "title-lg": ["Inter"], "label-lg": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"] }, "fontSize": { "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-primary-container text-on-primary pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.08)]"><div class="h-20 px-margin-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><img alt="Logo Alumbrado Público Tijuana" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1Wk354YmnMpvTnBz0GBxG12JN82l6-bQjnK1FeFZxLz8gjsvnx6gRhEgQR-d2KXMuUO_SN16H3l30O5_d69DXUTogeunmrn6PSEvAjrp-Ng7NekyxpcRlAloYC1oevnplxZHrPYzJWRn6JO1_Qyq1wwpgctDq-_jaOM2sOGoWExPjMXR6Z4GDWG9KssB5eCSm3pZFEMRyqXDs32MiiMpGE36WjKrp4z5M08FDGL5ayF"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-title-md text-title-md text-on-primary truncate font-bold leading-tight">Alumbrado Público Tijuana</span></div><span class="font-label-sm text-label-sm text-on-primary-container truncate font-normal leading-tight">Dirección de Servicios Públicos Municipales</span><div class="flex items-center gap-1 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span><span class="font-label-sm text-label-sm text-surface-container font-semibold truncate">Reportar</span></div></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><div class="relative flex items-center justify-center"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-secondary-fixed rounded-full shadow-sm"></span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-margin-mobile pb-space-lg gap-space-md">
+<!-- Header Institucional Contextual -->
+<div class="flex flex-col gap-space-xs pt-space-sm">
+<div class="inline-flex items-center gap-1.5 self-start px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">add_circle</span>
+<span>DSPM · MOD-REGISTRO 072</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight">
+      Nuevo Reporte de Luminaria
+    </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-snug">
+      Ingresa los datos para registrar la avería en el sistema central de servicios públicos municipales de Tijuana.
+    </p>
+</div>
+<!-- Contenedor Principal del Formulario -->
+<form class="flex flex-col gap-space-md" id="form-reporte" onsubmit="event.preventDefault(); window.simularEnvio();">
+<!-- Campo 1: ID de Luminaria / Código de Poste -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold" for="id-luminaria">
+          ID de Luminaria / Código de Poste <span class="text-error font-bold">*</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">Obligatorio</span>
+</div>
+<div class="relative flex items-center mt-1">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]">pin</span>
+<input class="w-full h-12 pl-10 pr-3 rounded-lg bg-surface-container-low text-on-surface font-title-md text-title-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all" id="id-luminaria" name="id-luminaria" placeholder="Ej. L-0001 o L-0524" required="" type="text" value="L-0001"/>
+</div>
+<!-- Botones Auxiliares Operativos (Acciones de Campo) -->
+<div class="grid grid-cols-2 gap-space-sm mt-space-xs">
+<button class="flex items-center justify-center gap-1.5 h-11 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" id="btn-scan-qr" onclick="window.activarEscaner()" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">qr_code_scanner</span>
+<span>Escanear QR</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 h-11 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" id="btn-padron" onclick="window.consultarPadron()" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">manage_search</span>
+<span>Buscar Padrón</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<span>Código visible en la placa metálica frontal a 2.5m de altura.</span>
+</div>
+</div>
+<!-- Campo 2: Prioridad del Reporte -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold">
+          Prioridad del Reporte <span class="text-error font-bold">*</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Seleccione una</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        La jerarquía operacional determina el tiempo de respuesta de la cuadrilla municipal.
+      </p>
+<div aria-label="Prioridad" class="flex flex-col gap-2 mt-1" role="radiogroup">
+<!-- Prioridad Alta -->
+<label class="relative flex items-start gap-3 p-3 rounded-lg bg-error-container/40 hover:bg-error-container/60 transition-colors cursor-pointer active:scale-[0.99]">
+<input checked="" class="mt-1 w-4 h-4 text-error accent-error cursor-pointer" name="prioridad" type="radio" value="alta"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded font-label-md text-label-md font-bold bg-error text-on-error">
+                ▲ ALTA
+              </span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Prioridad Crítica</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">
+              Avenidas principales, cruces escolares, hospitales o zonas de alto riesgo de Tijuana.
+            </span>
+</div>
+</label>
+<!-- Prioridad Media -->
+<label class="relative flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer active:scale-[0.99]">
+<input class="mt-1 w-4 h-4 text-secondary accent-secondary cursor-pointer" name="prioridad" type="radio" value="media"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded font-label-md text-label-md font-bold bg-secondary-container text-on-secondary-container">
+                ■ MEDIA
+              </span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Prioridad Regular</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">
+              Calles secundarias, áreas habitacionales interiores y colonias interconectadas.
+            </span>
+</div>
+</label>
+<!-- Prioridad Baja -->
+<label class="relative flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer active:scale-[0.99]">
+<input class="mt-1 w-4 h-4 text-on-surface-variant accent-on-surface-variant cursor-pointer" name="prioridad" type="radio" value="baja"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded font-label-md text-label-md font-bold bg-surface-container-highest text-on-surface-variant">
+                ● BAJA
+              </span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Prioridad Preventiva</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">
+              Andadores peatonales, luminarias ornamentales o plazas públicas y parques.
+            </span>
+</div>
+</label>
+</div>
+</div>
+<!-- Campo 3: Fuente u Origen del Reporte -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold">
+          Fuente u Origen del Reporte <span class="text-error font-bold">*</span>
+</label>
+<span class="material-symbols-outlined text-secondary text-[20px]">hub</span>
+</div>
+<div class="grid grid-cols-1 gap-2 mt-1">
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer">
+<input checked="" class="mt-1 w-4 h-4 accent-primary cursor-pointer" name="origen" type="radio" value="ciudadano"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[18px] text-secondary">record_voice_over</span>
+<span>Ciudadano</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+              Llamada 072, Ventanilla de Delegación o App Tijuana Digital.
+            </span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer">
+<input class="mt-1 w-4 h-4 accent-primary cursor-pointer" name="origen" type="radio" value="telemetria"/>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[18px] text-secondary">sensors</span>
+<span>Telemetría</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+              Sensor IoT de luminaria, falla de circuito CFE o corte de fase automático.
+            </span>
+</div>
+</label>
+</div>
+</div>
+<!-- Campo 4: Tipo de Falla Detectada -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold" for="tipo-falla">
+        Tipo de Falla Detectada <span class="text-error font-bold">*</span>
+</label>
+<div class="relative flex items-center mt-1">
+<select class="w-full h-12 pl-3 pr-10 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md appearance-none focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all cursor-pointer" id="tipo-falla" name="tipo-falla" required="">
+<option selected="" value="apagada">Lámpara apagada</option>
+<option value="parpadeo">Lámpara intermitente / parpadeo continuo</option>
+<option value="poste_chocado">Poste chocado o inclinado (Riesgo inminente)</option>
+<option value="diurno">Lámpara encendida en horario diurno</option>
+<option value="cables">Cables expuestos / vandalismo de cableado</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 pointer-events-none text-on-surface-variant text-[20px]">
+          arrow_drop_down
+        </span>
+</div>
+<div class="flex items-center gap-1.5 pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">engineering</span>
+<span>Afecta la clasificación técnica de repuestos asignados en almacén.</span>
+</div>
+</div>
+<!-- Campo 5: Notas Adicionales u Observaciones -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-lg text-label-lg text-on-surface font-semibold" for="notas-observaciones">
+          Notas Adicionales u Observaciones
+        </label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Opcional</span>
+</div>
+<textarea class="w-full p-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary transition-all resize-none mt-1" id="notas-observaciones" name="notas-observaciones" placeholder="Indique referencias geográficas, árboles obstruyendo, estado físico del brazo o peligro para peatones..." rows="3"></textarea>
+</div>
+<!-- Reglas de Negocio / Alertas Dinámicas en Pantalla -->
+<div class="flex flex-col gap-space-sm">
+<!-- Alerta A: Agrupación detectada para L-0001 (Caso activo en pantalla) -->
+<div class="flex items-start gap-3 p-3.5 rounded-xl bg-secondary-fixed/40 text-on-secondary-fixed shadow-sm" id="alerta-agrupacion">
+<span class="material-symbols-outlined text-secondary text-[22px] flex-shrink-0 mt-0.5">merge_type</span>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-bold text-on-secondary-fixed-variant uppercase">
+              Agrupación Detectada en Sistema
+            </span>
+<span class="px-1.5 py-0.2 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">
+              L-0001
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-secondary-fixed mt-1 leading-snug">
+            La luminaria <strong>L-0001</strong> ya cuenta con reporte activo abierto hace <strong>4 horas</strong>. Al enviar este reporte, se <strong>AGRUPARÁ</strong> automáticamente incrementando el conteo de reportes a <strong>16</strong> (Fuente combinada: Ciudadano + Telemetría). No se generará duplicidad de orden de trabajo.
+          </p>
+</div>
+</div>
+<!-- Alerta B: Flujo nuevo registro -->
+<div class="flex items-start gap-3 p-3 rounded-xl bg-surface-container-low text-on-surface-variant" id="alerta-nuevo">
+<span class="material-symbols-outlined text-secondary text-[20px] flex-shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col min-w-0">
+<p class="font-body-sm text-body-sm leading-snug">
+<strong>Nuevo Registro:</strong> Si el ID de luminaria no tiene reportes abiertos en el padrón, se creará un <strong>NUEVO expediente</strong> con estado inicial <span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-error-container text-error font-bold uppercase">Reportada</span>.
+          </p>
+</div>
+</div>
+</div>
+<!-- Botón de Acción Principal -->
+<div class="flex flex-col gap-2 pt-space-xs">
+<button class="w-full h-14 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-title-lg text-title-lg font-bold flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all" id="btn-submit" type="submit">
+<span class="material-symbols-outlined text-[24px]">send</span>
+<span>Enviar Reporte de Falla</span>
+</button>
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant">
+        El reporte queda timbrado con geolocalización y sello temporal oficial del servidor municipal.
+      </p>
+</div>
+</form>
+<!-- Sección Inferior: Estado de Error de Validación Visible (Caso de Fallo en Catastro) -->
+<div class="flex flex-col gap-2 mt-space-sm pt-space-sm border-t-0">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">
+        Simulador de Respuestas de Servidor
+      </span>
+<span class="font-label-sm text-label-sm text-secondary underline cursor-pointer" onclick="window.probarIdInexistente()">
+        Cargar Luminaria L-9999
+      </span>
+</div>
+<div class="flex items-start gap-3 p-3.5 rounded-xl bg-error-container text-on-error-container shadow-sm" id="card-error-catastro">
+<span class="material-symbols-outlined text-error text-[24px] flex-shrink-0 mt-0.5">warning</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-bold text-on-error-container uppercase">
+          Error de Validación Municipal
+        </span>
+<p class="font-body-sm text-body-sm text-on-error-container mt-1 leading-snug">
+          No se encontró la luminaria <strong>'L-9999'</strong> en el catastro municipal. Verifica el número troquelado en el poste o consulta la sección de mapa georreferenciado para validar la clave correspondiente a la delegación.
+        </p>
+<div class="flex items-center gap-3 mt-2.5">
+<button class="inline-flex items-center gap-1 font-label-sm text-label-sm font-bold text-error hover:underline" onclick="window.consultarPadron()" type="button">
+<span class="material-symbols-outlined text-[16px]">map</span>
+<span>Ver mapa de postes cercanos</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Microinteracciones y lógica de demostración sin recargar -->
+<script>
+  window.simularEnvio = function() {
+    const input = document.getElementById('id-luminaria');
+    const valor = input.value.trim().toUpperCase();
+    const btn = document.getElementById('btn-submit');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[22px]">progress_activity</span><span>Registrando en Sistema...</span>';
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      if (valor === 'L-9999') {
+        const errorCard = document.getElementById('card-error-catastro');
+        errorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorCard.classList.add('scale-[1.02]');
+        setTimeout(() => errorCard.classList.remove('scale-[1.02]'), 400);
+      } else {
+        alert('Reporte registrado exitosamente para la luminaria ' + valor + '. Notificación enviada a la central de despacho.');
+      }
+    }, 800);
+  };
+
+  window.activarEscaner = function() {
+    const input = document.getElementById('id-luminaria');
+    const ids = ['L-0001', 'L-0524', 'L-0118', 'L-0942'];
+    const randomId = ids[Math.floor(Math.random() * ids.length)];
+    input.value = randomId;
+    input.focus();
+    actualizarVistaPorId(randomId);
+  };
+
+  window.consultarPadron = function() {
+    alert('Abriendo Padrón Catastral Digital de Alumbrado Tijuana: Zona Centro, Otay Centenario y La Mesa disponibles.');
+  };
+
+  window.probarIdInexistente = function() {
+    const input = document.getElementById('id-luminaria');
+    input.value = 'L-9999';
+    actualizarVistaPorId('L-9999');
+    const errorCard = document.getElementById('card-error-catastro');
+    errorCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  function actualizarVistaPorId(id) {
+    const alertaAgrupacion = document.getElementById('alerta-agrupacion');
+    if (id === 'L-0001') {
+      alertaAgrupacion.style.display = 'flex';
+    } else {
+      alertaAgrupacion.style.display = 'none';
+    }
+  }
+
+  document.getElementById('id-luminaria').addEventListener('input', function(e) {
+    actualizarVistaPorId(e.target.value.trim().toUpperCase());
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(12,35,64,0.06)]" data-active-classes="text-primary-container font-bold"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 text-on-surface-variant hover:text-on-surface transition-colors" data-path="mapa-y-fallas" href="#"><span class="material-symbols-outlined text-[24px]">light</span><span class="font-label-sm text-label-sm tracking-tight text-center">Mapa y Fallas</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 text-on-surface-variant hover:text-on-surface transition-colors" data-path="detalle" href="#"><span class="material-symbols-outlined text-[24px]">content_paste_search</span><span class="font-label-sm text-label-sm tracking-tight text-center">Detalle</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 transition-colors text-primary-container font-bold" data-path="reportar" href="#"><div class="w-10 h-10 -mt-3 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_2px_6px_rgba(12,35,64,0.25)]"><span class="material-symbols-outlined text-[22px]">add_alert</span></div><span class="font-label-sm text-label-sm font-semibold tracking-tight text-center text-primary-container">Reportar</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 text-on-surface-variant hover:text-on-surface transition-colors" data-path="bitacora" href="#"><span class="material-symbols-outlined text-[24px]">history_edu</span><span class="font-label-sm text-label-sm tracking-tight text-center">Bitácora</span></a></div></nav></body></html>
