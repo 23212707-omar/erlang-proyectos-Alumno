@@ -1,7 +1,7 @@
 {application, p70_alumbrado_publico, [
   {description, "Alumbrado publico"},
   {vsn, "0.1.0"},
-  {registered, [p70_alumbrado_publico_sup, p70_alumbrado_publico_server, p70_falla_sup, p70_registro, p70_bitacora]},
+  {registered, [p70_alumbrado_publico_sup, p70_alumbrado_publico_server, p70_falla_sup, p70_registro, p70_bitacora, p70_catalogo, p70_simulador]},
   {mod, {p70_alumbrado_publico_app, []}},
   {applications, [kernel, stdlib, cowboy, recon]},
   {env, []}

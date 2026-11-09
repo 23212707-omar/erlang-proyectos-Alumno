@@ -27,6 +27,30 @@ let filtroPrioridad = 'todas';
 let filtroBitacora = 'todos';
 let fallas = [];
 let eventos = [];
+let puntos = null;           // [[id, lat, lon], ...] del catalogo; se descarga una sola vez
+let proyeccion = null;       // convierte lat/lon a coordenadas del SVG
+let capaBase = '';           // trazo de las 5,000 luminarias, calculado una sola vez
+let seleccion = '';          // luminaria con falla elegida en el mapa
+let sim = null;              // estado del simulador (GET /api/simulador)
+let sectorEscenario = 0;     // cada clic en "falla de circuito" usa el siguiente sector
+const CODIGOS_SECTOR = ['CEN', 'RIO', 'OTA', 'MES', 'SAN', 'EST', 'PLA'];
+const RUTAS_SIM = { iniciar: 'iniciar', detener: 'detener', poste: 'escenarios/poste', circuito: 'escenarios/circuito' };
+
+const LUGARES = { avenida: 'Avenida', calle: 'Calle', cruce_escolar: 'Cruce escolar', hospital: 'Hospital', andador: 'Andador' };
+/* Contorno APROXIMADO (frontera con EE. UU. y costa del Pacifico) y nombres de sector.
+   Son los mismos valores con los que se simula el catalogo; no es cartografia oficial. */
+const BORDE = (lon) => 32.534 + (lon + 117.125) * 0.0923;
+const COSTA = (lat) => -117.125 + (32.534 - lat) * 0.22;
+const SECTORES_MAPA = [   // [nombre, lat, lon, dx, dy, anclaje]
+  ['Playas', 32.5170, -117.1050, 8, 52, 'start'],
+  ['Centro', 32.5320, -117.0380, -30, 44, 'end'],
+  ['Zona Río', 32.5260, -117.0220, 30, -22, 'start'],
+  ['La Mesa', 32.5120, -117.0000, 40, 28, 'start'],
+  ['Sánchez Taboada', 32.4680, -117.0000, 0, 62, 'middle'],
+  ['Otay', 32.5310, -116.9550, 0, 62, 'middle'],
+  ['Zona Este', 32.5000, -116.8850, 0, 84, 'middle']
+];
+const COLOR_ESTADO = { reportada: '#ba1a1a', asignada: '#d97706', reparada: '#4059aa' };
 
 /* ---------- utilidades ---------- */
 
@@ -115,6 +139,82 @@ function chip(activo, accion, valor, texto) {
   return '<button type="button" data-accion="' + accion + '" data-valor="' + valor + '" class="px-3 py-1.5 rounded-full font-label-md text-label-md whitespace-nowrap ' + clases + '">' + texto + '</button>';
 }
 
+/* ---------- mapa SVG del catalogo ---------- */
+
+function crearProyeccion(lista) {
+  let latMin = Infinity, latMax = -Infinity, lonMin = Infinity, lonMax = -Infinity;
+  lista.forEach((p) => {
+    if (p[1] < latMin) { latMin = p[1]; }
+    if (p[1] > latMax) { latMax = p[1]; }
+    if (p[2] < lonMin) { lonMin = p[2]; }
+    if (p[2] > lonMax) { lonMax = p[2]; }
+  });
+  lonMin -= 0.045; latMax += 0.04; latMin -= 0.008;                // espacio para el mar y el rotulo de EE. UU.
+  const k = Math.cos(((latMin + latMax) / 2) * Math.PI / 180);   // la longitud mide menos que la latitud
+  const ancho = 1000, margen = 20;
+  const escala = (ancho - 2 * margen) / Math.max((lonMax - lonMin) * k, 1e-9);
+  const alto = Math.round((latMax - latMin) * escala + 2 * margen);
+  const r1 = (v) => Math.round(v * 10) / 10;
+  return { ancho, alto, latMin, latMax, lonMin, lonMax, xy: (lat, lon) => ({ x: r1(margen + (lon - lonMin) * k * escala), y: r1(margen + (latMax - lat) * escala) }) };
+}
+
+async function asegurarPuntos() {
+  if (puntos) { return true; }
+  const r = await api('GET', '/api/catalogo/puntos');
+  if (!r.ok || !Array.isArray(r.datos.puntos) || !r.datos.puntos.length) { return false; }
+  puntos = r.datos.puntos;
+  proyeccion = crearProyeccion(puntos);
+  capaBase = puntos.map((p) => { const q = proyeccion.xy(p[1], p[2]); return 'M' + q.x + ' ' + q.y + 'h0'; }).join('');
+  return true;
+}
+
+/* Fondo del mapa: mar, territorio de EE. UU., territorio mexicano, frontera y nombres. */
+function fondoMapa() {
+  const p = proyeccion;
+  const lonE = p.lonMax + 0.02, latS = p.latMin - 0.02, latN = p.latMax + 0.03;
+  const pt = (lat, lon) => { const q = p.xy(lat, lon); return q.x + ',' + q.y; };
+  const mexico = [pt(32.534, -117.125), pt(BORDE(lonE), lonE), pt(latS, lonE), pt(latS, COSTA(latS))];
+  const eeuu = [pt(latN, -117.14), pt(latN, lonE), pt(BORDE(lonE), lonE), pt(32.534, -117.125)];
+  const rotulo = (texto, lat, lon, color) => {
+    const q = p.xy(lat, lon);
+    return '<text x="' + q.x + '" y="' + q.y + '" fill="' + color + '" font-size="22" font-weight="700" letter-spacing="2" text-anchor="middle">' + texto + '</text>';
+  };
+  const nombres = SECTORES_MAPA.map((s) => {
+    const q = p.xy(s[1], s[2]);
+    return '<text x="' + (q.x + s[3]) + '" y="' + (q.y + s[4]) + '" text-anchor="' + s[5] + '" font-size="24" font-weight="700" fill="#264191" ' +
+      'stroke="#ffffff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">' + esc(s[0]) + '</text>';
+  }).join('');
+  return '<rect width="100%" height="100%" fill="#d9e6ff"/><polygon points="' + eeuu.join(' ') + '" fill="#e9eaf2"/>' +
+    '<polygon points="' + mexico.join(' ') + '" fill="#ffffff"/>' +
+    '<polyline points="' + pt(32.534, -117.125) + ' ' + pt(BORDE(lonE), lonE) + '" fill="none" stroke="#ba1a1a" stroke-width="3" stroke-dasharray="14 8"/>' +
+    '<polyline points="' + pt(32.534, -117.125) + ' ' + pt(latS, COSTA(latS)) + '" fill="none" stroke="#7d9be8" stroke-width="4"/>' +
+    rotulo('OCÉANO', 32.505, -117.145, '#5f7fcf') + rotulo('PACÍFICO', 32.497, -117.145, '#5f7fcf') + rotulo('ESTADOS UNIDOS', 32.572, -116.99, '#8a8da0') + nombres;
+}
+
+/* marcas: [{lat, lon, color, r, titulo, id?, sel?}]. Con id, el punto se puede tocar. */
+function mapaSvg(marcas) {
+  const dibujadas = marcas.map((m) => {
+    const q = proyeccion.xy(m.lat, m.lon);
+    const borde = m.sel ? ' stroke="#000d21" stroke-width="4"' : ' stroke="#ffffff" stroke-width="2"';
+    const toque = m.id ? ' data-accion="sel-falla" data-id="' + esc(m.id) + '" style="cursor:pointer"' : '';
+    return '<circle cx="' + q.x + '" cy="' + q.y + '" r="' + (m.sel ? m.r + 4 : m.r) + '" fill="' + m.color + '"' + borde + toque + '><title>' + esc(m.titulo) + '</title></circle>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + proyeccion.ancho + ' ' + proyeccion.alto + '" class="w-full h-auto rounded-xl overflow-hidden" style="background:#d9e6ff" role="img" ' +
+    'aria-label="Mapa de luminarias de Tijuana (catálogo simulado)">' + fondoMapa() +
+    '<path d="' + capaBase + '" fill="none" stroke="#b6c4ff" stroke-width="3" stroke-linecap="round"/>' + dibujadas + '</svg>';
+}
+
+function leyendaMapa() {
+  const punto = (color, texto) => '<span class="inline-flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:' + color + '"></span>' + texto + '</span>';
+  return '<div class="flex flex-wrap gap-x-space-md gap-y-space-xs font-label-md text-label-md text-on-surface-variant">' +
+    punto(COLOR_ESTADO.reportada, 'Reportada') + punto(COLOR_ESTADO.asignada, 'Asignada') + punto(COLOR_ESTADO.reparada, 'Reparada') + punto('#b6c4ff', 'Sin falla') + '</div>' +
+    '<div class="font-label-sm text-label-sm text-on-surface-variant">' + puntos.length.toLocaleString('es-MX') + ' luminarias · catálogo simulado, no son datos reales del municipio</div>';
+}
+
+function ubicacionTexto(f) {
+  return f.direccion ? esc(f.direccion) : '';   // la direccion del catalogo ya termina con el sector
+}
+
 /* ---------- rutas ---------- */
 
 function ruta() {
@@ -159,9 +259,10 @@ function vistaMapa() {
         '<span class="material-symbols-outlined text-[20px]" aria-hidden="true">add_circle</span>Reportar falla</a>' +
       '<button type="button" data-accion="actualizar" class="h-12 px-space-md bg-surface-container-high text-on-surface rounded-xl font-label-lg text-label-lg flex items-center gap-1.5">' +
         '<span class="material-symbols-outlined text-[20px] text-secondary" aria-hidden="true">sync</span>Actualizar</button></section>' +
-    '<section class="px-margin-mobile py-space-xs"><div class="rounded-xl bg-surface-container-low p-space-md flex items-start gap-space-sm">' +
-      '<span class="material-symbols-outlined text-secondary" aria-hidden="true">map</span>' +
-      '<p class="font-body-sm text-body-sm text-on-surface-variant">El mapa geográfico se activará cuando cada luminaria tenga coordenadas en el catálogo. Mientras tanto, la lista muestra las mismas fallas.</p></div></section>' +
+    '<section id="caja-sim" class="px-margin-mobile py-space-xs"></section>' +
+    '<section class="px-margin-mobile py-space-xs flex flex-col gap-space-sm">' +
+      '<div id="caja-mapa" class="flex flex-col gap-space-xs"><div class="rounded-xl bg-surface-container-low p-space-md font-body-sm text-body-sm text-on-surface-variant">Cargando mapa…</div></div>' +
+      '<div id="tarjeta-sel"></div></section>' +
     '<section class="px-margin-mobile py-space-xs flex flex-col gap-space-xs">' +
       '<div id="filtros-estado" class="flex gap-space-xs overflow-x-auto"></div>' +
       '<div id="filtros-prioridad" class="flex gap-space-xs overflow-x-auto"></div></section>' +
@@ -170,7 +271,8 @@ function vistaMapa() {
 }
 
 async function cargarMapa() {
-  const r = await api('GET', '/api/mapa/fallas');
+  const [r, rs] = await Promise.all([api('GET', '/api/mapa/fallas'), api('GET', '/api/simulador'), asegurarPuntos()]);
+  if (rs.ok) { sim = rs.datos; }
   if (!r.ok) { aviso('No se pudo actualizar el mapa de fallas.', true); return; }
   fallas = r.datos.fallas || [];
   pintarMapa();
@@ -201,8 +303,76 @@ function pintarMapa() {
                     (ORDEN_PRIORIDAD[a.prioridad] - ORDEN_PRIORIDAD[b.prioridad]) ||
                     (b.reportes - a.reportes) || (a.reportada_en - b.reportada_en));
 
+  pintarMapaSvg(visibles);
+  pintarSim();
   $('#lista-fallas').innerHTML = visibles.length ? visibles.map(tarjetaFalla).join('') :
     '<div class="rounded-xl bg-surface-container-low p-space-lg text-center font-body-md text-on-surface-variant">No hay fallas con estos filtros.</div>';
+}
+
+function pintarSim() {
+  const caja = $('#caja-sim');
+  if (!caja || !sim) { return; }
+  const marcha = !!sim.activo;
+  const dato = (etiqueta, valor) => '<div class="flex flex-col"><span class="font-title-md text-title-md text-primary font-bold">' + esc(valor) +
+    '</span><span class="font-label-sm text-label-sm text-on-surface-variant">' + etiqueta + '</span></div>';
+  const estado = marcha ? insignia('bg-secondary-fixed text-on-secondary-fixed-variant', 'play_circle', 'En marcha') :
+    insignia('bg-surface-container-high text-on-surface-variant', 'pause_circle', 'Detenida');
+  const principal = marcha ?
+    '<button type="button" data-accion="sim-detener" class="h-11 rounded-xl bg-error text-on-error font-label-lg text-label-lg">Detener simulación</button>' :
+    '<button type="button" data-accion="sim-iniciar" class="h-11 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg">Iniciar simulación</button>';
+  caja.innerHTML = '<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">' +
+    '<div class="flex items-center justify-between gap-space-sm"><h2 class="font-title-lg text-title-lg text-primary font-bold">Simulador de reportes</h2>' + estado + '</div>' +
+    '<div class="grid grid-cols-4 gap-space-xs">' + dato('Día', sim.dia) + dato('Reportes', sim.reportes) + dato('Asignadas', sim.asignadas) + dato('Reparadas', sim.reparadas) + '</div>' +
+    '<div class="font-label-md text-label-md text-on-surface-variant">' + esc(sim.nuevas) + ' nuevas · ' + esc(sim.agrupadas) + ' agrupadas · ' + esc(sim.reincidencias) + ' reincidencias</div>' +
+    principal +
+    '<div class="grid grid-cols-2 gap-space-xs">' +
+      '<button type="button" data-accion="sim-poste" class="h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md">15 reportes · mismo poste</button>' +
+      '<button type="button" data-accion="sim-circuito" class="h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md">Falla de circuito (40)</button></div>' +
+    '<p class="font-body-sm text-body-sm text-on-surface-variant">Datos simulados: ' + esc(sim.reportes_por_dia) + ' reportes por día; un día dura ' +
+      Math.round(Number(sim.dia_ms) / 1000) + ' s. 4 cuadrillas atienden hasta 3 fallas cada una, las más urgentes primero.</p></div>';
+}
+
+async function simular(accion) {
+  let cuerpo = {};
+  if (accion === 'poste') {
+    cuerpo = { luminaria: 'L-' + String(1 + Math.floor(Math.random() * 5000)).padStart(4, '0') };
+  } else if (accion === 'circuito') {
+    cuerpo = { circuito: 'C-' + CODIGOS_SECTOR[sectorEscenario % CODIGOS_SECTOR.length] + '-01' };
+    sectorEscenario += 1;
+  }
+  const r = await api('POST', '/api/simulador/' + RUTAS_SIM[accion], cuerpo);
+  if (!r.ok) { aviso('No se pudo ejecutar: ' + (r.datos.error || 'error de conexión'), true); return; }
+  const d = r.datos;
+  if (accion === 'poste') {
+    aviso(d.enviados + ' reportes a ' + d.luminaria + ': ' + d.nuevas + ' falla nueva, ' + d.agrupadas + ' agrupados.', false);
+  } else if (accion === 'circuito') {
+    aviso('Circuito ' + d.circuito + ': ' + d.luminarias + ' luminarias, ' + d.nuevas + ' fallas nuevas.', false);
+  } else {
+    aviso(accion === 'iniciar' ? 'Simulación iniciada.' : 'Simulación detenida.', false);
+  }
+  cargarMapa();
+}
+
+function pintarMapaSvg(visibles) {
+  const caja = $('#caja-mapa');
+  if (!caja) { return; }
+  if (!puntos) {
+    caja.innerHTML = '<div class="rounded-xl bg-surface-container-low p-space-md font-body-sm text-body-sm text-on-surface-variant">No se pudo cargar el catálogo de luminarias; la lista sigue mostrando las fallas.</div>';
+    return;
+  }
+  const marcas = visibles
+    .filter((f) => typeof f.lat === 'number' && typeof f.lon === 'number')
+    .sort((a, b) => ORDEN_ESTADO[b.estado] - ORDEN_ESTADO[a.estado])      // las reportadas quedan encima
+    .map((f) => ({ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: 9, id: f.luminaria,
+                   sel: f.luminaria === seleccion, titulo: f.luminaria + ' · ' + (f.direccion || '') }));
+  caja.innerHTML = mapaSvg(marcas) + leyendaMapa();
+  const f = fallas.find((x) => x.luminaria === seleccion);
+  $('#tarjeta-sel').innerHTML = f ?
+    '<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex items-center justify-between gap-space-sm"><div class="min-w-0">' +
+      '<div class="font-title-md text-title-md text-primary font-bold"># ' + esc(f.luminaria) + '</div>' +
+      '<div class="font-body-sm text-body-sm text-on-surface-variant truncate">' + (ubicacionTexto(f) || 'Sin ubicación en el catálogo') + '</div></div>' +
+      '<a href="#/falla/' + encodeURIComponent(f.luminaria) + '" class="h-10 px-space-md rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center">Ver detalle</a></div>' :
+    '<p class="font-body-sm text-body-sm text-on-surface-variant">Toca un punto de falla en el mapa para ver su ubicación.</p>';
 }
 
 function tarjetaFalla(f) {
@@ -211,7 +381,8 @@ function tarjetaFalla(f) {
   return '<article class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
     '<div class="flex items-start justify-between gap-space-sm"><div>' +
       '<h2 class="font-title-lg text-title-lg text-primary font-bold"># ' + esc(f.luminaria) + '</h2>' +
-      '<span class="font-label-sm text-label-sm text-on-surface-variant">Reportada ' + hace(f.reportada_en) + '</span></div>' +
+      '<span class="font-label-sm text-label-sm text-on-surface-variant">Reportada ' + hace(f.reportada_en) + '</span>' +
+      (f.direccion ? '<div class="font-body-sm text-body-sm text-on-surface mt-1">' + ubicacionTexto(f) + '</div>' : '') + '</div>' +
       '<div class="flex flex-col items-end gap-1">' + insigniaEstado(f.estado) + insigniaPrioridad(f.prioridad) + '</div></div>' +
     '<div class="rounded-xl bg-secondary-fixed/40 p-space-sm flex items-center gap-space-sm">' +
       '<span class="material-symbols-outlined text-secondary" aria-hidden="true">campaign</span><div>' +
@@ -249,7 +420,21 @@ async function cargarDetalle(id) {
     return;
   }
   if (!r.ok) { aviso('No se pudo cargar el detalle.', true); return; }
+  await asegurarPuntos();
   pintarDetalle(r.datos);
+}
+
+function bloqueUbicacion(f) {
+  if (!f.direccion) { return ''; }
+  const fila = (k, v) => '<div class="flex justify-between gap-space-sm font-body-md text-body-md"><span class="text-on-surface-variant">' + k +
+    '</span><span class="text-on-surface text-right">' + esc(v) + '</span></div>';
+  const mini = (puntos && typeof f.lat === 'number' && typeof f.lon === 'number') ?
+    mapaSvg([{ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: 12, sel: true, titulo: f.luminaria }]) : '';
+  return '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
+    '<h2 class="font-title-lg text-title-lg text-primary font-bold">Ubicación</h2>' + mini +
+    fila('Dirección', f.direccion) + fila('Sector', f.sector) + fila('Circuito', f.circuito) +
+    fila('Tipo de lugar', LUGARES[f.lugar] || f.lugar || '') +
+    fila('Coordenadas', Number(f.lat).toFixed(5) + ', ' + Number(f.lon).toFixed(5)) + '</div>';
 }
 
 function pintarDetalle(f) {
@@ -283,7 +468,7 @@ function pintarDetalle(f) {
         '<div class="flex flex-wrap gap-space-xs">' + insigniaEstado(f.estado) + insigniaPrioridad(f.prioridad) + '</div>' +
         (f.reincidencias ? '<div class="rounded-xl bg-error-container p-space-sm text-on-error-container font-label-lg text-label-lg flex items-center gap-2">' +
           '<span class="material-symbols-outlined" aria-hidden="true">replay</span>Reincidencias de esta luminaria: ' + f.reincidencias + '</div>' : '') +
-      '</div>' +
+      '</div>' + bloqueUbicacion(f) +
       '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
         '<div class="flex items-center justify-between"><h2 class="font-title-lg text-title-lg text-primary font-bold">Reportes agrupados</h2>' +
         '<span class="px-2 py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm">' + total + ' en total</span></div>' + barras + '</div>' +
@@ -326,7 +511,7 @@ function vistaReportar() {
         '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
           '<label for="rep-id" class="font-label-lg text-label-lg text-on-surface">ID de luminaria <span class="text-error">*</span></label>' +
           '<input id="rep-id" required maxlength="40" pattern="[A-Za-z0-9_\\-]+" placeholder="L-0001" class="h-12 rounded-xl bg-surface-container-low px-4 font-body-lg text-body-lg" />' +
-          '<span class="font-body-sm text-body-sm text-on-surface-variant">Solo letras, números, guion y guion bajo.</span></div>' +
+          '<span class="font-body-sm text-body-sm text-on-surface-variant">Catálogo simulado: de L-0001 a L-5000.</span></div>' +
         '<fieldset class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-xs">' +
           '<legend class="font-label-lg text-label-lg text-on-surface">Prioridad <span class="text-error">*</span></legend>' +
           radio('prioridad', 'alta', 'Alta · avenidas, cruces escolares, hospitales', false) +
@@ -427,6 +612,8 @@ document.addEventListener('click', (ev) => {
   else if (accion === 'filtro-prioridad') { filtroPrioridad = valor; pintarMapa(); }
   else if (accion === 'filtro-bitacora') { filtroBitacora = valor; pintarBitacora(); }
   else if (accion === 'actualizar') { cargarMapa(); }
+  else if (accion === 'sel-falla') { seleccion = id; pintarMapa(); }
+  else if (accion.startsWith('sim-')) { simular(accion.slice(4)); }
   else if (accion === 'asignar') { accionFalla(id, { accion: 'asignar', cuadrilla: $('#sel-cuadrilla').value }); }
   else if (accion === 'reparar') { accionFalla(id, { accion: 'reparar' }); }
 });
@@ -445,4 +632,4 @@ document.addEventListener('input', (ev) => {
 });
 
 window.addEventListener('hashchange', navegar);
-navegar();
+navegar(); 

@@ -7,6 +7,16 @@
 %%   GET   /api/fallas/:id           detalle de una falla (:id = id de luminaria)
 %%   PATCH /api/fallas/:id           {"accion":"asignar","cuadrilla":"c1"} | {"accion":"reparar"}
 %%   GET   /api/bitacora?limite=N    ultimos eventos (mas reciente primero, N de 1 a 200)
+%%   GET   /api/catalogo/resumen     totales del catalogo simulado por sector
+%%   GET   /api/catalogo/puntos      [[id, lat, lon], ...] de todas las luminarias
+%%   GET   /api/catalogo/lamparas/:id  una luminaria del catalogo
+%%   GET   /api/simulador            estado y contadores del simulador
+%%   POST  /api/simulador/iniciar    inicia el modo continuo (80 reportes por dia simulado)
+%%   POST  /api/simulador/detener    lo detiene
+%%   POST  /api/simulador/escenarios/poste     15 reportes del mismo poste
+%%                                   cuerpo opcional: {"luminaria":"L-0777"}
+%%   POST  /api/simulador/escenarios/circuito  falla de todas las luminarias de un circuito
+%%                                   cuerpo opcional: {"circuito":"C-CEN-01"}
 -module(p70_api_h).
 
 -export([init/2]).
@@ -30,9 +40,14 @@ atender(falla, <<"POST">>, Req0) ->
         {_, error} ->
           responder(400, #{error => <<"fuente invalida">>}, Req1);
         _ ->
-          {ok, _Pid, Resultado} = p70_registro:reportar(Luminaria, Prioridad, Fuente),
-          responder(codigo(Resultado),
-                    #{luminaria => Luminaria, resultado => Resultado}, Req1)
+          case p70_catalogo:buscar(Luminaria) of
+            error ->
+              responder(404, #{error => <<"luminaria no encontrada en el catalogo">>}, Req1);
+            {ok, _} ->
+              {ok, _Pid, Resultado} = p70_registro:reportar(Luminaria, Prioridad, Fuente),
+              responder(codigo(Resultado),
+                        #{luminaria => Luminaria, resultado => Resultado}, Req1)
+          end
       end;
     {error, Req1} ->
       responder(400, #{error => <<"json invalido">>}, Req1)
@@ -64,8 +79,44 @@ atender(falla_id, <<"PATCH">>, Req0) ->
 atender(bitacora, <<"GET">>, Req) ->
   Limite = limite(cowboy_req:parse_qs(Req)),
   responder(200, #{eventos => p70_bitacora:ultimos(Limite)}, Req);
+atender(catalogo_resumen, <<"GET">>, Req) ->
+  responder(200, p70_catalogo:resumen(), Req);
+atender(catalogo_puntos, <<"GET">>, Req) ->
+  responder(200, #{puntos => p70_catalogo:puntos()}, Req);
+atender(catalogo_lampara, <<"GET">>, Req) ->
+  case p70_catalogo:buscar(cowboy_req:binding(id, Req)) of
+    {ok, Luminaria} -> responder(200, Luminaria, Req);
+    error -> responder(404, #{error => <<"luminaria no encontrada en el catalogo">>}, Req)
+  end;
+atender(simulador_estado, <<"GET">>, Req) ->
+  responder(200, p70_simulador:estado(), Req);
+atender(simulador_iniciar, <<"POST">>, Req) ->
+  responder(200, p70_simulador:iniciar(), Req);
+atender(simulador_detener, <<"POST">>, Req) ->
+  responder(200, p70_simulador:detener(), Req);
+atender(simulador_poste, <<"POST">>, Req) ->
+  escenario(<<"luminaria">>, <<"L-0777">>, fun p70_simulador:escenario_poste/1, Req);
+atender(simulador_circuito, <<"POST">>, Req) ->
+  escenario(<<"circuito">>, <<"C-CEN-01">>, fun p70_simulador:escenario_circuito/1, Req);
 atender(_Op, _Metodo, Req) ->
   responder(405, #{error => <<"metodo no permitido">>}, Req).
+
+%% Escenario del simulador: lee un valor de texto opcional del cuerpo y lo pasa a Fun.
+escenario(Clave, Defecto, Fun, Req0) ->
+  case leer_json(Req0) of
+    {ok, Datos, Req1} ->
+      case maps:get(Clave, Datos, Defecto) of
+        Valor when is_binary(Valor) ->
+          case Fun(Valor) of
+            {ok, Resultado} -> responder(200, Resultado, Req1);
+            {error, Razon} -> responder(404, #{error => atom_to_binary(Razon, utf8)}, Req1)
+          end;
+        _ ->
+          responder(400, #{error => <<"valor invalido">>}, Req1)
+      end;
+    {error, Req1} ->
+      responder(400, #{error => <<"json invalido">>}, Req1)
+  end.
 
 accion(Pid, Datos, Req) ->
   case {maps:get(<<"accion">>, Datos, undefined), maps:find(<<"cuadrilla">>, Datos)} of
@@ -105,9 +156,17 @@ resumen(Luminaria, Pid) ->
                reportes => maps:get(reportes, Datos),
                fuentes => contar_fuentes(maps:get(fuentes, Datos)),
                reportada_en => maps:get(reportada_en, Datos)},
-      {ok, maps:merge(Base, maps:with([asignada_a, reparada_en], Datos))}
+      Opcionales = maps:with([asignada_a, reparada_en], Datos),
+      {ok, maps:merge(maps:merge(Base, Opcionales), ubicacion(Luminaria))}
   catch
     exit:_ -> error
+  end.
+
+%% Datos del catalogo (direccion, sector, coordenadas...) si la luminaria esta en el.
+ubicacion(Luminaria) ->
+  case p70_catalogo:buscar(Luminaria) of
+    {ok, L} -> maps:with([direccion, sector, lat, lon, circuito, lugar], L);
+    error -> #{}
   end.
 
 %% [ciudadano, telemetria, ciudadano] -> #{<<"ciudadano">> => 2, <<"telemetria">> => 1}

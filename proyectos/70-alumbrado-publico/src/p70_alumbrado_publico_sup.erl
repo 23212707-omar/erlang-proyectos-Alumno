@@ -9,8 +9,8 @@ start_link() ->
 
 %% rest_for_one: p70_registro depende de p70_falla_sup (guarda los pids de sus hijos).
 %% Si p70_falla_sup se reinicia, el registro se reinicia tambien y no queda con pids
-%% muertos. El orden de la lista es el orden de arranque. p70_bitacora va al final: si
-%% falla, solo se reinicia ella y no se pierden las fallas en curso.
+%% muertos. El orden de la lista es el orden de arranque. p70_bitacora, p70_catalogo y
+%% p70_simulador van al final: si fallan, solo se reinician ellos y no se pierden las fallas en curso.
 init([]) ->
   Children = [
     #{id => p70_alumbrado_publico_server,
@@ -30,6 +30,16 @@ init([]) ->
       type => worker},
     #{id => p70_bitacora,
       start => {p70_bitacora, start_link, []},
+      restart => permanent,
+      shutdown => 5000,
+      type => worker},
+    #{id => p70_catalogo,
+      start => {p70_catalogo, start_link, []},
+      restart => permanent,
+      shutdown => 5000,
+      type => worker},
+    #{id => p70_simulador,
+      start => {p70_simulador, start_link, []},
       restart => permanent,
       shutdown => 5000,
       type => worker}
