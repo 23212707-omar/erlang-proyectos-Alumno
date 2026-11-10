@@ -133,7 +133,7 @@ kill <PID>
 
 ## Supuestos y cifras por verificar
 
-- Las cifras del documento del problema (consumo sodio frente a LED, 8–15 luminarias por cuadrilla al día, meta de 72 h) **aún no están verificadas contra fuentes**; se anotarán en la entrega final.
+- Las cifras del documento del problema (consumo sodio frente a LED, 8–15 luminarias por cuadrilla al día, meta de 72 h) **no se verificaron contra fuentes externas**; el simulador usa parámetros propios (80 reportes por día, 4 cuadrillas, 3 fallas por cuadrilla) y no pretende reflejar datos reales del municipio.
 - El **catálogo es simulado**: 5,000 luminarias generadas con una función determinista alrededor de 7 sectores. No son datos reales del municipio y no siguen las calles.
 - El **contorno del mapa (frontera y costa) es aproximado**, calibrado a mano con un mapa de la ciudad. No es cartografía oficial.
 - Por ahora la llave de agrupación es el **id de luminaria**. Los reportes ciudadanos con direcciones escritas distinto necesitarán una normalización de dirección a id de luminaria (pendiente).
