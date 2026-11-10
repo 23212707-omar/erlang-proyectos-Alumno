@@ -12,7 +12,14 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ## Estado
 
-Avance funcional: backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado, no son datos reales del municipio). Lo pendiente está al final.
+**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
+
+| Qué | Dónde |
+|---|---|
+| Video de la demo (sin voz) | [Loom](https://www.loom.com/share/7e4e065c5a2d4c8fa7ebc59dfeba7b6c) |
+| Manual de uso | [`docs/MANUAL.md`](docs/MANUAL.md) |
+| Evidencias (capturas) | [`evidencias/`](evidencias/README.md) |
+| Diseño de la interfaz | [`design/`](design/) |
 
 ## Arranque
 
@@ -89,19 +96,26 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 | `problema/` | Enunciado del problema |
 | `config/` | `sys.config` y `vm.args` |
 
-## Pendiente
+## Limitaciones conocidas
 
-- [x] Diseñar pantallas en Stitch (`design/`)
-- [x] Modelar el dominio (proceso por falla, supervisores)
-- [x] Endpoints `/api/...` con cowboy
-- [x] Prueba de caos básica (matar una falla y verificar que el resto sobrevive)
-- [x] Catálogo simulado de luminarias (dirección, sector y coordenadas) y mapa en la interfaz
-- [x] Simulación del escenario: 5,000 luminarias, 80 reportes al día, 4 cuadrillas, 15 reportes sobre un poste y circuito de 40
-- [ ] Falla de circuito frente a 40 fallas independientes (hoy se abren 40 fallas, una por luminaria)
-- [ ] Prioridad por criticidad y antigüedad; reincidencia sube a prioridad alta
-- [ ] Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención
-- [ ] Normalización de direcciones para duplicados
-- [ ] Persistencia (ETS o PostgreSQL) y WebSocket o SSE
-- [ ] Métricas `/metrics` con prometheus.erl y diagnóstico con recon
-- [ ] Release con relx + systemd
-- [ ] Prueba de caos documentada y verificación de cifras del problema
+- **Datos simulados.** Las 5,000 luminarias se generan con una función determinista alrededor de 7 sectores; no son datos reales y no siguen las calles. El contorno del mapa (frontera y costa) es aproximado, calibrado a mano.
+- **Falla de circuito.** Hoy un circuito caído abre 40 fallas independientes (una por luminaria); juntarlas en una sola falla de circuito no está implementado.
+- **Sin persistencia.** Si el nodo se reinicia se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual). Los hijos de `p70_falla_sup` son `temporary` por esa razón.
+- **Duplicados por dirección.** La llave de agrupación es el id de luminaria; no hay normalización de direcciones escritas distinto.
+- **Cifras del problema** (consumo, capacidad de cuadrillas, metas de atención) sin verificar contra fuentes.
+- El simulador usa números aleatorios: sus contadores cambian en cada corrida.
+
+## Trabajo futuro
+
+- Falla de circuito como una sola falla, frente a 40 fallas independientes.
+- Prioridad por criticidad y antigüedad; la reincidencia sube a prioridad alta.
+- Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
+- Normalización de direcciones para duplicados.
+- Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
+- Métricas `/metrics` con prometheus.erl y diagnóstico con recon.
+- Release con relx y servicio systemd.
+- Prueba de caos documentada y verificación de las cifras del problema.
+
+## Uso de IA
+
+Un asistente de IA ayudó a planear y redactar los prompts y el código base de cada paso. Cada prompt se revisó antes de enviarlo a OpenCode (modelo GLM-5.3-Flash Free, flujo Plan y luego Build), cada comando se aprobó uno por uno y los resultados se verificaron con la salida real de `rebar3 eunit` y `curl` en la Pi.
