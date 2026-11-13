@@ -17,7 +17,7 @@ Volver al [README](../README.md) · [Manual de uso](../docs/MANUAL.md)
 | 3 | `03-api-catalogo.png` | `curl` del catálogo: resumen (5,000 luminarias, 128 circuitos, 7 sectores), una luminaria y el 404 de `L-9999`. | Solución funcional |
 | 4 | `04-api-flujo-reporte.png` | `curl` del flujo de reporte: nueva, agrupada, asignar, reparar, detalle y bitácora. | Solución funcional, integración |
 | 5 | `05-diseno-stitch.png` | Las pantallas diseñadas en Google Stitch (`design/`). | Diseño de la interfaz (UX) |
-| 6 | `06-mapa-sectores.png` | Mapa con el océano, la frontera, los 7 sectores y las fallas por color. | Integración backend / interfaz |
+| 6 | `06-mapa-sectores.png` | Mapa de Tijuana con los 7 sectores y las fallas por color (captura de la versión con mapa SVG; la interfaz ahora usa un mapa real de OpenStreetMap). | Integración backend / interfaz |
 | 7 | `07-simulador-en-marcha.png` | Tarjeta del simulador con día, reportes, asignadas y reparadas, y el mapa llenándose. | Demo, integración |
 | 8 | `08-escenario-poste.png` | 15 reportes sobre el mismo poste: aviso "1 falla nueva, 14 agrupados" (una sola falla, no 15). | Solución funcional (caso difícil) |
 | 9 | `09-escenario-circuito.png` | Falla de un circuito completo (C-CEN-01): aviso de 40 luminarias y cúmulo de puntos rojos en el centro del mapa. | Solución funcional (caso difícil) |

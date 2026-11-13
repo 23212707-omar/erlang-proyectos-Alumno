@@ -17,7 +17,7 @@ Requisitos: Erlang/OTP 27 y rebar3 instalados con asdf (como en la práctica ant
 git clone -b feat/p70-alumbrado-publico https://github.com/23212707-omar/erlang-proyectos-Alumno ~/erlang-proyectos-Alumno
 cd ~/erlang-proyectos-Alumno/proyectos/70-alumbrado-publico
 rebar3 compile
-rebar3 eunit          # esperado: 34 tests, 0 failures
+rebar3 eunit          # esperado: 35 tests, 0 failures
 ```
 
 Arranque en segundo plano (puerto 8080):
@@ -53,7 +53,7 @@ Con el nodo corriendo, la interfaz está en `http://localhost:8080`. Si la Pi es
 
 | Vista | Qué permite |
 |---|---|
-| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; lista ordenada por urgencia (actualización cada 5 s) |
+| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); lista ordenada por urgencia (actualización cada 5 s) |
 | Detalle | Ubicación con mini mapa, reportes agrupados por fuente, reincidencias, ciclo de vida y acciones (asignar, reparar) |
 | Reportar | Formulario con aviso de si el reporte creó una falla nueva, se agrupó o fue reincidencia |
 | Bitácora | Eventos reales con búsqueda por ID y filtros |
@@ -129,6 +129,7 @@ kill <PID>
 | Respuesta 404 en `POST .../falla` | La luminaria no está en el catálogo (ids `L-0001` a `L-5000`) | Usar un id válido, por ejemplo `L-0001` |
 | El mapa muestra solo una nota de error | No cargó `/api/catalogo/puntos` | Revisar que el nodo esté arriba y recargar con Ctrl+Shift+R |
 | La interfaz se ve sin estilos | El navegador no tiene internet (Tailwind y fuentes vienen de CDN) | Conectar el navegador a internet |
+| El mapa se ve como dibujo simple, sin calles | Leaflet o las teselas de OpenStreetMap no cargaron; la interfaz usa el mapa SVG de respaldo | Conectar el navegador a internet y recargar con Ctrl+Shift+R |
 | `localhost:8080` no abre desde la PC | Falta el túnel SSH hacia la Pi | Abrir el túnel con `-L 8080:localhost:8080` |
 
 ## Supuestos y cifras por verificar
@@ -140,4 +141,4 @@ kill <PID>
 - La **falla de circuito** abre hoy 40 fallas independientes (una por luminaria); juntarlas en una sola falla de circuito está pendiente.
 - La simulación usa números aleatorios (`rand`): los contadores del modo continuo cambian en cada corrida. Los escenarios y el catálogo sí son reproducibles.
 - No hay persistencia: si el nodo se reinicia, se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual).
-- La reincidencia aún no sube la prioridad automáticamente; la nueva falla toma la prioridad que indica el reporte.
+- La reincidencia sube la prioridad de la falla nueva un nivel (baja → media → alta), a partir de la mayor entre la prioridad de la falla anterior y la del reporte.

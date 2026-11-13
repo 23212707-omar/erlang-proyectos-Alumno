@@ -3,7 +3,8 @@
 %%   nueva        -> no habia falla abierta; se abrio una.
 %%   agrupada     -> ya habia una abierta; el reporte se sumo a ella (duplicado).
 %%   reincidencia -> la anterior ya estaba reparada; se abrio una nueva y se
-%%                   cuenta como reincidencia de esa luminaria.
+%%                   cuenta como reincidencia de esa luminaria. La nueva falla
+%%                   sube un nivel de prioridad (baja -> media -> alta).
 -module(p70_registro).
 -behaviour(gen_server).
 
@@ -63,7 +64,8 @@ agrupar(Pid, Luminaria, Prioridad, Fuente, State) ->
       anotar(agrupada, Luminaria, Prioridad, Fuente),
       {reply, {ok, Pid, agrupada}, State};
     {error, falla_cerrada} ->
-      abrir(Luminaria, Prioridad, Fuente, reincidencia,
+      Anterior = prioridad_de(Pid),
+      abrir(Luminaria, subir(mas_urgente(Anterior, Prioridad)), Fuente, reincidencia,
             sumar_reincidencia(Luminaria, State))
   catch
     %% La falla murio justo antes de que llegara el aviso 'DOWN'.
@@ -83,3 +85,21 @@ anotar(Tipo, Luminaria, Prioridad, Fuente) ->
 
 sumar_reincidencia(Luminaria, #{reincidencias := R} = State) ->
   State#{reincidencias := R#{Luminaria => maps:get(Luminaria, R, 0) + 1}}.
+
+%% La prioridad de la falla anterior queda visible en su mapa de datos aunque
+%% este reparada; de ahi parte la escalada de la nueva falla.
+prioridad_de(Pid) ->
+  {_, Datos} = p70_falla:estado(Pid),
+  maps:get(prioridad, Datos).
+
+mas_urgente(A, B) ->
+  Orden = #{baja => 1, media => 2, alta => 3},
+  case {maps:get(A, Orden), maps:get(B, Orden)} of
+    {Rango_A, Rango_B} when Rango_A >= Rango_B -> A;
+    _ -> B
+  end.
+
+%% Una luminaria que reincide es mas urgente que la reportada por primera vez.
+subir(baja) -> media;
+subir(media) -> alta;
+subir(alta) -> alta.

@@ -14,6 +14,7 @@ registro_test_() ->
    [fun quince_reportes_misma_falla/1,
     fun cuarenta_luminarias_cuarenta_fallas/1,
     fun reincidencia_abre_falla_nueva/1,
+    fun reincidencia_sube_prioridad/1,
     fun falla_muerta_se_reemplaza/1]}.
 
 %% Caso del escenario: 15 reportes del mismo poste -> una sola falla.
@@ -45,6 +46,26 @@ reincidencia_abre_falla_nueva(_Sup) ->
     {ok, Pid2, reincidencia} = p70_registro:reportar(L, alta, ciudadano),
     ?assertNotEqual(Pid1, Pid2),
     ?assertEqual(1, p70_registro:reincidencias(L))
+  end).
+
+%% La reincidencia sube un nivel de prioridad: baja -> media -> alta (tope).
+reincidencia_sube_prioridad(_Sup) ->
+  ?_test(begin
+    L = <<"L-0250">>,
+    {ok, P1, nueva} = p70_registro:reportar(L, baja, ciudadano),
+    ?assertMatch({reportada, #{prioridad := baja}}, p70_falla:estado(P1)),
+    ok = p70_falla:asignar(P1, cuadrilla_1),
+    ok = p70_falla:reparar(P1),
+    {ok, P2, reincidencia} = p70_registro:reportar(L, baja, ciudadano),
+    ?assertMatch({reportada, #{prioridad := media}}, p70_falla:estado(P2)),
+    ok = p70_falla:asignar(P2, cuadrilla_1),
+    ok = p70_falla:reparar(P2),
+    {ok, P3, reincidencia} = p70_registro:reportar(L, baja, ciudadano),
+    ?assertMatch({reportada, #{prioridad := alta}}, p70_falla:estado(P3)),
+    ok = p70_falla:asignar(P3, cuadrilla_1),
+    ok = p70_falla:reparar(P3),
+    {ok, P4, reincidencia} = p70_registro:reportar(L, baja, ciudadano),
+    ?assertMatch({reportada, #{prioridad := alta}}, p70_falla:estado(P4))
   end).
 
 %% Si la falla muere, el siguiente reporte abre una nueva sin romper el registro.

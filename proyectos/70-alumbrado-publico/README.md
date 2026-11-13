@@ -25,7 +25,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ```bash
 rebar3 compile
-rebar3 eunit          # 34 tests, 0 failures
+rebar3 eunit          # 35 tests, 0 failures
 rebar3 shell          # API e interfaz en http://localhost:8080
 ```
 
@@ -57,7 +57,7 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 - **Un proceso por falla:** cada una tiene su estado; si una muere, las demás siguen.
 - **Hijos `temporary` en `p70_falla_sup`:** reiniciarlos los dejaría vacíos y perderían sus reportes; la recuperación del estado está pendiente.
 - **`rest_for_one`:** `p70_registro` guarda los pids de `p70_falla_sup`, por eso va después y se reinicia con él.
-- **Reporte tras reparar:** no reabre la falla; se abre una nueva y se cuenta como reincidencia.
+- **Reporte tras reparar:** no reabre la falla; se abre una nueva, se cuenta como reincidencia y sube un nivel de prioridad (baja → media → alta), a partir de la mayor entre la de la falla anterior y la del reporte.
 - **Catálogo en ETS:** se genera de forma determinista (`erlang:phash2`), así que siempre salen las mismas 5,000 luminarias. Las lecturas van directo a la tabla, sin pasar por el proceso. Va al final del árbol, junto con la bitácora y el simulador, para que su caída no reinicie las fallas.
 - **Contorno aproximado:** las coordenadas se mantienen al sur de la frontera y al este de la costa (valores aproximados, calibrados con un mapa de la ciudad).
 - **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito de 40) se ejecutan bajo demanda.
@@ -83,7 +83,7 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 
 ## Interfaz
 
-Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa SVG con las 5,000 luminarias, el océano, la frontera y los sectores, con las fallas encima (rojo reportada, ámbar asignada, azul reparada), y una tarjeta del simulador. El detalle muestra la ubicación con un mini mapa. Carga Tailwind y las fuentes desde internet.
+Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa real de Tijuana (Leaflet con teselas de OpenStreetMap; si no hay internet se usa un mapa SVG de respaldo) con las 5,000 luminarias y las fallas encima (rojo reportada, ámbar asignada, azul reparada), y una tarjeta del simulador. El detalle muestra la ubicación con un mini mapa. Carga Tailwind, las fuentes, Leaflet y las teselas del mapa desde internet.
 
 ## Estructura
 
@@ -108,7 +108,7 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 ## Trabajo futuro
 
 - Falla de circuito como una sola falla, frente a 40 fallas independientes.
-- Prioridad por criticidad y antigüedad; la reincidencia sube a prioridad alta.
+- Prioridad por criticidad y antigüedad.
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
 - Normalización de direcciones para duplicados.
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.

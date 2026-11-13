@@ -31,6 +31,9 @@ let puntos = null;           // [[id, lat, lon], ...] del catalogo; se descarga 
 let proyeccion = null;       // convierte lat/lon a coordenadas del SVG
 let capaBase = '';           // trazo de las 5,000 luminarias, calculado una sola vez
 let seleccion = '';          // luminaria con falla elegida en el mapa
+let mapaLf = null;           // mapa real (Leaflet) de la vista principal
+let capaFallasLf = null;     // marcas de las fallas sobre el mapa real
+let miniLf = null;           // mini mapa de la vista de detalle
 let sim = null;              // estado del simulador (GET /api/simulador)
 let sectorEscenario = 0;     // cada clic en "falla de circuito" usa el siguiente sector
 const CODIGOS_SECTOR = ['CEN', 'RIO', 'OTA', 'MES', 'SAN', 'EST', 'PLA'];
@@ -204,6 +207,64 @@ function mapaSvg(marcas) {
     '<path d="' + capaBase + '" fill="none" stroke="#b6c4ff" stroke-width="3" stroke-linecap="round"/>' + dibujadas + '</svg>';
 }
 
+/* ---------- mapa real (Leaflet + OpenStreetMap) ----------
+   Si no se pudo cargar Leaflet (sin internet), se usa el mapa SVG de arriba. */
+
+const hayLeaflet = () => typeof window.L !== 'undefined';
+const TESELAS_LF = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const ATRIBUCION_LF = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+function crearMapaLf(contenedor, opciones) {
+  const mapa = L.map(contenedor, Object.assign({ preferCanvas: true, minZoom: 10, maxZoom: 18 }, opciones || {}));
+  L.tileLayer(TESELAS_LF, { maxZoom: 19, attribution: ATRIBUCION_LF }).addTo(mapa);
+  return mapa;
+}
+
+function marcaLf(m, renderer) {
+  return L.circleMarker([m.lat, m.lon], {
+    renderer, radius: m.sel ? m.r + 4 : m.r, weight: m.sel ? 3 : 1.5,
+    color: m.sel ? '#000d21' : '#ffffff', fillColor: m.color, fillOpacity: 1
+  });
+}
+
+/* marcas: las mismas que usa mapaSvg. El mapa se crea una sola vez y despues solo se actualizan las marcas. */
+function pintarMapaReal(caja, marcas) {
+  let div = $('#mapa-leaflet');
+  if (!div || !mapaLf || mapaLf.getContainer() !== div) {
+    if (mapaLf) { try { mapaLf.remove(); } catch (e) { /* el contenedor ya no existe */ } mapaLf = null; }
+    caja.innerHTML = '<div id="mapa-leaflet" class="w-full rounded-xl overflow-hidden" style="height:380px;isolation:isolate" role="img" ' +
+      'aria-label="Mapa real de Tijuana con las luminarias (catálogo simulado)"></div>' + leyendaMapa();
+    div = $('#mapa-leaflet');
+    mapaLf = crearMapaLf(div);
+    const renderer = L.canvas({ padding: 0.5 });
+    puntos.forEach((q) => {
+      L.circleMarker([q[1], q[2]], { renderer, radius: 1.6, stroke: false, fillColor: '#4059aa', fillOpacity: 0.35, interactive: false }).addTo(mapaLf);
+    });
+    mapaLf.fitBounds(L.latLngBounds(puntos.map((q) => [q[1], q[2]])), { padding: [12, 12] });
+    mapaLf.rendererFallas = renderer;
+    capaFallasLf = L.layerGroup().addTo(mapaLf);
+  }
+  capaFallasLf.clearLayers();
+  marcas.forEach((m) => {
+    const marca = marcaLf(m, mapaLf.rendererFallas);
+    marca.bindTooltip(m.titulo);
+    if (m.id) { marca.on('click', () => { seleccion = m.id; pintarMapa(); }); }
+    marca.addTo(capaFallasLf);
+  });
+}
+
+/* Mini mapa de la vista de detalle: una sola luminaria, sin arrastre ni zoom con la rueda. */
+function iniciarMiniMapa() {
+  if (miniLf) { try { miniLf.remove(); } catch (e) { /* ya no existe */ } miniLf = null; }
+  const div = $('#mini-mapa');
+  if (!div || !hayLeaflet()) { return; }
+  try {
+    const lat = Number(div.dataset.lat), lon = Number(div.dataset.lon);
+    miniLf = crearMapaLf(div, { scrollWheelZoom: false, minZoom: 12 }).setView([lat, lon], 16);
+    marcaLf({ lat, lon, color: div.dataset.color, r: 9, sel: true }, L.canvas()).addTo(miniLf);
+  } catch (e) { miniLf = null; }
+}
+
 function leyendaMapa() {
   const punto = (color, texto) => '<span class="inline-flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:' + color + '"></span>' + texto + '</span>';
   return '<div class="flex flex-wrap gap-x-space-md gap-y-space-xs font-label-md text-label-md text-on-surface-variant">' +
@@ -365,7 +426,12 @@ function pintarMapaSvg(visibles) {
     .sort((a, b) => ORDEN_ESTADO[b.estado] - ORDEN_ESTADO[a.estado])      // las reportadas quedan encima
     .map((f) => ({ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: 9, id: f.luminaria,
                    sel: f.luminaria === seleccion, titulo: f.luminaria + ' · ' + (f.direccion || '') }));
-  caja.innerHTML = mapaSvg(marcas) + leyendaMapa();
+  if (hayLeaflet()) {
+    try { pintarMapaReal(caja, marcas); }
+    catch (e) { mapaLf = null; caja.innerHTML = mapaSvg(marcas) + leyendaMapa(); }
+  } else {
+    caja.innerHTML = mapaSvg(marcas) + leyendaMapa();
+  }
   const f = fallas.find((x) => x.luminaria === seleccion);
   $('#tarjeta-sel').innerHTML = f ?
     '<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex items-center justify-between gap-space-sm"><div class="min-w-0">' +
@@ -428,7 +494,12 @@ function bloqueUbicacion(f) {
   if (!f.direccion) { return ''; }
   const fila = (k, v) => '<div class="flex justify-between gap-space-sm font-body-md text-body-md"><span class="text-on-surface-variant">' + k +
     '</span><span class="text-on-surface text-right">' + esc(v) + '</span></div>';
-  const mini = (puntos && typeof f.lat === 'number' && typeof f.lon === 'number') ?
+  const hayCoord = typeof f.lat === 'number' && typeof f.lon === 'number';
+  const color = COLOR_ESTADO[f.estado] || '#ba1a1a';
+  const mini = (hayCoord && hayLeaflet()) ?
+    '<div id="mini-mapa" data-lat="' + f.lat + '" data-lon="' + f.lon + '" data-color="' + color + '" class="w-full rounded-xl overflow-hidden" style="height:200px;isolation:isolate" ' +
+      'role="img" aria-label="Ubicación de la luminaria en el mapa"></div>' :
+    (puntos && hayCoord) ?
     mapaSvg([{ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: 12, sel: true, titulo: f.luminaria }]) : '';
   return '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
     '<h2 class="font-title-lg text-title-lg text-primary font-bold">Ubicación</h2>' + mini +
@@ -488,6 +559,7 @@ function pintarDetalle(f) {
           ' class="h-12 rounded-xl bg-secondary text-on-secondary font-label-lg text-label-lg disabled:opacity-40 disabled:cursor-not-allowed">Marcar como reparada</button>' +
         '<p class="font-body-sm text-body-sm text-on-surface-variant">Solo se puede reparar una falla que ya está asignada. Una falla reparada no se reabre: un nuevo reporte crea una falla nueva y cuenta como reincidencia.</p>' +
       '</div></section>';
+  iniciarMiniMapa();
 }
 
 async function accionFalla(id, cuerpo) {

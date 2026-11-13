@@ -6,7 +6,9 @@
       min-height: max(884px, 100dvh);
     }
   </style>
-  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>.leaflet-container img.leaflet-tile,.leaflet-container .leaflet-marker-icon{max-width:none!important;max-height:none!important}.leaflet-container{font-family:Inter,sans-serif}</style>
+</head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen">
 <header class="fixed top-0 w-full z-50 bg-primary-container text-on-primary pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.08)]">
   <div class="h-20 px-margin-mobile flex items-center justify-between gap-space-sm">
     <div class="flex items-center gap-space-sm min-w-0 flex-1">
@@ -41,5 +43,6 @@
       <span class="material-symbols-outlined text-[24px]" aria-hidden="true">history_edu</span><span class="font-label-sm text-label-sm tracking-tight text-center">Bitácora</span></a>
   </div>
 </nav>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="app.js"></script>
 </body></html>
