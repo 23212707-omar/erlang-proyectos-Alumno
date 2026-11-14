@@ -7,7 +7,7 @@
 -module(p70_catalogo).
 -behaviour(gen_server).
 
--export([start_link/0, buscar/1, resumen/0, puntos/0, generar/1, luminarias_de_circuito/1]).
+-export([start_link/0, buscar/1, resumen/0, puntos/0, generar/1, luminarias_de_circuito/1, circuito/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2]).
 
 -define(TABLA, p70_catalogo).
@@ -51,6 +51,20 @@ luminarias_de_circuito(Circuito) ->
     lists:sort([Id || {Id, #{circuito := C}} <- ets:tab2list(?TABLA), C =:= Circuito])
   catch
     error:badarg -> []
+  end.
+
+%% Resumen de un circuito para tratarlo como UNA falla: {ok, Mapa} | error.
+%% lat/lon es el centro de sus luminarias; afectadas, cuantas tiene.
+circuito(Circuito) ->
+  Luminarias = [L || Id <- luminarias_de_circuito(Circuito), {ok, L} <- [buscar(Id)]],
+  case Luminarias of
+    [] ->
+      error;
+    [#{sector := Sector} | _] ->
+      N = length(Luminarias),
+      Promedio = fun(Clave) -> redondear(lists:sum([maps:get(Clave, L) || L <- Luminarias]) / N) end,
+      {ok, #{circuito => Circuito, sector => Sector, afectadas => N,
+             lat => Promedio(lat), lon => Promedio(lon)}}
   end.
 
 %% Totales por sector (luminarias y circuitos).

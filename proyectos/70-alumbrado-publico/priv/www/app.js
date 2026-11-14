@@ -388,7 +388,7 @@ function pintarSim() {
     principal +
     '<div class="grid grid-cols-2 gap-space-xs">' +
       '<button type="button" data-accion="sim-poste" class="h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md">15 reportes · mismo poste</button>' +
-      '<button type="button" data-accion="sim-circuito" class="h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md">Falla de circuito (40)</button></div>' +
+      '<button type="button" data-accion="sim-circuito" class="h-11 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md">Falla de circuito</button></div>' +
     '<p class="font-body-sm text-body-sm text-on-surface-variant">Datos simulados: ' + esc(sim.reportes_por_dia) + ' reportes por día; un día dura ' +
       Math.round(Number(sim.dia_ms) / 1000) + ' s. 4 cuadrillas atienden hasta 3 fallas cada una, las más urgentes primero.</p></div>';
 }
@@ -407,7 +407,8 @@ async function simular(accion) {
   if (accion === 'poste') {
     aviso(d.enviados + ' reportes a ' + d.luminaria + ': ' + d.nuevas + ' falla nueva, ' + d.agrupadas + ' agrupados.', false);
   } else if (accion === 'circuito') {
-    aviso('Circuito ' + d.circuito + ': ' + d.luminarias + ' luminarias, ' + d.nuevas + ' fallas nuevas.', false);
+    const efecto = d.nuevas ? '1 falla nueva' : d.reincidencias ? '1 reincidencia' : 'agrupada con la falla ya abierta';
+    aviso('Circuito ' + d.circuito + ': ' + d.luminarias + ' luminarias afectadas, ' + efecto + '.', false);
   } else {
     aviso(accion === 'iniciar' ? 'Simulación iniciada.' : 'Simulación detenida.', false);
   }
@@ -424,7 +425,7 @@ function pintarMapaSvg(visibles) {
   const marcas = visibles
     .filter((f) => typeof f.lat === 'number' && typeof f.lon === 'number')
     .sort((a, b) => ORDEN_ESTADO[b.estado] - ORDEN_ESTADO[a.estado])      // las reportadas quedan encima
-    .map((f) => ({ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: 9, id: f.luminaria,
+    .map((f) => ({ lat: f.lat, lon: f.lon, color: COLOR_ESTADO[f.estado] || '#ba1a1a', r: f.afectadas ? 15 : 9, id: f.luminaria,
                    sel: f.luminaria === seleccion, titulo: f.luminaria + ' · ' + (f.direccion || '') }));
   if (hayLeaflet()) {
     try { pintarMapaReal(caja, marcas); }
@@ -535,7 +536,7 @@ function pintarDetalle(f) {
       '<a href="#/" class="text-secondary font-label-lg text-label-lg">← Volver a la lista</a>' +
       '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
         '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Ficha de incidencia</span>' +
-        '<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">Luminaria ' + esc(f.luminaria) + '</h1>' +
+        '<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">' + (f.afectadas ? 'Circuito ' : 'Luminaria ') + esc(f.luminaria) + '</h1>' +
         '<div class="flex flex-wrap gap-space-xs">' + insigniaEstado(f.estado) + insigniaPrioridad(f.prioridad) + '</div>' +
         (f.reincidencias ? '<div class="rounded-xl bg-error-container p-space-sm text-on-error-container font-label-lg text-label-lg flex items-center gap-2">' +
           '<span class="material-symbols-outlined" aria-hidden="true">replay</span>Reincidencias de esta luminaria: ' + f.reincidencias + '</div>' : '') +
@@ -667,7 +668,7 @@ function pintarBitacora() {
     const t = textoEvento(e);
     return '<article class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-xs">' +
       '<div class="flex items-center justify-between gap-space-sm">' +
-        '<a href="#/falla/' + encodeURIComponent(e.luminaria) + '" class="font-title-md text-title-md text-primary font-bold">Luminaria ' + esc(e.luminaria) + '</a>' +
+        '<a href="#/falla/' + encodeURIComponent(e.luminaria) + '" class="font-title-md text-title-md text-primary font-bold">' + (String(e.luminaria).startsWith('C-') ? 'Circuito ' : 'Luminaria ') + esc(e.luminaria) + '</a>' +
         insignia(t.clases, t.icono, t.titulo) + '</div>' +
       '<p class="font-body-md text-body-md text-on-surface">' + esc(t.texto) + '</p>' +
       '<span class="font-label-sm text-label-sm text-on-surface-variant">' + hace(e.hora) + ' · ' + hora(e.hora) + '</span></article>';

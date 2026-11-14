@@ -7,7 +7,8 @@
 %%
 %% Escenarios puntuales para la demo:
 %%   escenario_poste(Luminaria)      15 reportes del mismo poste -> una sola falla.
-%%   escenario_circuito(Circuito)    todas las luminarias de un circuito fallan a la vez.
+%%   escenario_circuito(Circuito)    cae un circuito completo -> UNA sola falla de circuito
+%%                                   (id del circuito), con todas sus luminarias afectadas.
 %%
 %% tick/0 ejecuta un paso sincrono (lo usan las pruebas, sin esperar al reloj).
 -module(p70_simulador).
@@ -68,12 +69,12 @@ handle_call({poste, Luminaria}, _From, S) ->
       {reply, {ok, Resumen}, S}
   end;
 handle_call({circuito, Circuito}, _From, S) ->
-  case p70_catalogo:luminarias_de_circuito(Circuito) of
-    [] ->
+  case p70_catalogo:circuito(Circuito) of
+    error ->
       {reply, {error, circuito_desconocido}, S};
-    Ids ->
-      Resultados = [reportar(Id, alta, telemetria) || Id <- Ids],
-      Resumen = maps:merge(#{circuito => Circuito, luminarias => length(Ids)}, tabular(Resultados)),
+    {ok, #{afectadas := N}} ->
+      Resultado = reportar(Circuito, alta, telemetria),
+      Resumen = maps:merge(#{circuito => Circuito, luminarias => N}, tabular([Resultado])),
       {reply, {ok, Resumen}, S}
   end.
 

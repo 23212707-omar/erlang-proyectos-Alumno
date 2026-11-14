@@ -65,11 +65,17 @@ escenario_de_quince_reportes_en_un_poste(_Sup) ->
     ?assertEqual({error, luminaria_desconocida}, p70_simulador:escenario_poste(<<"L-9999">>))
   end).
 
-%% Escenario: falla de un circuito completo (40 luminarias).
+%% Escenario: falla de un circuito completo (40 luminarias) = UNA sola falla.
 escenario_de_circuito_completo(_Sup) ->
   ?_test(begin
     {ok, Resumen} = p70_simulador:escenario_circuito(<<"C-CEN-01">>),
-    ?assertMatch(#{luminarias := 40, nuevas := 40, agrupadas := 0}, Resumen),
-    ?assertEqual(40, map_size(p70_registro:activas())),
+    ?assertMatch(#{luminarias := 40, nuevas := 1, agrupadas := 0}, Resumen),
+    ?assertEqual(1, map_size(p70_registro:activas())),
+    {ok, Pid} = p70_registro:buscar(<<"C-CEN-01">>),
+    ?assertMatch({reportada, #{prioridad := alta, reportes := 1}}, p70_falla:estado(Pid)),
+    %% Avisar otra vez del mismo circuito se agrupa en la falla ya abierta.
+    {ok, Repetido} = p70_simulador:escenario_circuito(<<"C-CEN-01">>),
+    ?assertMatch(#{nuevas := 0, agrupadas := 1}, Repetido),
+    ?assertMatch({reportada, #{reportes := 2}}, p70_falla:estado(Pid)),
     ?assertEqual({error, circuito_desconocido}, p70_simulador:escenario_circuito(<<"C-XXX-99">>))
   end).

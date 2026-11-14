@@ -42,7 +42,7 @@ setsid nohup rebar3 shell --name p70_alumbrado_publico@127.0.0.1 \
 | `GET /api/simulador` | Estado y contadores del simulador | 200 |
 | `POST /api/simulador/iniciar` y `/detener` | Inicia o detiene el modo continuo (80 reportes por día simulado, un día = 1 minuto) | 200 |
 | `POST /api/simulador/escenarios/poste` | 15 reportes sobre un poste. Cuerpo opcional `{"luminaria":"L-0777"}` | 200, o 404 si no está en el catálogo |
-| `POST /api/simulador/escenarios/circuito` | Falla de un circuito completo. Cuerpo opcional `{"circuito":"C-CEN-01"}` | 200, o 404 si no existe |
+| `POST /api/simulador/escenarios/circuito` | Falla de un circuito completo: **una sola falla** con el id del circuito. Cuerpo opcional `{"circuito":"C-CEN-01"}` | 200, o 404 si no existe |
 | `GET /` | Interfaz web (`priv/www`) | HTML |
 
 El `POST /api/lamparas/:id/falla` valida la luminaria contra el catálogo: los ids van de `L-0001` a `L-5000` y cualquier otro responde **404**.
@@ -96,7 +96,7 @@ curl -s -X POST localhost:8080/api/simulador/escenarios/poste -H 'content-type: 
 # L-0777: enviados 15, nuevas 1, agrupadas 14            (15 reportes -> 1 sola falla)
 
 curl -s -X POST localhost:8080/api/simulador/escenarios/circuito -H 'content-type: application/json' -d '{}'
-# C-CEN-01: luminarias 40, nuevas 40                     (hoy: 40 fallas independientes)
+# C-CEN-01: luminarias 40, nuevas 1                      (una sola falla de circuito; repetirlo da nuevas 0, agrupadas 1)
 
 curl -s localhost:8080/api/mapa/fallas | grep -o '"luminaria"' | wc -l
 # 41
@@ -138,7 +138,7 @@ kill <PID>
 - El **catálogo es simulado**: 5,000 luminarias generadas con una función determinista alrededor de 7 sectores. No son datos reales del municipio y no siguen las calles.
 - El **contorno del mapa (frontera y costa) es aproximado**, calibrado a mano con un mapa de la ciudad. No es cartografía oficial.
 - Por ahora la llave de agrupación es el **id de luminaria**. Los reportes ciudadanos con direcciones escritas distinto necesitarán una normalización de dirección a id de luminaria (pendiente).
-- La **falla de circuito** abre hoy 40 fallas independientes (una por luminaria); juntarlas en una sola falla de circuito está pendiente.
+- La **falla de circuito** es una sola falla (id del circuito, con sus 40 luminarias afectadas, ubicada en su centro). No se enlaza con las fallas individuales de sus luminarias, que son independientes. En la interfaz, cada clic en "Falla de circuito" usa el siguiente sector; para repetir el mismo circuito (y ver el agrupado) se usa la API.
 - La simulación usa números aleatorios (`rand`): los contadores del modo continuo cambian en cada corrida. Los escenarios y el catálogo sí son reproducibles.
 - No hay persistencia: si el nodo se reinicia, se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual).
 - La reincidencia sube la prioridad de la falla nueva un nivel (baja → media → alta), a partir de la mayor entre la prioridad de la falla anterior y la del reporte.

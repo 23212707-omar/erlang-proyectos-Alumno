@@ -20,7 +20,7 @@ Volver al [README](../README.md) · [Manual de uso](../docs/MANUAL.md)
 | 6 | `06-mapa-sectores.png` | Mapa de Tijuana con los 7 sectores y las fallas por color (captura de la versión con mapa SVG; la interfaz ahora usa un mapa real de OpenStreetMap). | Integración backend / interfaz |
 | 7 | `07-simulador-en-marcha.png` | Tarjeta del simulador con día, reportes, asignadas y reparadas, y el mapa llenándose. | Demo, integración |
 | 8 | `08-escenario-poste.png` | 15 reportes sobre el mismo poste: aviso "1 falla nueva, 14 agrupados" (una sola falla, no 15). | Solución funcional (caso difícil) |
-| 9 | `09-escenario-circuito.png` | Falla de un circuito completo (C-CEN-01): aviso de 40 luminarias y cúmulo de puntos rojos en el centro del mapa. | Solución funcional (caso difícil) |
+| 9 | `09-escenario-circuito.png` | Falla de un circuito completo (C-CEN-01): **una sola falla** con 40 luminarias afectadas, punto grande en el centro del mapa. Si tu captura 09 es de la versión anterior (cúmulo de 40 puntos), reemplázala. | Solución funcional (caso difícil) |
 | 10 | `10-detalle-ubicacion.png` | Detalle de una falla con mini mapa, dirección, sector, circuito, tipo de lugar y coordenadas. | Integración backend / interfaz |
 | 11 | `11-bitacora.png` | Bitácora de eventos, del más reciente al más antiguo, con búsqueda por ID y filtros. | Solución funcional |
 | 12 | `12-prueba-de-caos.png` | Se mata una falla con `exit(P, kill)`: el conteo de hijos baja de 41 a 40, el supervisor lo reporta sin reiniciarla y `p70_registro:buscar/1` ya no la encuentra; las demás siguen vivas. | Solución funcional (tolerancia a fallos), argumentación técnica |

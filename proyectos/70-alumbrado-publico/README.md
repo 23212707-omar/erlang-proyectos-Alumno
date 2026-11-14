@@ -60,7 +60,7 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 - **Reporte tras reparar:** no reabre la falla; se abre una nueva, se cuenta como reincidencia y sube un nivel de prioridad (baja → media → alta), a partir de la mayor entre la de la falla anterior y la del reporte.
 - **Catálogo en ETS:** se genera de forma determinista (`erlang:phash2`), así que siempre salen las mismas 5,000 luminarias. Las lecturas van directo a la tabla, sin pasar por el proceso. Va al final del árbol, junto con la bitácora y el simulador, para que su caída no reinicie las fallas.
 - **Contorno aproximado:** las coordenadas se mantienen al sur de la frontera y al este de la costa (valores aproximados, calibrados con un mapa de la ciudad).
-- **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito de 40) se ejecutan bajo demanda.
+- **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito caído de 40 luminarias) se ejecutan bajo demanda.
 
 ## API
 
@@ -77,7 +77,7 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 | `GET /api/simulador` | Estado y contadores del simulador. |
 | `POST /api/simulador/iniciar` · `/detener` | Inicia o detiene el modo continuo. |
 | `POST /api/simulador/escenarios/poste` | 15 reportes sobre un mismo poste (cuerpo opcional `{"luminaria":"L-0777"}`). Resultado: 1 falla nueva y 14 agrupadas. |
-| `POST /api/simulador/escenarios/circuito` | Falla de todas las luminarias de un circuito (cuerpo opcional `{"circuito":"C-CEN-01"}`): 40 fallas. |
+| `POST /api/simulador/escenarios/circuito` | Falla de un circuito completo (cuerpo opcional `{"circuito":"C-CEN-01"}`): **una sola falla** con el id del circuito y `afectadas` = 40, ubicada en el centro de sus luminarias. Si el circuito ya tiene una falla abierta, el reporte se agrupa. 404 si no existe. |
 
 `POST /api/lamparas/:id/falla` valida la luminaria contra el catálogo: los ids van de `L-0001` a `L-5000` y cualquier otro responde 404.
 
@@ -99,7 +99,7 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 ## Limitaciones conocidas
 
 - **Datos simulados.** Las 5,000 luminarias se generan con una función determinista alrededor de 7 sectores; no son datos reales y no siguen las calles. El contorno del mapa (frontera y costa) es aproximado, calibrado a mano.
-- **Falla de circuito.** Hoy un circuito caído abre 40 fallas independientes (una por luminaria); juntarlas en una sola falla de circuito no está implementado.
+- **Falla de circuito.** Es una falla única (id del circuito) y no desglosa las luminarias; no se enlaza con las fallas individuales de sus postes, que son independientes.
 - **Sin persistencia.** Si el nodo se reinicia se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual). Los hijos de `p70_falla_sup` son `temporary` por esa razón.
 - **Duplicados por dirección.** La llave de agrupación es el id de luminaria; no hay normalización de direcciones escritas distinto.
 - **Cifras del problema** (consumo, capacidad de cuadrillas, metas de atención) sin verificar contra fuentes.
@@ -107,7 +107,7 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 
 ## Trabajo futuro
 
-- Falla de circuito como una sola falla, frente a 40 fallas independientes.
+- Enlazar la falla de circuito con las fallas individuales de sus luminarias.
 - Prioridad por criticidad y antigüedad.
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
 - Normalización de direcciones para duplicados.

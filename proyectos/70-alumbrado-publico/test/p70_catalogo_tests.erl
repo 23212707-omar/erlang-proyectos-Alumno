@@ -55,5 +55,10 @@ buscar_existente_e_inexistente(_Pid) ->
     ?assertMatch({ok, #{id := <<"L-0001">>, sector := _, lat := _, lon := _}},
                  p70_catalogo:buscar(<<"L-0001">>)),
     ?assertMatch({ok, #{id := <<"L-5000">>}}, p70_catalogo:buscar(<<"L-5000">>)),
-    ?assertEqual(error, p70_catalogo:buscar(<<"L-9999">>))
+    ?assertEqual(error, p70_catalogo:buscar(<<"L-9999">>)),
+    %% Resumen de un circuito completo (para la falla de circuito).
+    {ok, Circuito} = p70_catalogo:circuito(<<"C-CEN-01">>),
+    ?assertMatch(#{circuito := <<"C-CEN-01">>, afectadas := 40, sector := _}, Circuito),
+    ?assert(is_float(maps:get(lat, Circuito))),
+    ?assertEqual(error, p70_catalogo:circuito(<<"C-XXX-99">>))
   end).

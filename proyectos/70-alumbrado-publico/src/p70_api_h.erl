@@ -15,7 +15,7 @@
 %%   POST  /api/simulador/detener    lo detiene
 %%   POST  /api/simulador/escenarios/poste     15 reportes del mismo poste
 %%                                   cuerpo opcional: {"luminaria":"L-0777"}
-%%   POST  /api/simulador/escenarios/circuito  falla de todas las luminarias de un circuito
+%%   POST  /api/simulador/escenarios/circuito  falla de un circuito completo (UNA sola falla, id = circuito)
 %%                                   cuerpo opcional: {"circuito":"C-CEN-01"}
 -module(p70_api_h).
 
@@ -163,6 +163,15 @@ resumen(Luminaria, Pid) ->
   end.
 
 %% Datos del catalogo (direccion, sector, coordenadas...) si la luminaria esta en el.
+%% Una falla de circuito usa el id del circuito ("C-CEN-01"): se ubica en el centro de sus luminarias.
+ubicacion(<<"C-", _/binary>> = Circuito) ->
+  case p70_catalogo:circuito(Circuito) of
+    {ok, #{afectadas := N, sector := Sector, lat := Lat, lon := Lon}} ->
+      #{direccion => iolist_to_binary(["Circuito ", Circuito, ", ", integer_to_list(N), " luminarias"]),
+        sector => Sector, lat => Lat, lon => Lon, circuito => Circuito, afectadas => N};
+    error ->
+      #{}
+  end;
 ubicacion(Luminaria) ->
   case p70_catalogo:buscar(Luminaria) of
     {ok, L} -> maps:with([direccion, sector, lat, lon, circuito, lugar], L);
