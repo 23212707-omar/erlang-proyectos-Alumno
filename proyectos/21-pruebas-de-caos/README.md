@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/arbol (topologia viva), POST /api/caos/matar, SSE de reinicios
 - **Metricas:** reinicios por supervisor, intensidad/periodo alcanzado, tiempo de recuperacion
 - **Prueba de caos:** subir la tasa de muertes hasta agotar la intensidad del supervisor y observar la escalada
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -3,7 +3,7 @@
 ## Reportar una vulnerabilidad
 
 No abras un issue público. Usa los
-[avisos de seguridad privados de GitHub](https://github.com/tectijuana/erlang-proyectos/security/advisories/new)
+[avisos de seguridad privados de GitHub](https://github.com/tectijuana/logicfun-proyectos/security/advisories/new)
 y se responde en un plazo razonable.
 
 ## Alcance

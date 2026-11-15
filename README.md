@@ -1,6 +1,6 @@
-# erlang-proyectos
+# logicfun-proyectos
 
-[![CI](https://github.com/tectijuana/erlang-proyectos/actions/workflows/ci.yml/badge.svg)](https://github.com/tectijuana/erlang-proyectos/actions/workflows/ci.yml)
+[![CI](https://github.com/tectijuana/logicfun-proyectos/actions/workflows/ci.yml/badge.svg)](https://github.com/tectijuana/logicfun-proyectos/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Erlang/OTP 27](https://img.shields.io/badge/Erlang%2FOTP-27-a90533.svg)
 

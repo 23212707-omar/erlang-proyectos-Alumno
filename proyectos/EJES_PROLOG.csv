@@ -1,0 +1,82 @@
+n,proyecto,eje_principal,eje_secundario,nivel,fuente_nivel,foco
+01,Vinedos,experto,politicas,Intermedio,catalogo,Cuando regar/proteger/fumigar y cuando NO confiar en el dato; helada bloquea riego
+02,Invernadero,experto,transiciones,Intermedio,catalogo,Modo seguro cuando falla un sensor; ventilacion/humedad/CO2
+03,Riego por zonas,restricciones,politicas,Intermedio,propuesto,Calendarizar valvulas con caudal maximo y prioridades
+04,Apiario o ganado,experto,-,Intermedio,propuesto,Dispositivo que dejo de reportar vs anomalia real
+05,Estacion meteorologica,experto,-,Inicial,catalogo,Clasificar condiciones y alertas a partir de promedios
+06,Estacionamiento inteligente,restricciones,politicas,Intermedio,catalogo,Reservas sin traslape y disponibilidad por franja
+07,Control de acceso,politicas,transiciones,Intermedio,propuesto,Permisos por rol/horario y revocacion de credenciales
+08,Monitor de energia,experto,politicas,Intermedio,propuesto,Alarmas por umbral y agregacion por piso
+09,Semaforos o cruceros,restricciones,transiciones,Intermedio,propuesto,Fases compatibles sin conflicto en el crucero
+10,API REST con cowboy y PostgreSQL,politicas,-,Intermedio,catalogo,Autorizacion y validacion de peticiones como reglas
+11,Chat o notificaciones,politicas,-,Inicial,propuesto,Quien puede ver/escribir en que sala
+12,Cola de trabajos,grafos,transiciones,Intermedio,catalogo,Dependencias entre trabajos; orden valido y ciclos
+13,Rate limiter / cache,politicas,-,Inicial,catalogo,Reglas de limite por plan/cliente y expiracion
+14,Acortador de URLs,politicas,-,Inicial,catalogo,Validar URL/alias y reglas de colision
+15,Cluster de 2-3 nodos,restricciones,grafos,Avanzado,catalogo,Donde replicar el estado y quien toma el control si cae un nodo
+16,Broker MQTT simple,politicas,transiciones,Avanzado,catalogo,Coincidencia de topics con comodines por unificacion
+17,Servidor de juego,grafos,transiciones,Intermedio,propuesto,Jugada legal y mejor jugada por busqueda
+18,Subasta o reservas,politicas,transiciones,Avanzado,catalogo,Reglas de puja valida y adjudicacion sin ambiguedad
+19,Observabilidad,experto,-,Intermedio,propuesto,Diagnosticar causa probable desde metricas
+20,Release y despliegue,grafos,-,Intermedio,propuesto,Orden de arranque y dependencias de servicios
+21,Pruebas de caos,transiciones,experto,Avanzado,catalogo,Invariantes: que secuencias de eventos dejan el sistema sano
+22,Torre de control TIJ,transiciones,grafos,Avanzado,catalogo,Transiciones legales de un vuelo y cascada de demoras por aeronave
+23,Puertas de abordar,restricciones,-,Intermedio,propuesto,Asignar puertas sin conflicto y reasignar
+24,Cruce CBX / puente peatonal,restricciones,politicas,Intermedio,propuesto,Capacidad por hora y apertura de carriles
+25,Garitas San Ysidro y Otay,grafos,experto,Intermedio,propuesto,Mejor garita/carril segun espera y tipo de viaje
+26,Central camionera / rutas urbanas,grafos,-,Intermedio,propuesto,Rutas; trasbordos y llegada estimada
+27,Taxis o rides,restricciones,grafos,Intermedio,propuesto,Emparejar conductor y pasajero con restricciones
+28,Puerto de Ensenada,restricciones,-,Avanzado,propuesto,Turnos de atraque y asignacion de gruas
+29,Flotilla de reparto,grafos,restricciones,Avanzado,propuesto,Reasignar entregas con ventanas y capacidad
+30,Bicicletas o scooters compartidos,restricciones,grafos,Intermedio,propuesto,Rebalanceo entre estaciones
+31,Control de pista y rampa,restricciones,politicas,Avanzado,catalogo,Secuenciar movimientos con separacion minima y prioridad
+32,Linea de produccion,grafos,experto,Intermedio,propuesto,Cuello de botella y efecto de un paro en el flujo
+33,OEE de maquinas,experto,-,Inicial,propuesto,Clasificar causas de perdida de disponibilidad
+34,Almacen / inventario,politicas,grafos,Intermedio,catalogo,Reglas de reabasto y trazabilidad de lotes
+35,Control de calidad,experto,politicas,Intermedio,propuesto,Semaforo de rechazo por reglas de muestreo
+36,Mantenimiento predictivo,experto,-,Avanzado,propuesto,Reglas de falla con evidencia combinada y explicacion
+37,Cadena de frio,experto,politicas,Intermedio,propuesto,Excursiones de temperatura y destino del producto
+38,Andon digital,transiciones,politicas,Inicial,propuesto,Escalamiento por tiempo y por nivel
+39,Sala de urgencias,experto,restricciones,Avanzado,catalogo,Clasificacion de triage y asignacion de consultorios
+40,Camas de hospital,restricciones,transiciones,Intermedio,propuesto,Asignar cama segun perfil y ciclo limpieza/alta
+41,Signos vitales,experto,-,Intermedio,propuesto,Alarmas combinadas sobre varios signos
+42,Farmacia,politicas,experto,Intermedio,propuesto,Receta valida; caducidades e interacciones
+43,Citas medicas,restricciones,politicas,Intermedio,catalogo,Agenda sin traslapes y reglas de recordatorio
+44,Banco de sangre,politicas,-,Intermedio,propuesto,Compatibilidad ABO/Rh y prioridad por caducidad
+45,Control de laboratorios,restricciones,-,Intermedio,propuesto,Reservas de salas y equipos sin conflicto
+46,Asistencia por QR,politicas,-,Inicial,propuesto,Reglas de asistencia/retardo/falta
+47,Cafeteria,politicas,-,Inicial,propuesto,Combos; prioridad de pedidos y tiempo estimado
+48,Biblioteca,politicas,transiciones,Intermedio,propuesto,Prestamos; multas y fila de reservas
+49,Estacionamiento del campus,restricciones,politicas,Intermedio,propuesto,Cajones por edificio y permisos por tipo de usuario
+50,Examen en linea,transiciones,politicas,Intermedio,propuesto,Eventos validos del examen y tolerancia a reconexion
+51,Tablero de avisos,politicas,-,Inicial,propuesto,Audiencia por carrera/grupo con herencia de reglas
+52,Calidad del aire,experto,-,Inicial,catalogo,Nivel de contaminacion y recomendacion por pm2.5
+53,Paneles solares,experto,restricciones,Intermedio,propuesto,Cuando consumir; almacenar o vender energia
+54,Gestion de agua,experto,-,Inicial,catalogo,Fuga probable por balance de presion/consumo
+55,Residuos,grafos,restricciones,Intermedio,propuesto,Ruta de recoleccion segun niveles de llenado
+56,Sismos,experto,-,Intermedio,propuesto,Alerta por magnitud; profundidad y cercania
+57,Incendios forestales,experto,grafos,Intermedio,propuesto,Riesgo de incendio y propagacion entre canones
+58,Playa y oleaje,experto,politicas,Inicial,catalogo,Bandera de seguridad segun condiciones
+59,Punto de venta,politicas,transiciones,Intermedio,catalogo,Descuentos; impuestos y reglas de corte de caja
+60,Restaurante,restricciones,transiciones,Intermedio,propuesto,Asignar mesas/comandas y tiempos de cocina
+61,Cotizador de divisas,politicas,-,Inicial,propuesto,Reglas de alertas y de spread
+62,Billetera virtual,politicas,transiciones,Avanzado,propuesto,Invariantes de transferencia sin doble gasto
+63,Reservas de hotel,restricciones,-,Intermedio,propuesto,Disponibilidad por fecha sin sobreventa
+64,Taquilla de eventos,restricciones,politicas,Avanzado,catalogo,Asientos; limites por comprador y sobreventa cero
+65,Subasta de ganado o productos,politicas,transiciones,Intermedio,propuesto,Reglas de puja; reserva y empates
+66,Mercado de abastos / tianguis,restricciones,grafos,Intermedio,propuesto,Casar pedidos con comerciantes y repartidores
+67,Centro de emergencias 911,restricciones,grafos,Avanzado,catalogo,Despacho por prioridad; cercania y unidades disponibles
+68,Alarmas de domicilio,experto,transiciones,Intermedio,propuesto,Falso positivo vs real y escalamiento
+69,Camaras y accesos,politicas,-,Inicial,propuesto,Consultas por rango de tiempo y reglas de acceso
+70,Alumbrado publico,grafos,restricciones,Intermedio,propuesto,Priorizar reparaciones en el mapa
+71,Proteccion civil,restricciones,politicas,Intermedio,propuesto,Asignar damnificados a albergues con inventario
+72,Torneo de esports,grafos,transiciones,Intermedio,propuesto,Brackets como arbol y avance de rondas
+73,Quiniela del Mundial,politicas,-,Inicial,propuesto,Reglas de puntos y desempates del ranking
+74,Radio o streaming,politicas,-,Inicial,propuesto,Votos; elegibilidad y orden de reproduccion
+75,Carreras simuladas,transiciones,politicas,Intermedio,propuesto,Eventos validos de carrera y pagos de apuestas
+76,Mesa de domino o loteria en linea,transiciones,politicas,Intermedio,propuesto,Jugada legal y deteccion de fin de mano
+77,Valle de Guadalupe, bodega,transiciones,experto,Intermedio,propuesto,Fases de fermentacion y alertas por tanque
+78,Cultivo de fresa o tomate,politicas,grafos,Intermedio,propuesto,Trazabilidad de cosecha hasta el lote
+79,Acuacultura,experto,-,Intermedio,propuesto,Oxigeno/temperatura y decision de alimentar
+80,Cerveceria artesanal,transiciones,restricciones,Intermedio,propuesto,Etapas del lote y ocupacion de fermentadores
+81,Gestion de ganado,experto,grafos,Intermedio,propuesto,Salud; pesaje y rutas de pastoreo

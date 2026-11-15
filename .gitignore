@@ -26,3 +26,6 @@ opencode.json
 .cursor/
 bitacora/
 .obsidian/
+
+# Soluciones de referencia de los ejercicios Prolog (solo docente)
+proyectos/*/prolog/solucion/

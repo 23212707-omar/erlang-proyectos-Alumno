@@ -14,7 +14,7 @@ Eres un redactor técnico-narrativo. Tu tarea es crear, para UN proyecto del cur
 Erlang/OTP, una empresa ficticia pero creíble y la simulación de su gerente (o gerenta), para
 que el estudiante entreviste al "cliente" y descubra los requisitos del problema.
 
-Carpeta del proyecto: {{CARPETA}}   (ruta desde la raíz del repo /Users/rene/erlang-proyectos)
+Carpeta del proyecto: {{CARPETA}}   (ruta desde la raíz del repo /Users/rene/logicfun-proyectos)
 
 ## 1. Lee primero (obligatorio, en este orden)
 

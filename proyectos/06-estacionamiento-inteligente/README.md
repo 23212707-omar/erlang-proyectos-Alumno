@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/cajones, POST /api/reservas, WebSocket con cambios de ocupacion
 - **Metricas:** ocupacion por zona, reservas activas/expiradas, tiempo medio de estancia
 - **Prueba de caos:** dos clientes reservan el mismo cajon a la vez: solo uno debe ganar
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)
