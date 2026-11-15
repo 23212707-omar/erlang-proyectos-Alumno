@@ -74,6 +74,8 @@ Volver al [README](../README.md) · [Manual de uso](../docs/MANUAL.md)
 
 ![prueba de caos](12-prueba-de-caos.png)
 
+Esta captura es de una primera prueba (matar una falla). La prueba completa, con tres procesos matados y su recuperación, está grabada en [`caos.cast`](caos.cast) (se reproduce con `asciinema play caos.cast`); la tabla de lo esperado y lo ocurrido está en el [README](../README.md#prueba-de-caos).
+
 ### 13. Flujo con el agente (Uso de IA)
 
 ![plan](13a-opencode-plan.png)

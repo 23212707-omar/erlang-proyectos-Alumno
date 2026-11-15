@@ -120,6 +120,22 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 
 **Supuestos propios.** Se simulan 5,000 luminarias (una escala de la ciudad, que tiene unas 77 mil), 80 reportes por día simulado, 4 cuadrillas y un máximo de 3 fallas asignadas a la vez por cuadrilla. Un día simulado dura un minuto. La prioridad depende del tipo de lugar y la reincidencia sube un nivel.
 
+## Prueba de caos
+
+Se grabó con asciinema en la Raspberry Pi 4 virtual (`evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo` y `p70_simulador`.
+
+| # | Qué se mató | Qué se esperaba | Qué ocurrió |
+|---|---|---|---|
+| 1 | La falla de L-0100 (proceso `p70_falla`, hijo `temporary` de `p70_falla_sup`) | La falla de L-0101 sigue viva; el registro olvida la muerta; un nuevo reporte abre otra falla | El supervisor registró `child_terminated, reason: killed` y no la revivió. `is_process_alive` de la otra falla dio `true`; `GET /api/fallas/L-0100` devolvió "falla no encontrada"; el siguiente reporte dio `nueva` |
+| 2 | `p70_falla_sup` (supervisor de todas las fallas) | Se reinicia junto con lo que depende de él; se pierden las fallas en curso; el sistema sigue atendiendo | El supervisor raíz reinició `p70_falla_sup` y `p70_registro` con pids nuevos, además de bitácora, catálogo (regenerado) y simulador, porque van después en la lista. `GET /api/mapa/fallas` devolvió `{"fallas":[]}` y el siguiente reporte de L-0100 dio `nueva` |
+| 3 | `p70_catalogo` (dueño de la tabla ETS) | La tabla se regenera igual; las fallas abiertas no se tocan porque el registro va antes en el árbol | Se reiniciaron solo `p70_catalogo` y `p70_simulador`. El resumen devolvió `total: 5000` (128 circuitos) y L-0200 siguió en estado `reportada` con su reporte |
+
+Conclusiones:
+- Una falla individual puede morir sin afectar a las demás: es la razón de usar un proceso por falla y de que los hijos sean `temporary` (una falla muerta se reemplaza con el siguiente reporte, no se revive con un estado viejo).
+- Matar `p70_falla_sup` es el caso más caro: se pierden las fallas en curso y la bitácora, porque no hay persistencia. El sistema se recupera solo y sigue atendiendo, pero ese estado no vuelve (ver limitaciones).
+- El orden del árbol cumple su propósito: el catálogo y el simulador pueden fallar sin tocar las fallas en curso.
+- Los escenarios del documento del problema se cubren con tests y simulador: 15 reportes del mismo poste se agrupan en una sola falla (`escenarios/poste`), y reportar la misma luminaria escrita distinto también (`POST /api/reportes`).
+
 ## Limitaciones conocidas
 
 - **Datos simulados.** Las 5,000 luminarias se generan con una función determinista alrededor de 7 sectores; no son datos reales y no siguen las calles. El contorno del mapa (frontera y costa) es aproximado, calibrado a mano.
@@ -137,7 +153,6 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
 - Métricas `/metrics` con prometheus.erl y diagnóstico con recon.
 - Release con relx y servicio systemd.
-- Prueba de caos documentada (ver `evidencias/`).
 
 ## Uso de IA
 
