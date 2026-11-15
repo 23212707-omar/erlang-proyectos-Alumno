@@ -96,13 +96,30 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 | `problema/` | Enunciado del problema |
 | `config/` | `sys.config` y `vm.args` |
 
+## Cifras del problema: qué se verificó
+
+Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del problema son órdenes de magnitud; esto es lo que sí se pudo contrastar con fuentes y lo que no.
+
+| Cifra del documento | Resultado | Fuente |
+|---|---|---|
+| Sodio de 100 a 250 W | **Confirmada** como potencia de lámpara de vapor de sodio de alta presión (con balasto el consumo real es algo mayor) | [movilidadelectrica.com](https://movilidadelectrica.com/vapores-y-halogenuros-frente-a-led-en-alumbrado-publico), [ULPGC](https://accedacris.ulpgc.es/bitstream/10553/116773/1/Ahorro%20energ%c3%a9tico%20en%20instalaciones%20de%20iluminaci%c3%b3n.pdf) |
+| LED consume 50 a 60 % menos | **Parcial**: un fabricante declara 52 % menos frente al sodio de alta presión; otro autor señala que la ventaja depende del caso | [eseficiencia.es](https://www.eseficiencia.es/2021/09/20/ledvance-lanza-nueva-familia-lamparas-osram-nav-led-alumbrado-publico), [energias-renovables.com](https://www.energias-renovables.com/eficiencia/el-uso-de-luminarias-led-reduciria-en) |
+| LED dura 50,000 h o más (≈ 12 años a 12 h diarias) | **Confirmada**: las fichas comerciales declaran 50,000 h a L70; 50,000 h ÷ (12 h × 365) ≈ 11.4 años | [Philips](https://images.philips.com/is/content/PhilipsConsumer/PDFDownloads/Chile/ODLI20180109_001_UPD_es_CL_OUTDOOR_CHILE_2017_DIGITAL_FINAL_4.pdf), [Construex](https://construex.com.mx/exhibidores/alumbrado_publico/producto/campana_flat_industrial) |
+| Decenas de miles de luminarias en Tijuana | **Confirmada**: unas 77 mil, con más de dos terceras partes ya en LED en 2024 | [El Imparcial](https://www.elimparcial.com/tij/tijuana/2024/08/26/moderniza-tijuana-68-del-sistema-de-alumbrado/), [Zeta](https://zetatijuana.com/2023/02/calles-y-colonias-de-tijuana-a-oscuras-mas-de-50-mil-luminarias-requieren-modernizarse/) |
+| Meta de atención de 72 h | **Es razonable, pero varía**: Cali y Chihuahua usan 72 h como plazo máximo; Guadalajara reporta 48 h de promedio; León da 5 días hábiles a un circuito apagado | [Cali](https://www.cali.gov.co/serviciospublicos/publicaciones/166647/conozca-la-nueva-pagina-para-reportar-danos-en-el-alumbrado-publico/), [Chihuahua](https://www.tiempo.com.mx/local/chihuahua-invitan-reportar-fallas-alumbrado-publico-marca-cambio/), [Guadalajara](https://elcongresista.mx/politica/jalisco/disminuye-60-fallas-de-alumbrado-publico-en-guadalajara), [León](https://leon.gob.mx/modulos/img/documentos/obrapublica/mantenimiento%20integral/Alumbrado%20p%C3%BAblico/PR-DGOP-DMI-01%20Alumbrado%20p%C3%BAblico%20(SVD).pdf) |
+| Causas de falla: robo de cable, golpes a postes | **Consistente**: el Ayuntamiento de Tijuana atribuye las fallas sobre todo a vandalismo, daños al cableado y accidentes vehiculares | [El Imparcial (2026)](https://www.elimparcial.com/tij/tijuana/2026/07/16/vandalismo-y-danos-en-cableado-provocan-la-mayoria-de-las-fallas-en-luminarias-de-tijuana-sdtua/) |
+| Una cuadrilla repara de 8 a 15 luminarias al día | **No se encontró fuente.** Se usa como supuesto propio | — |
+| El pago a la CFE depende de lo medido o estimado | **No verificada en detalle**; solo se confirmó que el derecho de alumbrado público se cobra en el recibo de la CFE | [Zeta](https://zetatijuana.com/2023/02/calles-y-colonias-de-tijuana-a-oscuras-mas-de-50-mil-luminarias-requieren-modernizarse/) |
+
+**Supuestos propios.** Se simulan 5,000 luminarias (una escala de la ciudad, que tiene unas 77 mil), 80 reportes por día simulado, 4 cuadrillas y un máximo de 3 fallas asignadas a la vez por cuadrilla. Un día simulado dura un minuto. La prioridad depende del tipo de lugar y la reincidencia sube un nivel.
+
 ## Limitaciones conocidas
 
 - **Datos simulados.** Las 5,000 luminarias se generan con una función determinista alrededor de 7 sectores; no son datos reales y no siguen las calles. El contorno del mapa (frontera y costa) es aproximado, calibrado a mano.
 - **Falla de circuito.** Es una falla única (id del circuito) y no desglosa las luminarias; no se enlaza con las fallas individuales de sus postes, que son independientes.
 - **Sin persistencia.** Si el nodo se reinicia se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual). Los hijos de `p70_falla_sup` son `temporary` por esa razón.
 - **Duplicados por dirección.** La llave de agrupación es el id de luminaria; no hay normalización de direcciones escritas distinto.
-- **Cifras del problema** (consumo, capacidad de cuadrillas, metas de atención) sin verificar contra fuentes.
+- **Cifras del problema.** Verificadas en su mayoría (ver la sección anterior); la capacidad de 8 a 15 luminarias por cuadrilla al día no tiene fuente y es un supuesto.
 - El simulador usa números aleatorios: sus contadores cambian en cada corrida.
 
 ## Trabajo futuro
@@ -114,7 +131,7 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
 - Métricas `/metrics` con prometheus.erl y diagnóstico con recon.
 - Release con relx y servicio systemd.
-- Prueba de caos documentada y verificación de las cifras del problema.
+- Prueba de caos documentada (ver `evidencias/`).
 
 ## Uso de IA
 
