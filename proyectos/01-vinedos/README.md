@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/parcelas, GET /api/hileras/:id, WebSocket /ws con lecturas y alertas de helada/mildiu
 - **Metricas:** lecturas por segundo, sensores sin reportar, hileras en riego, alertas activas
 - **Prueba de caos:** matar un sensor y verificar que se reinicia y el dashboard marca 'sin dato' mientras tanto
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

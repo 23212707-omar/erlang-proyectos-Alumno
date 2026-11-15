@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/jobs, GET /api/jobs/:id, GET /api/jobs?estado=
 - **Metricas:** jobs en cola, exitosos/fallidos, reintentos, latencia en cola
 - **Prueba de caos:** un worker que siempre falla: el job debe agotar reintentos y pasar a 'muerto' sin tumbar el sistema
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

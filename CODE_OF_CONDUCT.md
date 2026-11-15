@@ -20,5 +20,5 @@ de experiencia, nacionalidad, apariencia, religión u orientación sexual.
 
 ## Aplicación
 
-Los reportes se envían mediante un [aviso privado de GitHub](https://github.com/tectijuana/erlang-proyectos/security/advisories/new). Se revisarán con
+Los reportes se envían mediante un [aviso privado de GitHub](https://github.com/tectijuana/logicfun-proyectos/security/advisories/new). Se revisarán con
 confidencialidad y se responderá con las medidas que correspondan.

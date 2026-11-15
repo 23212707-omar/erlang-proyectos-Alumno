@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: "Si usas este material, cítalo con los siguientes datos."
-title: "erlang-proyectos: proyectos de estudiantes en Erlang/OTP"
+title: "logicfun-proyectos: proyectos de estudiantes en Erlang/OTP"
 type: software
 authors:
   - family-names: "Solis R."
     given-names: "René"
     affiliation: "Tecnológico Nacional de México, Instituto Tecnológico de Tijuana"
-repository-code: "https://github.com/tectijuana/erlang-proyectos"
+repository-code: "https://github.com/tectijuana/logicfun-proyectos"
 license: MIT
 keywords:
   - erlang
