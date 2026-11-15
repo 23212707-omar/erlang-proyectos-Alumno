@@ -5,7 +5,12 @@
 -module(p70_falla).
 -behaviour(gen_statem).
 
--export([start_link/3, reportar/2, asignar/2, reparar/1, estado/1, fuente_tipo/1]).
+-export([start_link/3, reportar/2, asignar/2, reparar/1, estado/1, fuente_tipo/1,
+         prioridad_efectiva/1, prioridad_efectiva/2]).
+
+%% Antiguedad: una falla sube un nivel de prioridad por cada 120 s abierta. Con el
+%% simulador (un dia = 60 s) son 2 dias simulados (48 h), por debajo de la meta de 72 h.
+-define(SUBE_CADA_S, 120).
 -export([init/1, callback_mode/0, reportada/3, asignada/3, reparada/3]).
 
 %% Luminaria: id del poste. Prioridad: alta | media | baja. Fuente: quien reporta
@@ -21,6 +26,19 @@ asignar(Pid, Cuadrilla) -> gen_statem:call(Pid, {asignar, Cuadrilla}).
 reparar(Pid) -> gen_statem:call(Pid, reparar).
 
 estado(Pid) -> gen_statem:call(Pid, estado).
+
+%% Prioridad efectiva = prioridad base + un nivel por cada ?SUBE_CADA_S abierta
+%% (baja -> media -> alta). Una falla reparada deja de envejecer.
+prioridad_efectiva(Datos) -> prioridad_efectiva(Datos, erlang:system_time(second)).
+
+prioridad_efectiva(#{prioridad := Prioridad, reportada_en := Desde} = Datos, Ahora) ->
+  Hasta = maps:get(reparada_en, Datos, Ahora),
+  subir(Prioridad, max(0, Hasta - Desde) div ?SUBE_CADA_S).
+
+subir(Prioridad, 0) -> Prioridad;
+subir(alta, _) -> alta;
+subir(media, N) -> subir(alta, N - 1);
+subir(baja, N) -> subir(media, N - 1).
 
 %% Normaliza una fuente a un binario ({ciudadano, 3} y ciudadano -> <<"ciudadano">>).
 fuente_tipo(Fuente) when is_binary(Fuente) -> Fuente;

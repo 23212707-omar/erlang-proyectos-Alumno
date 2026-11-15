@@ -15,6 +15,7 @@ registro_test_() ->
     fun cuarenta_luminarias_cuarenta_fallas/1,
     fun reincidencia_abre_falla_nueva/1,
     fun reincidencia_sube_prioridad/1,
+    fun prioridad_sube_con_antiguedad/1,
     fun falla_muerta_se_reemplaza/1]}.
 
 %% Caso del escenario: 15 reportes del mismo poste -> una sola falla.
@@ -66,6 +67,17 @@ reincidencia_sube_prioridad(_Sup) ->
     ok = p70_falla:reparar(P3),
     {ok, P4, reincidencia} = p70_registro:reportar(L, baja, ciudadano),
     ?assertMatch({reportada, #{prioridad := alta}}, p70_falla:estado(P4))
+  end).
+
+%% La antiguedad sube un nivel por cada 120 s abierta; una falla reparada ya no envejece.
+prioridad_sube_con_antiguedad(_Sup) ->
+  ?_test(begin
+    D = #{prioridad => baja, reportada_en => 1000},
+    ?assertEqual(baja, p70_falla:prioridad_efectiva(D, 1119)),
+    ?assertEqual(media, p70_falla:prioridad_efectiva(D, 1120)),
+    ?assertEqual(alta, p70_falla:prioridad_efectiva(D, 1240)),
+    ?assertEqual(alta, p70_falla:prioridad_efectiva(D#{prioridad := alta}, 99999)),
+    ?assertEqual(baja, p70_falla:prioridad_efectiva(D#{reparada_en => 1100}, 99999))
   end).
 
 %% Si la falla muere, el siguiente reporte abre una nueva sin romper el registro.

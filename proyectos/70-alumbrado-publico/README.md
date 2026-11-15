@@ -12,7 +12,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ## Estado
 
-**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
+**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. **Actualización del 15 de noviembre:** se agregaron prioridad por antigüedad, rutas de cuadrilla por cercanía, falla de circuito única, reincidencia que sube la prioridad y mapa real; ahora son 39 pruebas en verde. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
 
 | Qué | Dónde |
 |---|---|
@@ -25,7 +25,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ```bash
 rebar3 compile
-rebar3 eunit          # 35 tests, 0 failures
+rebar3 eunit          # 39 tests, 0 failures
 rebar3 shell          # API e interfaz en http://localhost:8080
 ```
 
@@ -52,6 +52,7 @@ p70_alumbrado_publico_sup        (rest_for_one)
 └── p70_simulador                (gen_server: reportes, cuadrillas y escenarios de la demo)
 
 cowboy (p70_http) → p70_api_h    (un proceso por request)
+p70_rutas                        (módulo sin procesos: distancias y rutas de cuadrilla)
 ```
 
 - **Un proceso por falla:** cada una tiene su estado; si una muere, las demás siguen.
@@ -59,6 +60,8 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 - **`rest_for_one`:** `p70_registro` guarda los pids de `p70_falla_sup`, por eso va después y se reinicia con él.
 - **Reporte tras reparar:** no reabre la falla; se abre una nueva, se cuenta como reincidencia y sube un nivel de prioridad (baja → media → alta), a partir de la mayor entre la de la falla anterior y la del reporte.
 - **Catálogo en ETS:** se genera de forma determinista (`erlang:phash2`), así que siempre salen las mismas 5,000 luminarias. Las lecturas van directo a la tabla, sin pasar por el proceso. Va al final del árbol, junto con la bitácora y el simulador, para que su caída no reinicie las fallas.
+- **Prioridad por criticidad y antigüedad:** la base depende del tipo de lugar (avenida, cruce escolar y hospital: alta; calle: media; andador: baja) y la reincidencia la sube un nivel. Además, una falla abierta sube un nivel por cada 120 s (2 días simulados, 48 h, antes de la meta de 72 h) hasta alta; al repararse deja de envejecer. El despacho y la interfaz usan la prioridad efectiva, y la API devuelve también `prioridad_base`. Así se equilibra la criticidad del lugar con la antigüedad: un andador olvidado acaba rebasando a una calle reciente.
+- **Rutas de cuadrilla:** `p70_rutas` es un módulo puro (sin proceso, porque no tiene estado). El simulador asigna cada falla a la cuadrilla con lugar que ya tiene trabajo más cercano (una cuadrilla vacía cuenta como distancia 0, así las cuatro empiezan antes de agrupar), y cada ruta empieza por su falla más urgente y sigue por la más cercana (vecino más cercano, distancia haversine). Es una heurística: no resuelve el problema del agente viajero.
 - **Contorno aproximado:** las coordenadas se mantienen al sur de la frontera y al este de la costa (valores aproximados, calibrados con un mapa de la ciudad).
 - **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito caído de 40 luminarias) se ejecutan bajo demanda.
 
@@ -68,6 +71,7 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 |---|---|
 | `POST /api/lamparas/:id/falla` | Reporta una falla. Cuerpo opcional: `{"prioridad":"alta\|media\|baja","fuente":"ciudadano\|telemetria"}`. 201 si abre una nueva, 200 si se agrupa. |
 | `GET /api/mapa/fallas` | Fallas vigentes (estado, prioridad, reportes, fuentes, cuadrilla, horas). |
+| `GET /api/cuadrillas/rutas` | Ruta de cada cuadrilla con fallas asignadas: paradas en orden de visita (luminaria, lat, lon, prioridad) y `distancia_km`. |
 | `GET /api/fallas/:id` | Detalle de la falla de una luminaria, con reincidencias. |
 | `PATCH /api/fallas/:id` | `{"accion":"asignar","cuadrilla":"cuadrilla_1"}` o `{"accion":"reparar"}`. 409 si la transición no es válida. |
 | `GET /api/bitacora?limite=N` | Últimos eventos, el más reciente primero (N de 1 a 200). |
@@ -83,13 +87,13 @@ cowboy (p70_http) → p70_api_h    (un proceso por request)
 
 ## Interfaz
 
-Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa real de Tijuana (Leaflet con teselas de OpenStreetMap; si no hay internet se usa un mapa SVG de respaldo) con las 5,000 luminarias y las fallas encima (rojo reportada, ámbar asignada, azul reparada), y una tarjeta del simulador. El detalle muestra la ubicación con un mini mapa. Carga Tailwind, las fuentes, Leaflet y las teselas del mapa desde internet.
+Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa real de Tijuana (Leaflet con teselas de OpenStreetMap; si no hay internet se usa un mapa SVG de respaldo) con las 5,000 luminarias y las fallas encima (rojo reportada, ámbar asignada, azul reparada), una tarjeta del simulador y una tarjeta de rutas de cuadrilla (en el mapa, líneas punteadas de un color por cuadrilla). El detalle muestra la ubicación con un mini mapa. Carga Tailwind, las fuentes, Leaflet y las teselas del mapa desde internet.
 
 ## Estructura
 
 | Ruta | Contenido |
 |---|---|
-| `src/` | Aplicación OTP, fallas, registro, bitácora, catálogo, simulador y API |
+| `src/` | Aplicación OTP, fallas, registro, bitácora, catálogo, simulador, rutas y API |
 | `test/` | Pruebas eunit (fallas, registro, bitácora, catálogo, simulador y API con `httpc`) |
 | `priv/www/` | Interfaz web |
 | `design/` | Exportación de Google Stitch y su `DESIGN.md` |
@@ -118,6 +122,7 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 - **Datos simulados.** Las 5,000 luminarias se generan con una función determinista alrededor de 7 sectores; no son datos reales y no siguen las calles. El contorno del mapa (frontera y costa) es aproximado, calibrado a mano.
 - **Falla de circuito.** Es una falla única (id del circuito) y no desglosa las luminarias; no se enlaza con las fallas individuales de sus postes, que son independientes.
 - **Sin persistencia.** Si el nodo se reinicia se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual). Los hijos de `p70_falla_sup` son `temporary` por esa razón.
+- **Rutas heurísticas.** El vecino más cercano no es óptimo: una cuadrilla puede recorrer distancias largas porque su primera parada es la falla más urgente aunque esté lejos. No se considera el tráfico ni la base de la cuadrilla.
 - **Duplicados por dirección.** La llave de agrupación es el id de luminaria; no hay normalización de direcciones escritas distinto.
 - **Cifras del problema.** Verificadas en su mayoría (ver la sección anterior); la capacidad de 8 a 15 luminarias por cuadrilla al día no tiene fuente y es un supuesto.
 - El simulador usa números aleatorios: sus contadores cambian en cada corrida.
@@ -125,7 +130,6 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 ## Trabajo futuro
 
 - Enlazar la falla de circuito con las fallas individuales de sus luminarias.
-- Prioridad por criticidad y antigüedad.
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
 - Normalización de direcciones para duplicados.
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.

@@ -33,6 +33,9 @@ let capaBase = '';           // trazo de las 5,000 luminarias, calculado una sol
 let seleccion = '';          // luminaria con falla elegida en el mapa
 let mapaLf = null;           // mapa real (Leaflet) de la vista principal
 let capaFallasLf = null;     // marcas de las fallas sobre el mapa real
+let capaRutasLf = null;      // lineas de ruta de cada cuadrilla sobre el mapa real
+let rutas = [];              // rutas de cuadrilla: [{cuadrilla, paradas, distancia_km}]
+const COLORES_RUTA = ['#0b6e4f', '#8a2be2', '#c2410c', '#0369a1'];
 let miniLf = null;           // mini mapa de la vista de detalle
 let sim = null;              // estado del simulador (GET /api/simulador)
 let sectorEscenario = 0;     // cada clic en "falla de circuito" usa el siguiente sector
@@ -242,8 +245,17 @@ function pintarMapaReal(caja, marcas) {
     });
     mapaLf.fitBounds(L.latLngBounds(puntos.map((q) => [q[1], q[2]])), { padding: [12, 12] });
     mapaLf.rendererFallas = renderer;
+    capaRutasLf = L.layerGroup().addTo(mapaLf);
     capaFallasLf = L.layerGroup().addTo(mapaLf);
   }
+  capaRutasLf.clearLayers();
+  rutas.forEach((r, i) => {
+    if (r.paradas.length < 2) { return; }
+    L.polyline(r.paradas.map((q) => [q.lat, q.lon]), {
+      renderer: mapaLf.rendererFallas, color: COLORES_RUTA[i % COLORES_RUTA.length],
+      weight: 3, dashArray: '6 6', opacity: 0.9, interactive: false
+    }).addTo(capaRutasLf);
+  });
   capaFallasLf.clearLayers();
   marcas.forEach((m) => {
     const marca = marcaLf(m, mapaLf.rendererFallas);
@@ -324,6 +336,7 @@ function vistaMapa() {
     '<section class="px-margin-mobile py-space-xs flex flex-col gap-space-sm">' +
       '<div id="caja-mapa" class="flex flex-col gap-space-xs"><div class="rounded-xl bg-surface-container-low p-space-md font-body-sm text-body-sm text-on-surface-variant">Cargando mapa…</div></div>' +
       '<div id="tarjeta-sel"></div></section>' +
+    '<section id="caja-rutas" class="px-margin-mobile py-space-xs"></section>' +
     '<section class="px-margin-mobile py-space-xs flex flex-col gap-space-xs">' +
       '<div id="filtros-estado" class="flex gap-space-xs overflow-x-auto"></div>' +
       '<div id="filtros-prioridad" class="flex gap-space-xs overflow-x-auto"></div></section>' +
@@ -332,8 +345,10 @@ function vistaMapa() {
 }
 
 async function cargarMapa() {
-  const [r, rs] = await Promise.all([api('GET', '/api/mapa/fallas'), api('GET', '/api/simulador'), asegurarPuntos()]);
+  const [r, rs, rr] = await Promise.all([api('GET', '/api/mapa/fallas'), api('GET', '/api/simulador'),
+    api('GET', '/api/cuadrillas/rutas'), asegurarPuntos()]);
   if (rs.ok) { sim = rs.datos; }
+  rutas = rr.ok ? (rr.datos.cuadrillas || []) : [];
   if (!r.ok) { aviso('No se pudo actualizar el mapa de fallas.', true); return; }
   fallas = r.datos.fallas || [];
   pintarMapa();
@@ -365,9 +380,32 @@ function pintarMapa() {
                     (b.reportes - a.reportes) || (a.reportada_en - b.reportada_en));
 
   pintarMapaSvg(visibles);
+  pintarRutas();
   pintarSim();
   $('#lista-fallas').innerHTML = visibles.length ? visibles.map(tarjetaFalla).join('') :
     '<div class="rounded-xl bg-surface-container-low p-space-lg text-center font-body-md text-on-surface-variant">No hay fallas con estos filtros.</div>';
+}
+
+/* Rutas de cuadrilla: sus fallas asignadas en orden de visita (la mas urgente primero, luego por cercania). */
+function pintarRutas() {
+  const caja = $('#caja-rutas');
+  if (!caja) { return; }
+  const filas = rutas.map((r, i) => {
+    const color = COLORES_RUTA[i % COLORES_RUTA.length];
+    const paradas = r.paradas.map((q, n) =>
+      '<a href="#/falla/' + encodeURIComponent(q.luminaria) + '" class="inline-flex items-center gap-1 rounded-lg bg-surface-container-low px-2 py-1 font-label-md text-label-md text-primary">' +
+      (n + 1) + '. ' + esc(q.luminaria) + '</a>').join('<span class="text-on-surface-variant" aria-hidden="true">→</span>');
+    return '<div class="flex flex-col gap-space-xs">' +
+      '<div class="flex items-center justify-between gap-space-sm"><span class="flex items-center gap-2 font-title-md text-title-md text-primary font-bold">' +
+        '<span class="inline-block w-3 h-3 rounded-full" style="background:' + color + '"></span>' + esc(String(r.cuadrilla).replace('_', ' ')) + '</span>' +
+        '<span class="font-label-md text-label-md text-on-surface-variant">' + r.paradas.length + ' paradas · ' + esc(r.distancia_km) + ' km</span></div>' +
+      '<div class="flex flex-wrap items-center gap-1">' + paradas + '</div></div>';
+  });
+  caja.innerHTML = '<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">' +
+    '<h2 class="font-title-lg text-title-lg text-primary font-bold">Rutas de cuadrilla</h2>' +
+    (filas.length ? filas.join('') :
+      '<p class="font-body-sm text-body-sm text-on-surface-variant">Ninguna cuadrilla tiene fallas asignadas. Inicia la simulación o asigna una falla.</p>') +
+    '<p class="font-label-sm text-label-sm text-on-surface-variant">Cada cuadrilla visita primero su falla más urgente y después la más cercana (en el mapa, líneas punteadas).</p></div>';
 }
 
 function pintarSim() {
@@ -538,6 +576,8 @@ function pintarDetalle(f) {
         '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Ficha de incidencia</span>' +
         '<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">' + (f.afectadas ? 'Circuito ' : 'Luminaria ') + esc(f.luminaria) + '</h1>' +
         '<div class="flex flex-wrap gap-space-xs">' + insigniaEstado(f.estado) + insigniaPrioridad(f.prioridad) + '</div>' +
+        ((f.prioridad_base && f.prioridad_base !== f.prioridad) ?
+          '<p class="font-label-md text-label-md text-on-surface-variant">Prioridad base: ' + esc(f.prioridad_base) + '. Subió por antigüedad: lleva mucho tiempo abierta.</p>' : '') +
         (f.reincidencias ? '<div class="rounded-xl bg-error-container p-space-sm text-on-error-container font-label-lg text-label-lg flex items-center gap-2">' +
           '<span class="material-symbols-outlined" aria-hidden="true">replay</span>Reincidencias de esta luminaria: ' + f.reincidencias + '</div>' : '') +
       '</div>' + bloqueUbicacion(f) +

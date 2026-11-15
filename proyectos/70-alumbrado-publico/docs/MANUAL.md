@@ -17,7 +17,7 @@ Requisitos: Erlang/OTP 27 y rebar3 instalados con asdf (como en la práctica ant
 git clone -b feat/p70-alumbrado-publico https://github.com/23212707-omar/erlang-proyectos-Alumno ~/erlang-proyectos-Alumno
 cd ~/erlang-proyectos-Alumno/proyectos/70-alumbrado-publico
 rebar3 compile
-rebar3 eunit          # esperado: 35 tests, 0 failures
+rebar3 eunit          # esperado: 39 tests, 0 failures
 ```
 
 Arranque en segundo plano (puerto 8080):
@@ -39,6 +39,7 @@ setsid nohup rebar3 shell --name p70_alumbrado_publico@127.0.0.1 \
 | `GET /api/catalogo/resumen` | Totales del catálogo por sector | 200 |
 | `GET /api/catalogo/puntos` | `[[id, lat, lon], ...]` de las 5,000 luminarias | 200 |
 | `GET /api/catalogo/lamparas/:id` | Una luminaria del catálogo | 200, o 404 |
+| `GET /api/cuadrillas/rutas` | Ruta de cada cuadrilla con fallas asignadas: paradas en orden de visita (luminaria, lat, lon, prioridad) y `distancia_km` | 200 |
 | `GET /api/simulador` | Estado y contadores del simulador | 200 |
 | `POST /api/simulador/iniciar` y `/detener` | Inicia o detiene el modo continuo (80 reportes por día simulado, un día = 1 minuto) | 200 |
 | `POST /api/simulador/escenarios/poste` | 15 reportes sobre un poste. Cuerpo opcional `{"luminaria":"L-0777"}` | 200, o 404 si no está en el catálogo |
@@ -53,7 +54,7 @@ Con el nodo corriendo, la interfaz está en `http://localhost:8080`. Si la Pi es
 
 | Vista | Qué permite |
 |---|---|
-| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); lista ordenada por urgencia (actualización cada 5 s) |
+| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); tarjeta de rutas de cuadrilla (paradas en orden y km) con líneas punteadas en el mapa; lista ordenada por urgencia (actualización cada 5 s) |
 | Detalle | Ubicación con mini mapa, reportes agrupados por fuente, reincidencias, ciclo de vida y acciones (asignar, reparar) |
 | Reportar | Formulario con aviso de si el reporte creó una falla nueva, se agrupó o fue reincidencia |
 | Bitácora | Eventos reales con búsqueda por ID y filtros |
@@ -108,6 +109,30 @@ curl -s localhost:8080/api/simulador
 curl -s -X POST localhost:8080/api/simulador/detener -H 'content-type: application/json' -d '{}'
 ```
 
+### Prioridad por antigüedad (con el simulador detenido)
+
+Se reporta una luminaria con prioridad baja y no se asigna. Cada 120 s abierta sube un nivel (baja → media → alta):
+
+```
+curl -s localhost:8080/api/fallas/L-0151
+# a los 2 min: {"estado":"reportada","prioridad":"media","prioridad_base":"baja",...}
+# a los 4 min: {"estado":"reportada","prioridad":"alta","prioridad_base":"baja",...}
+```
+
+En el detalle de la interfaz aparece "Prioridad base: baja. Subió por antigüedad".
+
+### Rutas de cuadrilla (con el simulador en marcha)
+
+```
+curl -s localhost:8080/api/cuadrillas/rutas
+# {"cuadrillas":[{"cuadrilla":"cuadrilla_1","distancia_km":20.82,
+#   "paradas":[{"luminaria":"L-0192","prioridad":"alta","lat":32.514,"lon":-117.11394},
+#              {"luminaria":"L-2427","prioridad":"media",...},{"luminaria":"L-4726","prioridad":"alta",...}]},
+#  {"cuadrilla":"cuadrilla_2","distancia_km":12.77,"paradas":[...3...]}, ...]}
+```
+
+Cada cuadrilla visita primero su falla más urgente y después la más cercana.
+
 ## 5. Detener el servicio
 
 Con `setsid` o `nohup` el PID que devuelve el shell puede no ser el de la VM de Erlang. Se localiza con `ps` y se detiene con `kill`:
@@ -141,4 +166,6 @@ kill <PID>
 - La **falla de circuito** es una sola falla (id del circuito, con sus 40 luminarias afectadas, ubicada en su centro). No se enlaza con las fallas individuales de sus luminarias, que son independientes. En la interfaz, cada clic en "Falla de circuito" usa el siguiente sector; para repetir el mismo circuito (y ver el agrupado) se usa la API.
 - La simulación usa números aleatorios (`rand`): los contadores del modo continuo cambian en cada corrida. Los escenarios y el catálogo sí son reproducibles.
 - No hay persistencia: si el nodo se reinicia, se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual).
+- La **prioridad por antigüedad** sube un nivel cada 120 s abierta (con el simulador, 2 días simulados = 48 h, antes de la meta de 72 h). Los 120 s son un supuesto propio, elegido para que se vea en una demostración.
+- Las **rutas de cuadrilla** usan la heurística del vecino más cercano: no son óptimas, y la primera parada siempre es la falla más urgente aunque esté lejos.
 - La reincidencia sube la prioridad de la falla nueva un nivel (baja → media → alta), a partir de la mayor entre la prioridad de la falla anterior y la del reporte.

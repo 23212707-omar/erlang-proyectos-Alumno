@@ -9,6 +9,7 @@ start(Port) ->
   Dispatch = cowboy_router:compile([{'_', [
     {"/api/lamparas/:id/falla", p70_api_h, falla},
     {"/api/mapa/fallas", p70_api_h, mapa},
+    {"/api/cuadrillas/rutas", p70_api_h, rutas},
     {"/api/fallas/:id", p70_api_h, falla_id},
     {"/api/bitacora", p70_api_h, bitacora},
     {"/api/catalogo/resumen", p70_api_h, catalogo_resumen},

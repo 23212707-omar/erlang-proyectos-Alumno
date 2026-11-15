@@ -53,8 +53,15 @@ flujo_asignar_y_reparar({_Sup, Puerto}) ->
     {201, _} = peticion(post, Puerto, "/api/lamparas/L-0003/falla", "{}"),
     ?assertMatch({200, _}, peticion(patch, Puerto, "/api/fallas/L-0003",
       "{\"accion\":\"asignar\",\"cuadrilla\":\"cuadrilla_1\"}")),
+    %% La cuadrilla aparece con su ruta de una parada.
+    {200, #{<<"cuadrillas">> := [Ruta]}} = peticion(get, Puerto, "/api/cuadrillas/rutas", ""),
+    ?assertMatch(#{<<"cuadrilla">> := <<"cuadrilla_1">>,
+                   <<"paradas">> := [#{<<"luminaria">> := <<"L-0003">>}],
+                   <<"distancia_km">> := _}, Ruta),
     ?assertMatch({200, _}, peticion(patch, Puerto, "/api/fallas/L-0003",
       "{\"accion\":\"reparar\"}")),
+    %% Reparada ya no esta en ninguna ruta.
+    ?assertMatch({200, #{<<"cuadrillas">> := []}}, peticion(get, Puerto, "/api/cuadrillas/rutas", "")),
     %% Reparar dos veces es una transicion invalida.
     ?assertMatch({409, _}, peticion(patch, Puerto, "/api/fallas/L-0003",
       "{\"accion\":\"reparar\"}"))

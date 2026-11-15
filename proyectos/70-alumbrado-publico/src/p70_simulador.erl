@@ -3,7 +3,8 @@
 %% Modo continuo (iniciar/0 y detener/0): genera 80 reportes por "dia simulado" (un dia
 %% dura un minuto, asi que sale un reporte cada 750 ms) sobre luminarias elegidas al
 %% azar del catalogo. En cada paso tambien despacha y repara: 4 cuadrillas atienden
-%% hasta 3 fallas a la vez cada una, empezando por la de mayor prioridad.
+%% hasta 3 fallas a la vez cada una, empezando por la de mayor prioridad efectiva
+%% (la base mas la antiguedad: sube un nivel cada 2 dias simulados).
 %%
 %% Escenarios puntuales para la demo:
 %%   escenario_poste(Luminaria)      15 reportes del mismo poste -> una sola falla.
@@ -132,17 +133,24 @@ fallas() ->
                   end
                 end, maps:to_list(p70_registro:activas())).
 
-%% Asigna la falla pendiente mas urgente a la cuadrilla menos cargada, si tiene lugar.
+%% Asigna la falla pendiente mas urgente a una cuadrilla con lugar. Elige la que
+%% ya tiene trabajo mas cerca (rutas compactas); una cuadrilla sin trabajo cuenta como
+%% distancia 0, asi las cuatro empiezan a trabajar antes de agrupar.
 despachar(Fallas) ->
   Pendientes = [F || {_, _, reportada, _} = F <- Fallas],
   Urgentes = lists:sort(fun({_, _, _, A}, {_, _, _, B}) -> orden(A) =< orden(B) end, Pendientes),
-  case {Urgentes, cuadrilla_libre(cargas(Fallas))} of
-    {[{_, Pid, _, _} | _], {ok, Cuadrilla}} ->
-      case aplicar(fun() -> p70_falla:asignar(Pid, Cuadrilla) end) of
-        ok -> asignada;
-        _ -> ninguna
+  case Urgentes of
+    [{Luminaria, Pid, _, _} | _] ->
+      case cuadrilla_para(Luminaria, Fallas) of
+        {ok, Cuadrilla} ->
+          case aplicar(fun() -> p70_falla:asignar(Pid, Cuadrilla) end) of
+            ok -> asignada;
+            _ -> ninguna
+          end;
+        ninguna ->
+          ninguna
       end;
-    _ ->
+    [] ->
       ninguna
   end.
 
@@ -176,12 +184,30 @@ cargas(Fallas) ->
                     Acc
               end, #{}, Fallas).
 
-cuadrilla_libre(Cargas) ->
-  {Menor, Cuadrilla} = lists:min([{maps:get(C, Cargas, 0), C} || C <- ?CUADRILLAS]),
-  case Menor < ?CAPACIDAD of
-    true -> {ok, Cuadrilla};
-    false -> ninguna
+%% Cuadrilla con lugar (menos de ?CAPACIDAD fallas) mas cercana a la luminaria.
+cuadrilla_para(Luminaria, Fallas) ->
+  Cargas = cargas(Fallas),
+  Libres = [C || C <- ?CUADRILLAS, maps:get(C, Cargas, 0) < ?CAPACIDAD],
+  case Libres of
+    [] ->
+      ninguna;
+    _ ->
+      Punto = p70_rutas:punto(Luminaria),
+      {_, Cuadrilla} = lists:min([{distancia_a(C, Punto, Fallas), C} || C <- Libres]),
+      {ok, Cuadrilla}
   end.
+
+%% Distancia (km) de la falla a lo mas cercano que ya tiene la cuadrilla; 0 si no tiene nada.
+distancia_a(Cuadrilla, {ok, Punto}, Fallas) ->
+  Distancias = [p70_rutas:distancia_km(Punto, Otro)
+                || {Id, _, asignada, #{asignada_a := A}} <- Fallas, A =:= Cuadrilla,
+                   {ok, Otro} <- [p70_rutas:punto(Id)]],
+  case Distancias of
+    [] -> 0.0;
+    _ -> lists:min(Distancias)
+  end;
+distancia_a(_Cuadrilla, error, _Fallas) ->
+  0.0.
 
 %% La falla pudo morir entre listarla y llamarla.
 aplicar(Fun) ->
@@ -192,7 +218,7 @@ aplicar(Fun) ->
 %% --- Utilidades ---
 
 orden(Datos) ->
-  {rango(maps:get(prioridad, Datos)), -maps:get(reportes, Datos), maps:get(reportada_en, Datos)}.
+  {rango(p70_falla:prioridad_efectiva(Datos)), -maps:get(reportes, Datos), maps:get(reportada_en, Datos)}.
 
 rango(alta) -> 0;
 rango(media) -> 1;

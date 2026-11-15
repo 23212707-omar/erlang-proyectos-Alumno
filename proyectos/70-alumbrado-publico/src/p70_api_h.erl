@@ -4,6 +4,7 @@
 %%                                   cuerpo opcional: {"prioridad":"alta|media|baja",
 %%                                                     "fuente":"ciudadano|telemetria"}
 %%   GET   /api/mapa/fallas          lista las fallas vigentes
+%%   GET   /api/cuadrillas/rutas     ruta de cada cuadrilla: sus fallas asignadas por cercania, con km
 %%   GET   /api/fallas/:id           detalle de una falla (:id = id de luminaria)
 %%   PATCH /api/fallas/:id           {"accion":"asignar","cuadrilla":"c1"} | {"accion":"reparar"}
 %%   GET   /api/bitacora?limite=N    ultimos eventos (mas reciente primero, N de 1 a 200)
@@ -56,6 +57,15 @@ atender(mapa, <<"GET">>, Req) ->
   Fallas = [Resumen || {Luminaria, Pid} <- maps:to_list(p70_registro:activas()),
                        {ok, Resumen} <- [resumen(Luminaria, Pid)]],
   responder(200, #{fallas => Fallas}, Req);
+atender(rutas, <<"GET">>, Req) ->
+  Asignadas = [{Cuadrilla, {Luminaria, Datos}}
+               || {Luminaria, Pid} <- maps:to_list(p70_registro:activas()),
+                  {asignada, #{asignada_a := Cuadrilla} = Datos} <- [estado_falla(Pid)]],
+  Cuadrillas = lists:usort([C || {C, _} <- Asignadas]),
+  Rutas = [maps:merge(#{cuadrilla => C},
+                      p70_rutas:ruta_cuadrilla([F || {C2, F} <- Asignadas, C2 =:= C]))
+           || C <- Cuadrillas],
+  responder(200, #{cuadrillas => Rutas}, Req);
 atender(falla_id, <<"GET">>, Req) ->
   Luminaria = cowboy_req:binding(id, Req),
   case buscar(Luminaria) of
@@ -140,6 +150,12 @@ resultado({error, Razon}, Req) ->
   Texto = iolist_to_binary(io_lib:format("~p", [Razon])),
   responder(409, #{error => Texto}, Req).
 
+%% Estado de una falla, o error si el proceso murio mientras se listaba.
+estado_falla(Pid) ->
+  try p70_falla:estado(Pid)
+  catch exit:_ -> error
+  end.
+
 buscar(Luminaria) ->
   case p70_registro:buscar(Luminaria) of
     {ok, Pid} -> resumen(Luminaria, Pid);
@@ -152,7 +168,8 @@ resumen(Luminaria, Pid) ->
     {Estado, Datos} ->
       Base = #{luminaria => Luminaria,
                estado => Estado,
-               prioridad => maps:get(prioridad, Datos),
+               prioridad => p70_falla:prioridad_efectiva(Datos),
+               prioridad_base => maps:get(prioridad, Datos),
                reportes => maps:get(reportes, Datos),
                fuentes => contar_fuentes(maps:get(fuentes, Datos)),
                reportada_en => maps:get(reportada_en, Datos)},
