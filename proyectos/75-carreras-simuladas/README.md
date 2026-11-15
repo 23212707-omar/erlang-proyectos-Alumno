@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/carreras, WebSocket de posiciones en vivo, GET /api/resultados
 - **Metricas:** vueltas, adelantamientos, abandonos, tiempo por vuelta
 - **Prueba de caos:** un piloto crashea: la carrera sigue y se reordena la clasificacion
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

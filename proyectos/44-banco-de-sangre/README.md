@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/solicitudes, GET /api/inventario, SSE de niveles criticos
 - **Metricas:** unidades por tipo, proximas a caducar, solicitudes urgentes atendidas
 - **Prueba de caos:** solicitud urgente con inventario insuficiente del tipo exacto: sugiere compatibles, sin doble reserva
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

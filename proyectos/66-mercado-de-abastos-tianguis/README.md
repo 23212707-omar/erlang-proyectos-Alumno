@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/comerciantes, POST /api/pedidos, WebSocket de seguimiento al cliente
 - **Metricas:** pedidos por comerciante, tiempo de entrega, repartidores libres
 - **Prueba de caos:** el repartidor deja de responder: el pedido se reasigna sin duplicar la entrega
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

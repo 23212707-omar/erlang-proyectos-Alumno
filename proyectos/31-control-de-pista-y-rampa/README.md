@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/solicitudes (despegue/aterrizaje), GET /api/pistas, WebSocket de secuencia
 - **Metricas:** operaciones por hora, espera media, conflictos evitados
 - **Prueba de caos:** cerrar una pista con operaciones en cola: se reprograman sin perder ninguna
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

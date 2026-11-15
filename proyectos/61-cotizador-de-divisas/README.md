@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/cotizacion, GET /api/historico?dias=, POST /api/alertas, SSE de cambios
 - **Metricas:** ultimo valor, variacion, fallos de la fuente, alertas disparadas
 - **Prueba de caos:** cortar la fuente externa: se sirve el ultimo dato marcado como 'obsoleto'
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

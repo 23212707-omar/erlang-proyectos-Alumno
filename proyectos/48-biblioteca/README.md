@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/libros?q=, POST /api/prestamos, POST /api/reservas
 - **Metricas:** prestamos activos, vencidos, multas generadas
 - **Prueba de caos:** dos usuarios piden el ultimo ejemplar: uno presta, el otro entra a cola de reserva
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

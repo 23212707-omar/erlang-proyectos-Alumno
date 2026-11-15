@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/medidores/:id/lectura, GET /api/pisos/:id/consumo, WebSocket de alarmas
 - **Metricas:** kW por piso, picos, alarmas activas, medidores sin reportar
 - **Prueba de caos:** matar el agregador de un piso y verificar que los demas pisos siguen reportando
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** WebSocket /ws/juego, POST /api/partidas, GET /api/partidas/:id
 - **Metricas:** partidas activas, jugadores en cola, duracion media de partida
 - **Prueba de caos:** matar una partida a la mitad: ambos jugadores reciben aviso y regresan al lobby
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

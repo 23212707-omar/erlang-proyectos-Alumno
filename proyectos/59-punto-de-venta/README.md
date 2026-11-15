@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/ventas, POST /api/ventas/:id/pago, GET /api/corte?caja=
 - **Metricas:** ventas por hora, ticket promedio, cancelaciones, descuadre de corte
 - **Prueba de caos:** matar una caja con venta abierta: se recupera y el corte cuadra
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

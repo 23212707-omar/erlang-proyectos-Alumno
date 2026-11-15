@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/movimientos (entrada/salida), GET /api/existencias, GET /api/alertas
 - **Metricas:** existencias por SKU, movimientos por hora, alertas de minimo
 - **Prueba de caos:** 1000 salidas simultaneas del mismo SKU: nunca debe quedar negativo
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

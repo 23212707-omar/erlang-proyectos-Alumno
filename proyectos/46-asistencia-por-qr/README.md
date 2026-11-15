@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/sesiones/:id/qr, POST /api/asistencia (token), WebSocket del pase de lista en vivo
 - **Metricas:** asistentes por sesion, QR invalidos, escaneos duplicados
 - **Prueba de caos:** reusar un QR vencido o compartido por foto: debe rechazarse
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

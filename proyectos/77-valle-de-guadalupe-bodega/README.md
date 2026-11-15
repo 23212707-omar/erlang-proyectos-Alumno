@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/tanques/:id/lectura, POST /api/tanques/:id/fase, GET /api/bodega, SSE de alertas
 - **Metricas:** temperatura y densidad por tanque, dias de fermentacion, desviaciones
 - **Prueba de caos:** sensor de un tanque falla en pleno pico de fermentacion: alerta y modo manual
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

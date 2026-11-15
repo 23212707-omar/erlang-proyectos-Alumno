@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** WebSocket /ws/:sala, GET /api/salas, historial reciente por sala
 - **Metricas:** usuarios conectados, mensajes por segundo, salas activas
 - **Prueba de caos:** 100 clientes simulados en una sala, matar la sala y verificar que se reconectan y la sala se recrea
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

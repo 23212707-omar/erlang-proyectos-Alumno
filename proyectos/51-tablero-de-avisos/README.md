@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/avisos, GET /api/avisos?grupo=, WebSocket /ws con filtros
 - **Metricas:** avisos activos, conexiones, entregas por segundo
 - **Prueba de caos:** 1000 conexiones y un aviso masivo: todos lo reciben sin bloquear al publicador
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

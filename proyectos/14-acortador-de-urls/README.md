@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/urls, GET /:codigo (redirect 302), GET /api/urls/:codigo/stats
 - **Metricas:** redirecciones por segundo, codigos creados, 404
 - **Prueba de caos:** reiniciar el nodo y verificar que los codigos persisten
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

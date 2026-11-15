@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/pacientes/:id/signos, WebSocket de monitor central, GET /api/alarmas
 - **Metricas:** alarmas activas por nivel, lecturas por segundo, dispositivos sin senal
 - **Prueba de caos:** perder la senal de un paciente: alarma tecnica inmediata, nunca silencio
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

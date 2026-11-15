@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/medicos/:id/huecos, POST /api/citas, DELETE /api/citas/:id
 - **Metricas:** ocupacion de agenda, cancelaciones, no-show
 - **Prueba de caos:** dos pacientes toman el mismo hueco simultaneamente: sin traslape
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

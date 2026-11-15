@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/produccion, POST /api/consumo, GET /api/balance?dia=, SSE en vivo
 - **Metricas:** kWh producidos/consumidos, autoconsumo, picos
 - **Prueba de caos:** caida del inversor: el balance marca produccion 0 y alerta, sin inventar datos
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

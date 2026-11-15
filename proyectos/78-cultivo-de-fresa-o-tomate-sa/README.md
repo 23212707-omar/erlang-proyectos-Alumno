@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/cosechas, GET /api/trazabilidad/:lote, WebSocket del avance por surco
 - **Metricas:** cajas por cuadrilla/hora, avance por parcela, lotes trazables
 - **Prueba de caos:** captura duplicada de la misma caja (QR): se rechaza y no duplica el conteo
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

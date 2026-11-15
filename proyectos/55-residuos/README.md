@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/contenedores/:id/nivel, GET /api/rutas, WebSocket del mapa
 - **Metricas:** contenedores llenos, km recorridos, recolecciones por turno
 - **Prueba de caos:** contenedor sin reportar mas de X horas: se marca sospechoso y entra a ruta de revision
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

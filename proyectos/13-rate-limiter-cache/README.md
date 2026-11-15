@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/cache/:clave, PUT /api/cache/:clave?ttl=, middleware cowboy que responde 429
 - **Metricas:** hits/misses, evictions, entradas, rechazos 429
 - **Prueba de caos:** 10 000 lecturas concurrentes mientras el limpiador corre: sin errores ni bloqueos
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

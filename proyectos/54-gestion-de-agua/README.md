@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/sensores/:id/lectura, GET /api/colonias/:id/consumo, WebSocket de alertas de fuga
 - **Metricas:** litros por colonia, fugas sospechadas, presion media
 - **Prueba de caos:** simular una fuga (consumo constante de madrugada) y verificar la alerta
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** CRUD /api/recursos (GET/POST/PUT/DELETE), paginacion, errores JSON consistentes
 - **Metricas:** latencia por endpoint, conexiones del pool en uso, errores 5xx
 - **Prueba de caos:** detener PostgreSQL con la API en carga y verificar degradacion limpia y reconexion
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

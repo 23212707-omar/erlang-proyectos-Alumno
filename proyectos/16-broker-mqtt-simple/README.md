@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** puerto 1883 (protocolo MQTT basico: CONNECT, PUBLISH, SUBSCRIBE), GET /api/topicos para el dashboard
 - **Metricas:** clientes conectados, mensajes publicados/entregados, topicos activos
 - **Prueba de caos:** 1000 suscriptores y un publicador; matar el router y verificar re-suscripcion
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

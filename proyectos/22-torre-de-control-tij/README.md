@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/vuelos, GET /api/vuelos/:id, WebSocket /ws con cambios de estado para el tablero de la torre
 - **Metricas:** vuelos por estado, demora promedio, puertas ocupadas, eventos por minuto
 - **Prueba de caos:** matar el proceso de un vuelo y verificar que se reconstruye con su ultimo estado y el tablero no parpadea
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

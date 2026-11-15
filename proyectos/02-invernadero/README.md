@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/estado, POST /api/actuadores/:id (manual/auto), SSE con el estado del clima
 - **Metricas:** temperatura/humedad/CO2 actuales, cambios de modo, tiempo en modo_seguro
 - **Prueba de caos:** matar un sensor de temperatura y comprobar que el controlador entra a modo_seguro
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

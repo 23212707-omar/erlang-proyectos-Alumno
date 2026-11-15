@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/animales/:id/pesaje, GET /api/animales?potrero=, WebSocket de alertas
 - **Metricas:** ganancia diaria de peso, animales en tratamiento, ocupacion de potreros
 - **Prueba de caos:** movimiento masivo de animales entre potreros: los conteos siguen consistentes
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

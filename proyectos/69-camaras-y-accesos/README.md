@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/eventos, GET /api/eventos?desde=&hasta=&camara=, WebSocket de eventos nuevos
 - **Metricas:** eventos por camara, camaras offline, tiempo de respuesta de consultas
 - **Prueba de caos:** millones de eventos y una consulta de rango: sin bloquear la ingesta
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

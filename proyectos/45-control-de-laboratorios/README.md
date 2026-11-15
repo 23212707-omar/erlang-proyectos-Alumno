@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/laboratorios/:id/disponibilidad, POST /api/reservas, GET /api/reservas?grupo=
 - **Metricas:** ocupacion por laboratorio, reservas canceladas, uso por carrera
 - **Prueba de caos:** reservas traslapadas simultaneas: una se rechaza con mensaje claro
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

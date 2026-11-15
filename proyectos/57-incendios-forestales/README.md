@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/sensores/:id/lectura, GET /api/zonas/:id/riesgo, WebSocket de alertas
 - **Metricas:** zonas en riesgo, sensores sin senal, alertas confirmadas
 - **Prueba de caos:** un sensor reporta humo y los vecinos no: se marca 'sospecha' y no 'confirmado'
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

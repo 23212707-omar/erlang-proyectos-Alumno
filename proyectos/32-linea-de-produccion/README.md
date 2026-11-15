@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/linea, POST /api/estaciones/:id/paro, SSE de piezas y cuellos de botella
 - **Metricas:** piezas por hora, estacion cuello de botella, tiempo de paro
 - **Prueba de caos:** matar una estacion y verificar que las anteriores se detienen por backpressure y no se llenan
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

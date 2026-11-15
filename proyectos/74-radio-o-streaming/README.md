@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/pistas, POST /api/pistas/:id/voto, WebSocket de estado de reproduccion
 - **Metricas:** oyentes, votos, pistas en cola, saltos
 - **Prueba de caos:** votos masivos simultaneos: el orden de la cola es consistente
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

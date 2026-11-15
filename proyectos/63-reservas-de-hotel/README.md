@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/disponibilidad?desde=&hasta=, POST /api/reservas, DELETE /api/reservas/:id
 - **Metricas:** ocupacion por fecha, reservas canceladas, ingresos estimados
 - **Prueba de caos:** N reservas simultaneas sobre la ultima habitacion: exactamente una gana
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

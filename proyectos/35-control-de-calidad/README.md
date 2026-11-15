@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/lotes, POST /api/lotes/:id/defectos, GET /api/lotes/:id semaforo
 - **Metricas:** tasa de defectos, lotes rechazados, tiempo de inspeccion
 - **Prueba de caos:** registrar defectos concurrentes y verificar que el semaforo es consistente
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

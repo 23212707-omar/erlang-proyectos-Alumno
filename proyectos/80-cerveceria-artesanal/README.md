@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/lotes, POST /api/lotes/:id/avanzar, GET /api/fermentadores, SSE de temperatura
 - **Metricas:** lotes por etapa, desviacion de temperatura, litros producidos
 - **Prueba de caos:** falla del control de temperatura: el lote queda marcado 'en riesgo' y se notifica
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** WebSocket /ws/mesa/:id, POST /api/mesas, GET /api/mesas
 - **Metricas:** mesas activas, jugadores, duracion de partida
 - **Prueba de caos:** un jugador se desconecta: la mesa espera o lo reemplaza segun regla, sin colgarse
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

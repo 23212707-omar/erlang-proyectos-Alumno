@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET/POST /api/programas, GET /api/valvulas, WebSocket con el estado de cada zona
 - **Metricas:** litros por zona, programas ejecutados, programas atrasados, valvulas en fallo
 - **Prueba de caos:** matar el programador en pleno riego y verificar que recupera el estado persistido (disco/ETS+dets) tras el reinicio
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

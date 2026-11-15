@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/albergues, POST /api/registros, POST /api/suministros, SSE del tablero
 - **Metricas:** ocupacion de albergues, suministros criticos, personas registradas
 - **Prueba de caos:** albergue lleno durante registro concurrente: se redirige a otro con cupo
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

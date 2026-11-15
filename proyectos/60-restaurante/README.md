@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/mesas/:id/comandas, GET /api/cocina/cola, WebSocket de meseros y cocina
 - **Metricas:** tiempo mesa->servido, comandas por estacion, mesas ocupadas
 - **Prueba de caos:** caer la estacion de cocina: las comandas se redistribuyen a otra
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

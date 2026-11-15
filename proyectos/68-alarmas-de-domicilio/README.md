@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/domicilios/:id/evento, POST /api/alarmas/:id/verificar, WebSocket de operador
 - **Metricas:** alarmas por tipo, falsos positivos, tiempo a verificacion
 - **Prueba de caos:** un panel deja de latir: se genera alarma de falla de comunicacion
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

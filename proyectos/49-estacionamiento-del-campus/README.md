@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/zonas, GET /api/cajones?edificio=, WebSocket del mapa del campus
 - **Metricas:** ocupacion por zona, hora pico, cajones fuera de servicio
 - **Prueba de caos:** reinicio de una zona: reconstruye su ocupacion desde las lecturas siguientes
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

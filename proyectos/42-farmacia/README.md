@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/recetas, POST /api/recetas/:id/surtir, GET /api/caducidades?dias=
 - **Metricas:** existencias criticas, lotes proximos a caducar, recetas surtidas/rechazadas
 - **Prueba de caos:** surtir en paralelo la misma receta dos veces: la segunda debe rechazarse
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

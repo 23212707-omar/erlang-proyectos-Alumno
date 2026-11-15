@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/eventos, GET /api/sismos?min_mag=, WebSocket/SSE de alertas
 - **Metricas:** eventos por hora, magnitud maxima, alertas enviadas, latencia de alerta
 - **Prueba de caos:** rafaga de 500 eventos (replicas): se deduplican y la alerta sale una sola vez
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

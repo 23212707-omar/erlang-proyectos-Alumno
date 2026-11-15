@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/eventos/:id/bloquear, POST /api/compras/:id/pagar, GET /api/eventos/:id/asientos, WebSocket de disponibilidad
 - **Metricas:** asientos vendidos/bloqueados, conversion, longitud de la sala de espera
 - **Prueba de caos:** 5000 compradores por 100 asientos: sin sobreventa y los bloqueos vencen y se liberan
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

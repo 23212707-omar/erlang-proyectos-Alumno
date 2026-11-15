@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/pedidos, GET /api/pedidos/:id, WebSocket de pantalla de cocina y de cliente
 - **Metricas:** pedidos en cola, tiempo medio de preparacion, productos agotados
 - **Prueba de caos:** caer la cocina con pedidos en proceso: se reconstruyen desde la persistencia
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

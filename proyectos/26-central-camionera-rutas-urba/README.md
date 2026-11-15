@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/unidades/:id/posicion, GET /api/rutas/:id/llegadas, WebSocket del mapa
 - **Metricas:** unidades activas, retraso medio por ruta, posiciones por segundo
 - **Prueba de caos:** una unidad deja de reportar: se marca fuera de servicio y la ETA excluye esa unidad
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

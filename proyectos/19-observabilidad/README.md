@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /metrics (prometheus), GET /api/salud, dashboard de procesos/memoria/colas
 - **Metricas:** memoria por allocator, colas de mensajes, procesos por tipo, schedulers utilization
 - **Prueba de caos:** crear una fuga de memoria o cola creciente a proposito y diagnosticarla con recon:proc_count/2
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

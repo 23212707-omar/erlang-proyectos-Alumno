@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/estaciones/:id/lectura, GET /api/aqi, WebSocket de alertas
 - **Metricas:** AQI por zona, lecturas invalidas, estaciones sin reportar
 - **Prueba de caos:** lecturas absurdas (negativas): se descartan y se cuentan, sin romper el promedio
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

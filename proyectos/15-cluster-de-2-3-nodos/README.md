@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/cluster (nodos y rol), POST /api/estado (replica a los demas), SSE de cambios de topologia
 - **Metricas:** nodos conectados, latencia de replicacion, cambios de lider
 - **Prueba de caos:** desconectar un nodo, escribir estado, reconectarlo y verificar que converge
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

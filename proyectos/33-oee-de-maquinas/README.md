@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/maquinas/:id/evento, GET /api/oee?turno=, WebSocket del tablero
 - **Metricas:** disponibilidad, rendimiento, calidad y OEE por maquina y turno
 - **Prueba de caos:** reiniciar una maquina a mitad de turno sin perder el acumulado
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/telemetria, GET /api/dispositivos, WebSocket de alertas de 'dejo de reportar'
 - **Metricas:** dispositivos activos, mensajes por segundo, dispositivos silenciosos, bateria baja
 - **Prueba de caos:** levantar 10 000 dispositivos simulados y medir memoria con recon:proc_count/2
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/cruceros/:id, POST /api/cruceros/:id/modo (normal/intermitente/manual), SSE del estado
 - **Metricas:** ciclos completados, fallas de fase, tiempo en modo intermitente
 - **Prueba de caos:** matar un semaforo y verificar que el crucero pasa a intermitente por seguridad (nunca dos verdes cruzados)
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

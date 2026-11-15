@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/condiciones, GET /api/bandera, SSE de cambios de bandera
 - **Metricas:** altura de ola, viento, cambios de bandera por dia
 - **Prueba de caos:** datos faltantes: la bandera sube a amarilla por precaucion, no se queda en verde
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

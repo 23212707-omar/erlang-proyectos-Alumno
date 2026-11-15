@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/colas, WebSocket con tiempos de espera, historial por hora
 - **Metricas:** personas en cola, espera estimada, capacidad por hora
 - **Prueba de caos:** cerrar un carril de golpe y verificar que el estimador reacomoda la espera
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

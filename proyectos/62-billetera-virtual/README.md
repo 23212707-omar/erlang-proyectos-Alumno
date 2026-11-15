@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/transferencias (con id de idempotencia), GET /api/cuentas/:id/movimientos
 - **Metricas:** transferencias exitosas/fallidas, saldo total conservado, reintentos idempotentes
 - **Prueba de caos:** matar el coordinador a mitad de una transferencia: dinero ni creado ni perdido
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

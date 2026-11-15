@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/pacientes (ingreso), GET /api/cola, WebSocket del tablero de sala de espera
 - **Metricas:** tiempo de espera por prioridad, pacientes en atencion, ocupacion de consultorios
 - **Prueba de caos:** llega una emergencia nivel 1 con la cola llena: pasa al frente sin perder a nadie
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

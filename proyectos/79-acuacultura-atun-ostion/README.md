@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/jaulas/:id/lectura, POST /api/jaulas/:id/alimentar, WebSocket de alertas
 - **Metricas:** oxigeno disuelto, mortalidad estimada, alimento suministrado
 - **Prueba de caos:** caida de oxigeno: alarma critica y activacion de aireacion de respaldo
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

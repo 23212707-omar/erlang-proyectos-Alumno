@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/viajes (solicitud), WebSocket para conductor y pasajero, GET /api/viajes/:id
 - **Metricas:** viajes activos, tiempo de asignacion, conductores disponibles por zona
 - **Prueba de caos:** el conductor desaparece a mitad de asignacion: el viaje se reasigna automaticamente
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

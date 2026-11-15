@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/accesos (intento), GET /api/bitacora?desde=&hasta=, POST /api/credenciales/:id/revocar
 - **Metricas:** accesos permitidos/denegados, puertas forzadas, credenciales revocadas
 - **Prueba de caos:** revocar una credencial durante un intento de acceso concurrente y verificar que se niega
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

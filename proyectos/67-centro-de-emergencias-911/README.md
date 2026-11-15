@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/incidentes, GET /api/unidades, WebSocket de mapa y de despacho
 - **Metricas:** tiempo de despacho, incidentes abiertos por prioridad, unidades disponibles
 - **Prueba de caos:** la unidad asignada no acepta en N segundos: se reasigna a la siguiente mas cercana
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

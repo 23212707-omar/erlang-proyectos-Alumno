@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/garitas/:id/lectura, GET /api/garitas, GET /api/prediccion?hora=
 - **Metricas:** espera actual vs promedio, error de la prediccion, lecturas faltantes
 - **Prueba de caos:** dejar de enviar lecturas de una garita y verificar que el dashboard marca dato obsoleto
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

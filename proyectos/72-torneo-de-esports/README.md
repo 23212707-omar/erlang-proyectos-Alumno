@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/torneos/:id/bracket, POST /api/partidas/:id/resultado, WebSocket de marcadores
 - **Metricas:** partidas en curso, espectadores, avance del bracket
 - **Prueba de caos:** resultado reportado dos veces con valores distintos: se marca en disputa
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

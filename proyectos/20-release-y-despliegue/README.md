@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/version y /api/salud para verificar el despliegue
 - **Metricas:** tiempo de arranque, reinicios por systemd, uptime
 - **Prueba de caos:** kill -9 al nodo y verificar que systemd lo levanta (Restart=on-failure); probar actualizacion de version
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

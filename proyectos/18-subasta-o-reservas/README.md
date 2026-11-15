@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/subastas/:id/pujas, GET /api/subastas/:id, SSE con la mejor puja
 - **Metricas:** pujas por segundo, subastas abiertas, pujas rechazadas por orden
 - **Prueba de caos:** 1000 pujas simultaneas: debe ganar la mayor y sin duplicados de adjudicacion
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

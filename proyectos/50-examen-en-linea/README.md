@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/examenes/:id/iniciar, PUT /api/intentos/:id/respuesta, WebSocket de tiempo restante
 - **Metricas:** examenes en curso, desconexiones, envios al limite de tiempo
 - **Prueba de caos:** matar el proceso de un alumno a mitad de examen: reanuda con el tiempo correcto y sin perder respuestas
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

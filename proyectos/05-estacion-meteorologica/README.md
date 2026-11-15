@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/lecturas, GET /api/promedios, GET /metrics en formato Prometheus
 - **Metricas:** temperatura, humedad, presion, viento (gauges); lecturas ingeridas (counter)
 - **Prueba de caos:** matar al dueño de la ETS y verificar que la tabla se recrea y el agregador se reengancha
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

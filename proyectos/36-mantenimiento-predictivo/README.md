@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/maquinas/:id/lectura, GET /api/maquinas/:id/salud, WebSocket de alertas
 - **Metricas:** anomalias detectadas, falsos positivos, tiempo a falla estimado
 - **Prueba de caos:** inyectar una senal con deriva creciente y verificar que pasa a advertencia antes de falla
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

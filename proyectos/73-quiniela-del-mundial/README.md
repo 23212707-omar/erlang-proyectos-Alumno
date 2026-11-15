@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/predicciones (antes del cierre), GET /api/ranking, SSE de puntos en vivo
 - **Metricas:** predicciones por partido, usuarios activos, cambios de ranking
 - **Prueba de caos:** enviar una prediccion despues del cierre: se rechaza aun con relojes desfasados
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

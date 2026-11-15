@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/lamparas/:id/falla, GET /api/mapa/fallas, PATCH /api/fallas/:id
 - **Metricas:** lamparas apagadas, tiempo de reparacion, fallas por sector
 - **Prueba de caos:** reporte duplicado del mismo poste por varias personas: se agrupa en una sola falla
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

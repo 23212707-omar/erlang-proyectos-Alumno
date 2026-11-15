@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** WebSocket /ws/subasta con pujas en vivo, POST /api/lotes/:id/pujas, GET /api/lotes
 - **Metricas:** pujas por lote, precio final vs base, participantes activos
 - **Prueba de caos:** puja en el ultimo milisegundo: la regla de extension de tiempo se aplica de forma determinista
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

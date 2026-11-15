@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/estaciones, POST /api/unidades/:id/desbloquear, SSE de disponibilidad
 - **Metricas:** ocupacion por estacion, viajes por hora, estaciones vacias/llenas
 - **Prueba de caos:** dos usuarios desbloquean la misma unidad: solo uno lo logra
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

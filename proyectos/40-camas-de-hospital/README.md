@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/camas, POST /api/admisiones, POST /api/camas/:id/alta, SSE de ocupacion
 - **Metricas:** ocupacion por servicio, rotacion de camas, tiempo de limpieza
 - **Prueba de caos:** dos admisiones piden la ultima cama libre: solo una la obtiene
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

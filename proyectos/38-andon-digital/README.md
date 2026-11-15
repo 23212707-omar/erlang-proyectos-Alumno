@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/estaciones/:id/llamada, POST /api/llamadas/:id/atender, WebSocket del tablero andon
 - **Metricas:** llamadas por turno, tiempo de respuesta, escalamientos
 - **Prueba de caos:** matar el proceso de una llamada abierta: debe reconstruirse y seguir escalando
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

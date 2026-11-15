@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** POST /api/vehiculos/:id/posicion, POST /api/entregas, WebSocket del mapa de la flotilla
 - **Metricas:** entregas por estado, vehiculos activos, retraso medio
 - **Prueba de caos:** un vehiculo se queda sin reportar: sus entregas pendientes se reasignan
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)

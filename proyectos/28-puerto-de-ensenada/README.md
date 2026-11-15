@@ -36,3 +36,7 @@ rebar3 shell
 - **API / tiempo real:** GET /api/muelles, GET /api/barcos, POST /api/turnos, WebSocket de operaciones
 - **Metricas:** ocupacion de muelles, contenedores por hora, tiempo en espera de barcos
 - **Prueba de caos:** falla de una grua en operacion: las tareas se reasignan a otra
+
+## Extension
+
+- Extensión gemelo digital (Prolog): [gemelo/PROBLEMA.md](gemelo/PROBLEMA.md)
