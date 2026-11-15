@@ -30,7 +30,9 @@ api_test_() ->
     fun falla_con_ubicacion/1,
     fun resumen_del_catalogo/1,
     fun puntos_y_luminaria_del_catalogo/1,
-    fun simulador_por_http/1]}.
+    fun simulador_por_http/1,
+    fun reporte_por_direccion/1,
+    fun direccion_invalida_inexistente_o_ambigua/1]}.
 
 post_crea_falla({_Sup, Puerto}) ->
   ?_test(begin
@@ -159,6 +161,48 @@ simulador_por_http({_Sup, Puerto}) ->
     ?assertMatch({200, #{<<"activo">> := true}}, peticion(post, Puerto, "/api/simulador/iniciar", "{}")),
     ?assertMatch({200, #{<<"activo">> := false}}, peticion(post, Puerto, "/api/simulador/detener", "{}"))
   end).
+
+%% La misma luminaria reportada con la direccion del catalogo y con otra forma de
+%% escribirla (mayusculas, "No." en vez de "#") se agrupa en una sola falla.
+reporte_por_direccion({_Sup, Puerto}) ->
+  ?_test(begin
+    {Id, Direccion} = direccion_unica(),
+    Variante = string:uppercase(binary:replace(Direccion, <<"#">>, <<"No. ">>)),
+    ?assertMatch({201, #{<<"luminaria">> := Id, <<"resultado">> := <<"nueva">>}},
+                 peticion(post, Puerto, "/api/reportes", cuerpo_direccion(Direccion))),
+    ?assertMatch({200, #{<<"luminaria">> := Id, <<"resultado">> := <<"agrupada">>}},
+                 peticion(post, Puerto, "/api/reportes", cuerpo_direccion(Variante))),
+    {200, #{<<"fallas">> := Fallas}} = peticion(get, Puerto, "/api/mapa/fallas", ""),
+    ?assertEqual(1, length([F || #{<<"luminaria">> := L} = F <- Fallas, L =:= Id]))
+  end).
+
+direccion_invalida_inexistente_o_ambigua({_Sup, Puerto}) ->
+  ?_test(begin
+    ?assertMatch({400, _}, peticion(post, Puerto, "/api/reportes", "{}")),
+    ?assertMatch({400, _}, peticion(post, Puerto, "/api/reportes", "{\"direccion\":\"sin numero\"}")),
+    ?assertMatch({404, _}, peticion(post, Puerto, "/api/reportes", "{\"direccion\":\"Av. Inexistente 99999\"}")),
+    {Id, Direccion} = direccion_repetida(),
+    {409, #{<<"candidatas">> := Candidatas}} =
+      peticion(post, Puerto, "/api/reportes", cuerpo_direccion(Direccion)),
+    ?assert(lists:member(Id, Candidatas)),
+    ?assert(length(Candidatas) >= 2)
+  end).
+
+cuerpo_direccion(Direccion) ->
+  binary_to_list(iolist_to_binary(json:encode(#{direccion => Direccion}))).
+
+%% Una luminaria de las primeras 80 cuya direccion solo corresponde a ella.
+direccion_unica() ->
+  hd([{Id, D} || N <- lists:seq(1, 80),
+                 Id <- [iolist_to_binary(io_lib:format("L-~4..0w", [N]))],
+                 {ok, #{direccion := D}} <- [p70_catalogo:buscar(Id)],
+                 p70_direccion:resolver(D) =:= {ok, Id}]).
+
+%% Una luminaria cuya direccion comparte otra del catalogo (dos postes en el mismo numero).
+direccion_repetida() ->
+  hd([{Id, D} || [Id, _, _] <- p70_catalogo:puntos(),
+                 {ok, #{direccion := D}} <- [p70_catalogo:buscar(Id)],
+                 {error, {ambigua, _}} <- [p70_direccion:resolver(D)]]).
 
 peticion(Metodo, Puerto, Ruta, Cuerpo) ->
   Url = "http://127.0.0.1:" ++ integer_to_list(Puerto) ++ Ruta,

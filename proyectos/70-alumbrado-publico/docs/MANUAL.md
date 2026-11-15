@@ -32,6 +32,7 @@ setsid nohup rebar3 shell --name p70_alumbrado_publico@127.0.0.1 \
 | Método y ruta | Descripción | Respuesta |
 |---|---|---|
 | `POST /api/lamparas/:id/falla` | Reporta una falla. Cuerpo opcional: `{"prioridad":"alta\|media\|baja","fuente":"ciudadano\|telemetria"}` | 201 si abre una nueva, 200 si se agrupa, 400 si algo es inválido |
+| `POST /api/reportes` | Reporta por dirección escrita a mano: `{"direccion":"Av. Revolución 1234","prioridad":"media","fuente":"ciudadano"}` | 201 o 200; 400 sin calle y número; 404 si no existe; 409 con `candidatas` si varias luminarias comparten la dirección |
 | `GET /api/mapa/fallas` | Lista las fallas vigentes | 200 con `{"fallas":[...]}` |
 | `GET /api/fallas/:id` | Detalle de la falla de una luminaria (con reincidencias) | 200, o 404 |
 | `PATCH /api/fallas/:id` | `{"accion":"asignar","cuadrilla":"cuadrilla_1"}` o `{"accion":"reparar"}` | 200, 404 o 409 si la transición no es válida |
@@ -56,7 +57,7 @@ Con el nodo corriendo, la interfaz está en `http://localhost:8080`. Si la Pi es
 |---|---|
 | Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); tarjeta de rutas de cuadrilla (paradas en orden y km) con líneas punteadas en el mapa; lista ordenada por urgencia (actualización cada 5 s) |
 | Detalle | Ubicación con mini mapa, reportes agrupados por fuente, reincidencias, ciclo de vida y acciones (asignar, reparar) |
-| Reportar | Formulario con aviso de si el reporte creó una falla nueva, se agrupó o fue reincidencia |
+| Reportar | Formulario que acepta el ID de la luminaria o su dirección, con aviso de si el reporte creó una falla nueva, se agrupó o fue reincidencia (y qué dirección se reconoció) |
 | Bitácora | Eventos reales con búsqueda por ID y filtros |
 
 ## 4. Ejemplo real (salida obtenida en la Pi)
@@ -133,6 +134,29 @@ curl -s localhost:8080/api/cuadrillas/rutas
 
 Cada cuadrilla visita primero su falla más urgente y después la más cercana.
 
+### Duplicados con direcciones escritas distinto
+
+La dirección de L-0002 en el catálogo es `Paseo de los Héroes #4929, Zona Río`. Se reporta tal cual y después escrita de otra forma:
+
+```
+curl -s -X POST localhost:8080/api/reportes -d '{"direccion":"Paseo de los Héroes #4929, Zona Río"}'
+# {"luminaria":"L-0002","resultado":"nueva","direccion":"Paseo de los Héroes #4929, Zona Río"}
+curl -s -X POST localhost:8080/api/reportes -d '{"direccion":"PASEO DE LOS HÉROES No.4929, ZONA RÍO"}'
+# {"luminaria":"L-0002","resultado":"agrupada","direccion":"Paseo de los Héroes #4929, Zona Río"}
+```
+
+En la interfaz (vista Reportar) aparece "Se creó una falla nueva para L-0002" y después "El reporte se agrupó con la falla ya abierta de L-0002", con la dirección reconocida.
+
+Otros resultados:
+
+| Texto escrito | Respuesta |
+|---|---|
+| `Av. Revolución` (sin número) | 400: dirección inválida, se necesita calle y número |
+| `Av. Inexistente 99999` | 404: dirección no encontrada en el catálogo |
+| `Paseo de los Héroes #3848, Zona Centro` | 409: dirección ambigua, candidatas `L-0027` y `L-3432` |
+
+Cuando dos postes comparten calle, número y sector, la API no adivina: devuelve las candidatas y el reporte se hace con el ID del poste correcto (por ejemplo `L-0027`, que abrió una falla nueva).
+
 ## 5. Detener el servicio
 
 Con `setsid` o `nohup` el PID que devuelve el shell puede no ser el de la VM de Erlang. Se localiza con `ps` y se detiene con `kill`:
@@ -162,7 +186,7 @@ kill <PID>
 - Las cifras del documento del problema se contrastaron con fuentes el 14 de noviembre de 2026 (tabla en el README, sección "Cifras del problema: qué se verificó"). La de 8 a 15 luminarias por cuadrilla al día no tiene fuente y es un supuesto. El simulador usa parámetros propios (80 reportes por día, 4 cuadrillas, 3 fallas por cuadrilla) y no pretende reflejar datos reales del municipio.
 - El **catálogo es simulado**: 5,000 luminarias generadas con una función determinista alrededor de 7 sectores. No son datos reales del municipio y no siguen las calles.
 - El **contorno del mapa (frontera y costa) es aproximado**, calibrado a mano con un mapa de la ciudad. No es cartografía oficial.
-- Por ahora la llave de agrupación es el **id de luminaria**. Los reportes ciudadanos con direcciones escritas distinto necesitarán una normalización de dirección a id de luminaria (pendiente).
+- La llave de agrupación sigue siendo el **id de luminaria**; las direcciones escritas a mano se convierten a id con `p70_direccion` (calle y número, con o sin sector). No corrige ortografía ni entiende calles con número ("Calle 10"), y solo conoce el catálogo simulado.
 - La **falla de circuito** es una sola falla (id del circuito, con sus 40 luminarias afectadas, ubicada en su centro). No se enlaza con las fallas individuales de sus luminarias, que son independientes. En la interfaz, cada clic en "Falla de circuito" usa el siguiente sector; para repetir el mismo circuito (y ver el agrupado) se usa la API.
 - La simulación usa números aleatorios (`rand`): los contadores del modo continuo cambian en cada corrida. Los escenarios y el catálogo sí son reproducibles.
 - No hay persistencia: si el nodo se reinicia, se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual).

@@ -622,9 +622,9 @@ function vistaReportar() {
       '<p class="font-body-sm text-body-sm text-on-surface-variant">Si la luminaria ya tiene una falla abierta, el reporte se agrupa en ella en lugar de crear otra.</p>' +
       '<form id="form-reporte" class="flex flex-col gap-space-md">' +
         '<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">' +
-          '<label for="rep-id" class="font-label-lg text-label-lg text-on-surface">ID de luminaria <span class="text-error">*</span></label>' +
-          '<input id="rep-id" required maxlength="40" pattern="[A-Za-z0-9_\\-]+" placeholder="L-0001" class="h-12 rounded-xl bg-surface-container-low px-4 font-body-lg text-body-lg" />' +
-          '<span class="font-body-sm text-body-sm text-on-surface-variant">Catálogo simulado: de L-0001 a L-5000.</span></div>' +
+          '<label for="rep-id" class="font-label-lg text-label-lg text-on-surface">ID o dirección de la luminaria <span class="text-error">*</span></label>' +
+          '<input id="rep-id" required maxlength="100" placeholder="L-0001 o Av. Revolución #1234" class="h-12 rounded-xl bg-surface-container-low px-4 font-body-lg text-body-lg" />' +
+          '<span class="font-body-sm text-body-sm text-on-surface-variant">Catálogo simulado: de L-0001 a L-5000. Si escribes una dirección (calle y número), se reconoce aunque la escribas distinto: abreviaturas, acentos, mayúsculas o colonia.</span></div>' +
         '<fieldset class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-xs">' +
           '<legend class="font-label-lg text-label-lg text-on-surface">Prioridad <span class="text-error">*</span></legend>' +
           radio('prioridad', 'alta', 'Alta · avenidas, cruces escolares, hospitales', false) +
@@ -641,16 +641,24 @@ function vistaReportar() {
 
 async function enviarReporte(evento) {
   evento.preventDefault();
-  const id = $('#rep-id').value.trim();
+  const texto = $('#rep-id').value.trim();
+  const esId = /^[A-Za-z0-9_\-]+$/.test(texto);
   const prioridad = document.querySelector('input[name="prioridad"]:checked').value;
   const fuente = document.querySelector('input[name="fuente"]:checked').value;
-  const r = await api('POST', '/api/lamparas/' + encodeURIComponent(id) + '/falla', { prioridad, fuente });
+  const r = esId
+    ? await api('POST', '/api/lamparas/' + encodeURIComponent(texto) + '/falla', { prioridad, fuente })
+    : await api('POST', '/api/reportes', { direccion: texto, prioridad, fuente });
   const caja = $('#resultado-reporte');
   if (!r.ok) {
+    const candidatas = (r.datos && r.datos.candidatas) || [];
+    const extra = candidatas.length
+      ? ' Luminarias con esa dirección: ' + candidatas.map(esc).join(', ') + '. Escribe el ID de la que sea.'
+      : '';
     caja.innerHTML = '<div class="rounded-xl bg-error-container p-space-md text-on-error-container font-body-md">No se pudo enviar el reporte: ' +
-      esc(r.datos.error || 'error de conexión') + '.</div>';
+      esc((r.datos && r.datos.error) || 'error de conexión') + '.' + extra + '</div>';
     return;
   }
+  const id = r.datos.luminaria || texto;
   const mensajes = {
     nueva: 'Se creó una falla nueva para ',
     agrupada: 'El reporte se agrupó con la falla ya abierta de ',
@@ -658,6 +666,7 @@ async function enviarReporte(evento) {
   };
   caja.innerHTML = '<div class="rounded-xl bg-secondary-fixed p-space-md text-on-secondary-fixed font-body-md flex flex-col gap-space-sm">' +
     '<div>' + (mensajes[r.datos.resultado] || 'Reporte recibido para ') + '<b>' + esc(id) + '</b>.</div>' +
+    (esId || !r.datos.direccion ? '' : '<div class="font-body-sm text-body-sm">Dirección reconocida: ' + esc(r.datos.direccion) + '.</div>') +
     '<a class="font-label-lg text-label-lg text-secondary underline" href="#/falla/' + encodeURIComponent(id) + '">Ver detalle de la falla</a></div>';
 }
 

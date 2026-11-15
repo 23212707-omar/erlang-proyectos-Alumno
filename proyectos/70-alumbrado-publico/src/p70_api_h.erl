@@ -3,6 +3,9 @@
 %%   POST  /api/lamparas/:id/falla   reporta una falla (se agrupa por luminaria)
 %%                                   cuerpo opcional: {"prioridad":"alta|media|baja",
 %%                                                     "fuente":"ciudadano|telemetria"}
+%%   POST  /api/reportes             reporta por DIRECCION escrita a mano; cuerpo: {"direccion":"Av. Revolucion 1234",
+%%                                   "prioridad":..., "fuente":...}. Se normaliza y se busca en el catalogo:
+%%                                   404 si no existe, 409 si hay varias luminarias con esa direccion.
 %%   GET   /api/mapa/fallas          lista las fallas vigentes
 %%   GET   /api/cuadrillas/rutas     ruta de cada cuadrilla: sus fallas asignadas por cercania, con km
 %%   GET   /api/fallas/:id           detalle de una falla (:id = id de luminaria)
@@ -33,22 +36,28 @@ atender(falla, <<"POST">>, Req0) ->
   Luminaria = cowboy_req:binding(id, Req0),
   case leer_json(Req0) of
     {ok, Datos, Req1} ->
-      Prioridad = prioridad(maps:get(<<"prioridad">>, Datos, <<"media">>)),
-      Fuente = fuente(maps:get(<<"fuente">>, Datos, <<"ciudadano">>)),
-      case {Prioridad, Fuente} of
-        {error, _} ->
-          responder(400, #{error => <<"prioridad invalida">>}, Req1);
-        {_, error} ->
-          responder(400, #{error => <<"fuente invalida">>}, Req1);
+      reportar_luminaria(Luminaria, Datos, Req1);
+    {error, Req1} ->
+      responder(400, #{error => <<"json invalido">>}, Req1)
+  end;
+atender(reporte, <<"POST">>, Req0) ->
+  case leer_json(Req0) of
+    {ok, Datos, Req1} ->
+      case maps:get(<<"direccion">>, Datos, undefined) of
+        Texto when is_binary(Texto) ->
+          case p70_direccion:resolver(Texto) of
+            {ok, Luminaria} ->
+              reportar_luminaria(Luminaria, Datos, Req1);
+            {error, direccion_invalida} ->
+              responder(400, #{error => <<"direccion invalida: escribe calle y numero">>}, Req1);
+            {error, no_encontrada} ->
+              responder(404, #{error => <<"direccion no encontrada en el catalogo">>}, Req1);
+            {error, {ambigua, Candidatas}} ->
+              responder(409, #{error => <<"direccion ambigua: hay varias luminarias con ella">>,
+                               candidatas => Candidatas}, Req1)
+          end;
         _ ->
-          case p70_catalogo:buscar(Luminaria) of
-            error ->
-              responder(404, #{error => <<"luminaria no encontrada en el catalogo">>}, Req1);
-            {ok, _} ->
-              {ok, _Pid, Resultado} = p70_registro:reportar(Luminaria, Prioridad, Fuente),
-              responder(codigo(Resultado),
-                        #{luminaria => Luminaria, resultado => Resultado}, Req1)
-          end
+          responder(400, #{error => <<"falta la direccion">>}, Req1)
       end;
     {error, Req1} ->
       responder(400, #{error => <<"json invalido">>}, Req1)
@@ -110,6 +119,27 @@ atender(simulador_circuito, <<"POST">>, Req) ->
   escenario(<<"circuito">>, <<"C-CEN-01">>, fun p70_simulador:escenario_circuito/1, Req);
 atender(_Op, _Metodo, Req) ->
   responder(405, #{error => <<"metodo no permitido">>}, Req).
+
+%% Valida prioridad y fuente del cuerpo, comprueba que la luminaria exista y la reporta.
+%% Lo comparten POST /api/lamparas/:id/falla (por id) y POST /api/reportes (por direccion).
+reportar_luminaria(Luminaria, Datos, Req) ->
+  Prioridad = prioridad(maps:get(<<"prioridad">>, Datos, <<"media">>)),
+  Fuente = fuente(maps:get(<<"fuente">>, Datos, <<"ciudadano">>)),
+  case {Prioridad, Fuente} of
+    {error, _} ->
+      responder(400, #{error => <<"prioridad invalida">>}, Req);
+    {_, error} ->
+      responder(400, #{error => <<"fuente invalida">>}, Req);
+    _ ->
+      case p70_catalogo:buscar(Luminaria) of
+        error ->
+          responder(404, #{error => <<"luminaria no encontrada en el catalogo">>}, Req);
+        {ok, #{direccion := Direccion}} ->
+          {ok, _Pid, Resultado} = p70_registro:reportar(Luminaria, Prioridad, Fuente),
+          responder(codigo(Resultado),
+                    #{luminaria => Luminaria, resultado => Resultado, direccion => Direccion}, Req)
+      end
+  end.
 
 %% Escenario del simulador: lee un valor de texto opcional del cuerpo y lo pasa a Fun.
 escenario(Clave, Defecto, Fun, Req0) ->
