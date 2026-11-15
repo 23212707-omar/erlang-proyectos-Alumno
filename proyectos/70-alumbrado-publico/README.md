@@ -122,7 +122,7 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 
 ## Prueba de caos
 
-Se grabó con asciinema en la Raspberry Pi 4 virtual (`evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo` y `p70_simulador`.
+Se grabó con asciinema en la Raspberry Pi 4 virtual: [ver la grabación](https://asciinema.org/a/W83DW4wpUhF5mrbH) (respaldo en `evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo` y `p70_simulador`.
 
 | # | Qué se mató | Qué se esperaba | Qué ocurrió |
 |---|---|---|---|
