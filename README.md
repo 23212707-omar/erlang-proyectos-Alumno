@@ -14,6 +14,7 @@ Tecnológico de Tijuana), pensados para desplegarse en un Raspberry Pi Compute M
 |---|---|
 | [`proyectos/`](proyectos/) | 81 proyectos (`NN-nombre/`), cada uno una aplicación OTP con `rebar.config`, `src/`, `test/` y `README.md` |
 | [`demos/`](demos/) | Demos de clase: Cowboy, supervisión, código en caliente y behaviours |
+| [`logicDemo/`](logicDemo/) | Demo de Prolog: 36 000 películas consultadas con SWI-Prolog, con servidor web y tutorial |
 | [`PROYECTOS.md`](PROYECTOS.md) | Catálogo, roles del equipo y niveles sugeridos |
 | [`exposicion/`](exposicion/) | Diapositivas de la exposición |
 
