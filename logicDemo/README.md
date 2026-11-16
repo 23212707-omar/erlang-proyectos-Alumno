@@ -4,6 +4,8 @@ Demo de programación lógica sobre una base grande y real: 36 273 películas de
 con 133 326 créditos de reparto, extraídas de Wikipedia. Todo corre con SWI-Prolog y sus
 bibliotecas incluidas: el servidor web, el JSON, la agregación y las pruebas.
 
+![Búsqueda de «matrix» en la página de la demo](design/capturas/buscar.png)
+
 El tutorial va de la instalación a las consultas con backtracking, el análisis de la base
 y el servidor web.
 
@@ -282,6 +284,10 @@ Bibliotecas usadas, todas incluidas en SWI-Prolog:
 | `assoc` | Árbol balanceado para la búsqueda en el grafo. |
 | `yall` | Lambdas (`[X, Y]>>...`) con `maplist/3`. |
 | `plunit` | Pruebas. |
+
+La página se diseñó en Google Stitch (prompt en `design/PROMPT_STITCH.md`) y se adaptó a
+la API real. Carga Tailwind y las fuentes desde internet, así que el navegador necesita
+conexión para verla con estilo.
 
 El servidor no contiene reglas: cada ruta llama a un predicado de `consultas.pl` y
 convierte la respuesta a JSON. La página tampoco decide nada.

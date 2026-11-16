@@ -1,81 +1,380 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<!-- Diseño generado en Google Stitch y adaptado a la API real de servidor.pl.
+     Se quitaron del export las imágenes, biografías, directores y cifras de muestra:
+     la base no tiene esos datos. Ver design/PROMPT_STITCH.md. -->
+<html class="dark" lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Películas en Prolog</title>
-<style>
-  body { font: 16px/1.5 system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 1.4rem; }
-  h2 { font-size: 1.1rem; margin-top: 2rem; }
-  form { display: flex; gap: 8px; flex-wrap: wrap; }
-  input { flex: 1; min-width: 140px; padding: 8px; font: inherit; }
-  button { padding: 8px 14px; font: inherit; cursor: pointer; }
-  ul { padding-left: 1.2rem; }
-  li { margin: 4px 0; }
-  small { color: #666; }
-  a { cursor: pointer; color: #0645ad; text-decoration: underline; }
-</style>
+<style>html,body{margin:0;padding:0}[hidden]{display:none!important}</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {darkMode:"class",theme:{extend:{
+  colors:{"background":"#111317","surface":"#111317","surface-container-lowest":"#0c0e12","surface-container-low":"#1a1c20","surface-container":"#1e2024","surface-container-high":"#282a2e","surface-container-highest":"#333539","surface-bright":"#37393e","primary":"#ffda9c","primary-container":"#f5b942","on-primary":"#422d00","on-primary-container":"#6a4a00","on-surface":"#e2e2e8","on-background":"#e2e2e8","on-surface-variant":"#d4c4af","on-secondary-container":"#b3b5be","outline":"#9c8f7b","outline-variant":"#504535","error":"#ffb4ab","error-container":"#93000a"},
+  borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem","2xl":"1rem",full:"9999px"},
+  spacing:{"gutter":"1.5rem","space-xs":"0.375rem","space-sm":"0.75rem","space-md":"1.25rem","space-lg":"2rem","space-xl":"3.5rem"},
+  fontFamily:{sans:["Inter","system-ui","sans-serif"],serif:["Playfair Display","Georgia","serif"]},
+  fontSize:{"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.08em",fontWeight:"500"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.05em",fontWeight:"500"}],"body-sm":["13px",{lineHeight:"18px"}],"body-md":["15px",{lineHeight:"22px"}],"body-lg":["18px",{lineHeight:"28px"}],"headline-sm":["20px",{lineHeight:"28px",fontWeight:"500"}],"headline-md":["24px",{lineHeight:"32px",fontWeight:"500"}],"headline-lg":["32px",{lineHeight:"40px",fontWeight:"500"}],"display-lg":["44px",{lineHeight:"52px",letterSpacing:"-0.01em",fontWeight:"600"}]}
+}}};
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
 </head>
-<body>
-<h1>Películas en Prolog</h1>
-<p><small>La página solo pregunta; todas las respuestas las deduce el servidor Prolog.</small></p>
+<body class="bg-background font-sans text-body-md text-on-background min-h-screen flex flex-col">
 
-<h2>Buscar por título</h2>
-<form id="f-buscar"><input name="q" placeholder="matrix" required minlength="2"><button>Buscar</button></form>
-<ul id="r-buscar"></ul>
+<header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.2)]">
+  <div class="max-w-7xl mx-auto px-gutter py-space-sm flex flex-col md:flex-row md:items-center gap-space-sm md:gap-space-lg">
+    <div class="flex flex-col">
+      <span class="font-serif text-headline-md text-primary font-bold tracking-tight">Películas en Prolog</span>
+      <span class="text-label-sm text-on-surface-variant uppercase">36 273 películas · 133 326 créditos</span>
+    </div>
+    <nav class="flex items-center gap-space-xs overflow-x-auto" id="nav">
+      <button data-tab="buscar">Buscar</button>
+      <button data-tab="actor">Actor</button>
+      <button data-tab="conexion">Conexión</button>
+      <button data-tab="generos">Géneros</button>
+    </nav>
+  </div>
+</header>
 
-<h2>Actor o actriz</h2>
-<form id="f-actor"><input name="nombre" placeholder="Tom Hanks" required><button>Ver</button></form>
-<div id="r-actor"></div>
+<main class="flex-1 w-full">
 
-<h2>Camino entre dos actores</h2>
-<form id="f-camino">
-  <input name="de" placeholder="Kevin Bacon" required>
-  <input name="a" placeholder="Meryl Streep" required>
-  <button>Conectar</button>
-</form>
-<div id="r-camino"></div>
+<!-- ====== Buscar ====== -->
+<div data-view="buscar">
+  <section class="w-full px-gutter py-space-xl max-w-7xl mx-auto flex flex-col items-center text-center">
+    <div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-high text-on-surface-variant text-label-sm mb-space-md">
+      <span class="material-symbols-outlined text-[16px] text-primary">terminal</span>
+      <span>RESPUESTAS DEDUCIDAS POR SWI-PROLOG</span>
+    </div>
+    <h1 class="font-serif text-headline-lg md:text-display-lg text-on-surface max-w-3xl mb-space-md tracking-tight">Consulta la base de conocimientos cinematográfica</h1>
+    <p class="text-body-lg text-on-surface-variant max-w-xl mb-space-lg">La página solo pregunta; todas las respuestas las deduce el servidor Prolog.</p>
+    <form id="f-buscar" class="w-full max-w-3xl flex flex-col md:flex-row gap-space-sm bg-surface-container-low p-2 rounded-xl shadow-xl">
+      <div class="flex-1 flex items-center px-space-md gap-space-sm">
+        <span class="material-symbols-outlined text-on-surface-variant">search</span>
+        <input name="q" required minlength="2" class="w-full min-h-[44px] bg-transparent text-on-background placeholder:text-on-surface-variant/50 focus:outline-none text-body-lg" placeholder="Busca un título, p. ej. matrix" type="text"/>
+      </div>
+      <button class="min-h-[44px] bg-primary-container text-on-primary-container px-space-xl py-space-sm rounded-lg text-label-md uppercase hover:brightness-110 transition-all flex items-center justify-center gap-space-xs">
+        <span class="material-symbols-outlined text-[18px]">bolt</span>Buscar
+      </button>
+    </form>
+  </section>
+  <section class="w-full px-gutter pb-space-xl max-w-7xl mx-auto">
+    <div hidden id="b-carga" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+      <div class="bg-surface-container rounded-xl p-space-md flex flex-col gap-space-md animate-pulse"><div class="h-6 bg-surface-container-high rounded w-3/4"></div><div class="h-4 bg-surface-container-high rounded w-1/2"></div><div class="h-16 bg-surface-container-high rounded"></div></div>
+      <div class="bg-surface-container rounded-xl p-space-md flex flex-col gap-space-md animate-pulse"><div class="h-6 bg-surface-container-high rounded w-3/4"></div><div class="h-4 bg-surface-container-high rounded w-1/2"></div><div class="h-16 bg-surface-container-high rounded"></div></div>
+      <div class="bg-surface-container rounded-xl p-space-md flex flex-col gap-space-md animate-pulse"><div class="h-6 bg-surface-container-high rounded w-3/4"></div><div class="h-4 bg-surface-container-high rounded w-1/2"></div><div class="h-16 bg-surface-container-high rounded"></div></div>
+    </div>
+    <div hidden id="b-vacio" class="flex flex-col items-center justify-center py-space-xl text-center">
+      <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-space-md text-primary"><span class="material-symbols-outlined text-[40px]">query_stats</span></div>
+      <h3 class="font-serif text-headline-md text-on-surface mb-space-xs">Sin resultados</h3>
+      <p class="text-on-surface-variant max-w-md">El predicado <code class="text-primary bg-surface-container-low px-space-xs py-0.5 rounded">titulo_contiene/4</code> no encontró ninguna película para esa consulta.</p>
+    </div>
+    <div id="b-res" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg"></div>
+  </section>
+</div>
 
-<h2>Géneros</h2>
-<ul id="r-generos"></ul>
+<!-- ====== Actor ====== -->
+<div data-view="actor" hidden>
+  <section class="w-full bg-surface-container-low py-space-lg px-gutter">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+      <div>
+        <span class="text-label-sm text-primary uppercase">Base de datos Prolog</span>
+        <h1 class="font-serif text-headline-lg text-on-surface mt-1">Explorador de filmografía</h1>
+      </div>
+      <form id="f-actor" class="flex items-center gap-space-sm w-full md:w-auto">
+        <div class="relative flex-1 md:w-80">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+          <input name="nombre" required class="w-full bg-surface-container py-3 pl-10 pr-4 rounded-xl text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="Tom Hanks" type="text"/>
+        </div>
+        <button class="min-h-[44px] bg-primary-container text-on-primary-container font-medium px-space-lg py-3 rounded-xl hover:bg-primary transition-colors flex items-center gap-space-xs shrink-0">
+          <span class="material-symbols-outlined text-[18px]">query_stats</span><span>Consultar</span>
+        </button>
+      </form>
+    </div>
+  </section>
+  <div id="a-res" class="max-w-7xl mx-auto px-gutter py-space-xl w-full"></div>
+</div>
+
+<!-- ====== Conexión ====== -->
+<div data-view="conexion" hidden>
+  <section class="max-w-7xl mx-auto px-gutter pt-space-xl pb-space-lg w-full">
+    <span class="text-label-sm text-primary uppercase font-semibold">Grafo de actores</span>
+    <h1 class="font-serif text-headline-lg md:text-display-lg text-on-background font-bold tracking-tight">Caminos cinematográficos</h1>
+    <p class="text-body-lg text-on-surface-variant mt-space-sm max-w-2xl">La cadena más corta de películas compartidas entre dos actores, hasta seis saltos.</p>
+  </section>
+  <section class="max-w-7xl mx-auto px-gutter w-full mb-space-lg">
+    <div class="bg-surface-container p-space-lg rounded-xl shadow-xl relative overflow-hidden">
+      <div class="absolute -right-24 -top-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+      <form id="f-camino" class="grid grid-cols-1 md:grid-cols-12 gap-space-md items-end relative z-10">
+        <label class="flex flex-col md:col-span-5 gap-space-xs">
+          <span class="text-label-md text-on-surface-variant">De</span>
+          <span class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]">person</span>
+            <input name="de" required class="w-full bg-surface-container-highest text-on-background pl-11 pr-space-md py-3 rounded-lg outline-none focus:ring-2 focus:ring-primary-container placeholder:text-outline" placeholder="Kevin Bacon" type="text"/>
+          </span>
+        </label>
+        <label class="flex flex-col md:col-span-5 gap-space-xs">
+          <span class="text-label-md text-on-surface-variant">A</span>
+          <span class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]">person</span>
+            <input name="a" required class="w-full bg-surface-container-highest text-on-background pl-11 pr-space-md py-3 rounded-lg outline-none focus:ring-2 focus:ring-primary-container placeholder:text-outline" placeholder="Zendaya" type="text"/>
+          </span>
+        </label>
+        <button class="md:col-span-2 min-h-[44px] bg-primary-container text-on-primary-container hover:bg-primary transition-colors py-3 px-space-md rounded-lg font-medium flex items-center justify-center gap-2 shadow-md">
+          <span class="material-symbols-outlined text-[20px]">bolt</span>Conectar
+        </button>
+      </form>
+    </div>
+  </section>
+  <section id="c-res" class="max-w-7xl mx-auto px-gutter w-full mb-space-xl"></section>
+  <section class="max-w-7xl mx-auto px-gutter w-full pb-space-xl">
+    <div class="bg-surface-container p-space-lg rounded-xl">
+      <span class="text-label-sm uppercase text-primary font-semibold">Cómo se busca</span>
+      <p class="text-on-surface-variant mt-space-xs">Búsqueda en anchura escrita en Prolog (<code class="text-primary">camino/3</code>): explora capa por capa a los actores que compartieron película, por eso el primer camino hallado es el más corto.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ====== Géneros ====== -->
+<div data-view="generos" hidden>
+  <section class="w-full max-w-7xl mx-auto px-gutter py-space-xl">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg mb-space-lg">
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-space-sm mb-space-xs">
+          <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          <span class="text-label-sm text-primary uppercase font-semibold">Análisis de la base</span>
+        </div>
+        <h1 class="font-serif text-headline-lg md:text-display-lg text-on-background font-bold tracking-tight mb-space-sm">Distribución por géneros</h1>
+        <p class="text-body-lg text-on-surface-variant">Películas por género. Una película puede tener varios.</p>
+      </div>
+      <div class="flex items-center gap-space-md bg-surface-container-high px-space-md py-space-sm rounded-xl">
+        <span class="material-symbols-outlined text-primary text-[28px]">query_stats</span>
+        <div class="flex flex-col">
+          <span class="text-label-md text-on-surface-variant">Géneros distintos</span>
+          <span class="text-headline-sm text-on-background font-bold" id="g-total">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-surface-container rounded-2xl p-space-lg md:p-space-xl shadow-xl relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="flex items-center gap-space-sm mb-space-lg pb-space-sm border-b border-outline-variant/30">
+        <span class="text-label-sm uppercase text-on-surface-variant">Ranking</span>
+        <span class="text-label-sm uppercase text-primary font-semibold">Los 15 primeros</span>
+      </div>
+      <div class="flex flex-col gap-space-md" id="g-res"></div>
+    </div>
+    <div class="bg-surface-container p-space-lg rounded-xl mt-space-lg">
+      <div class="flex items-center gap-space-sm mb-space-sm">
+        <span class="material-symbols-outlined text-primary text-[24px]">terminal</span>
+        <h3 class="font-serif text-headline-sm text-on-background font-bold">La consulta detrás</h3>
+      </div>
+      <div class="bg-surface-container-highest p-space-sm rounded-lg font-mono text-xs text-primary overflow-x-auto">?- aggregate(count, Id^genero(Id, Genero), N).</div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<!-- Parecidas -->
+<div hidden id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
+  <div class="bg-surface-container-high w-full max-w-2xl mx-4 rounded-xl p-space-lg shadow-2xl flex flex-col max-h-[85vh]">
+    <div class="flex items-center justify-between mb-space-md gap-space-sm">
+      <div>
+        <span class="text-label-sm text-primary uppercase">Afinidad por reparto y género</span>
+        <h3 class="font-serif text-headline-md text-on-surface" id="m-titulo"></h3>
+      </div>
+      <button id="m-cerrar" aria-label="Cerrar" class="w-11 h-11 shrink-0 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    <div class="overflow-y-auto flex-1 pr-1 space-y-2" id="m-lista"></div>
+  </div>
+</div>
+
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant/20 py-space-lg">
+  <div class="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-sm text-body-sm text-on-surface-variant text-center">
+    <div>La página solo pregunta; todas las respuestas las deduce el servidor Prolog.</div>
+    <div class="flex items-center gap-space-md"><span>Datos: Wikipedia</span><span class="w-1 h-1 rounded-full bg-outline-variant"></span><span>SWI-Prolog</span></div>
+  </div>
+</footer>
 
 <script>
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api = async (ruta, params) => (await fetch(ruta + '?' + new URLSearchParams(params))).json();
 const datos = f => Object.fromEntries(new FormData(f));
-const peli = p => `<li><b>${esc(p.titulo)}</b> (${p.anio}) <small>${esc(p.generos.join(', '))}</small>
-  ${p.puntos ? `<small>· ${p.puntos} puntos</small>` : `· <a data-id="${p.id}">parecidas</a>`}
-  <br><small>${esc(p.reparto.join(', '))}</small></li>`;
+const miles = n => n.toLocaleString('es-MX').replace(/,/g, ' ');
+const iniciales = n => n.split(/\s+/).filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase();
+const chips = gs => gs.map(g => `<span class="text-label-sm px-2 py-0.5 rounded bg-surface-container-low text-on-surface-variant uppercase">${esc(g)}</span>`).join('');
+const error = msj => `<div class="flex flex-col items-center justify-center py-space-xl bg-surface-container-low rounded-xl text-center px-gutter">
+  <div class="w-16 h-16 rounded-full bg-error-container/30 text-error flex items-center justify-center mb-space-md"><span class="material-symbols-outlined text-[32px]">warning</span></div>
+  <h3 class="font-serif text-headline-md text-on-background font-bold">${esc(msj)}</h3></div>`;
+
+// --- Pestañas ---
+const ON = 'bg-primary text-on-primary font-medium', OFF = 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high';
+function tab(nombre) {
+  document.querySelectorAll('[data-view]').forEach(v => v.hidden = v.dataset.view !== nombre);
+  document.querySelectorAll('#nav button').forEach(b => {
+    const activo = b.dataset.tab === nombre;
+    b.className = 'min-h-[44px] px-space-md py-space-xs rounded-lg transition-colors whitespace-nowrap ' + (activo ? ON : OFF);
+    activo ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
+  });
+  if (nombre === 'generos') generos();
+}
+$('nav').onclick = e => e.target.dataset.tab && tab(e.target.dataset.tab);
+
+// --- Buscar ---
+const tarjeta = p => `<div class="bg-surface-container rounded-xl flex flex-col shadow-lg hover:shadow-2xl transition-all p-space-md justify-between gap-space-md">
+  <div class="flex flex-col gap-space-xs">
+    <div class="flex items-start justify-between gap-space-sm">
+      <h3 class="font-serif text-headline-md text-on-surface">${esc(p.titulo)}</h3>
+      <span class="shrink-0 bg-surface-container-lowest px-space-sm py-1 rounded-full text-label-sm text-primary">${p.anio}</span>
+    </div>
+    <div class="flex flex-wrap gap-1">${chips(p.generos)}</div>
+    ${p.reparto.length ? `<div class="mt-space-xs text-body-sm text-on-surface-variant">
+      <p class="line-clamp-2">${esc(p.reparto.join(', '))}</p>
+      ${p.reparto.length > 6 ? '<button data-mas class="text-primary text-label-sm mt-1 py-2 hover:underline">ver más</button>' : ''}
+    </div>` : '<p class="text-body-sm text-on-surface-variant/60">Sin reparto registrado</p>'}
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-label-sm text-on-surface-variant">ID ${p.id}</span>
+    <button data-id="${p.id}" data-titulo="${esc(p.titulo)}" class="min-h-[44px] bg-surface-container-high text-on-surface px-space-md py-space-xs rounded-lg text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center gap-1">
+      <span class="material-symbols-outlined text-[16px] pointer-events-none">hub</span>Parecidas
+    </button>
+  </div>
+</div>`;
 
 $('f-buscar').onsubmit = async e => {
   e.preventDefault();
+  $('b-res').innerHTML = ''; $('b-vacio').hidden = true; $('b-carga').hidden = false;
   const r = await api('/api/buscar', datos(e.target));
-  $('r-buscar').innerHTML = r.map(peli).join('') || '<li>Sin resultados</li>';
+  $('b-carga').hidden = true;
+  const lista = Array.isArray(r) ? r : [];
+  $('b-vacio').hidden = lista.length > 0;
+  $('b-res').innerHTML = lista.map(tarjeta).join('');
 };
-$('r-buscar').onclick = async e => {
-  if (!e.target.dataset.id) return;
-  const r = await api('/api/similares', {id: e.target.dataset.id});
-  $('r-buscar').innerHTML = r.map(peli).join('');
+$('b-res').onclick = async e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if ('mas' in b.dataset) {
+    const abierto = b.previousElementSibling.classList.toggle('line-clamp-2');
+    b.textContent = abierto ? 'ver más' : 'ver menos';
+    return;
+  }
+  $('m-titulo').textContent = 'Parecidas a ' + b.dataset.titulo;
+  $('m-lista').innerHTML = '<p class="text-on-surface-variant">Deduciendo…</p>';
+  $('modal').hidden = false;
+  const r = await api('/api/similares', {id: b.dataset.id});
+  $('m-lista').innerHTML = r.map((p, i) => `<div class="bg-surface-container p-space-sm rounded-lg flex items-center justify-between gap-space-sm">
+    <div class="flex items-center gap-space-md min-w-0">
+      <span class="text-label-sm font-mono text-on-surface-variant">${String(i + 1).padStart(2, '0')}</span>
+      <div class="min-w-0"><h4 class="font-medium text-on-surface truncate">${esc(p.titulo)}</h4>
+      <span class="text-label-sm text-on-surface-variant">${p.anio}${p.generos.length ? ' • ' + esc(p.generos.join(', ')) : ''}</span></div>
+    </div>
+    <div class="shrink-0 bg-primary-container/20 text-primary px-space-sm py-1 rounded-full text-label-sm">${p.puntos} puntos</div>
+  </div>`).join('') || '<p class="text-on-surface-variant">Sin películas afines.</p>';
 };
-$('f-actor').onsubmit = async e => {
-  e.preventDefault();
-  const r = await api('/api/actor', datos(e.target));
-  $('r-actor').innerHTML = r.error ? esc(r.error) :
-    `<p>${r.peliculas} películas, de ${r.primer} a ${r.ultimo}.</p>
-     <p>Trabajó más con: ${r.companeros.map(c => `${esc(c.actor)} (${c.veces})`).join(', ')}</p>
-     <ul>${r.filmografia.map(p => `<li>${p.anio} — ${esc(p.titulo)}</li>`).join('')}</ul>`;
-};
+$('m-cerrar').onclick = () => $('modal').hidden = true;
+$('modal').onclick = e => { if (e.target === $('modal')) $('modal').hidden = true; };
+document.onkeydown = e => { if (e.key === 'Escape') $('modal').hidden = true; };
+
+// --- Actor ---
+async function actor(nombre) {
+  $('f-actor').nombre.value = nombre;
+  const r = await api('/api/actor', {nombre});
+  if (r.error) { $('a-res').innerHTML = error('No hay nadie con ese nombre en la base'); return; }
+  const porAnio = {};
+  r.filmografia.forEach(p => (porAnio[p.anio] ||= []).push(p.titulo));
+  const anios = Object.keys(porAnio).sort((a, b) => b - a);
+  const stat = (k, v, c) => `<div class="bg-surface-container p-space-md rounded-xl text-center min-w-[96px]">
+    <span class="text-label-sm text-on-surface-variant uppercase block">${k}</span>
+    <span class="font-serif text-headline-lg ${c} font-bold mt-1 block">${v}</span></div>`;
+  $('a-res').innerHTML = `
+  <div class="bg-surface-container-low rounded-xl p-space-lg md:p-space-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-lg relative overflow-hidden">
+    <div class="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="flex items-center gap-space-lg z-10">
+      <div class="w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-serif text-headline-lg shadow-xl">${esc(iniciales(r.actor))}</div>
+      <h2 class="font-serif text-headline-lg md:text-display-lg text-on-surface">${esc(r.actor)}</h2>
+    </div>
+    <div class="grid grid-cols-3 gap-space-sm w-full lg:w-auto z-10">
+      ${stat('Películas', r.peliculas, 'text-primary')}${stat('Desde', r.primer, 'text-on-surface')}${stat('Hasta', r.ultimo, 'text-on-surface')}
+    </div>
+  </div>
+  <div class="flex items-center gap-space-sm mt-space-xl mb-space-md">
+    <span class="material-symbols-outlined text-primary text-[20px]">group</span>
+    <h3 class="font-serif text-headline-md text-on-surface">Trabajó más con</h3>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-sm">
+    ${r.companeros.map(c => `<button data-actor="${esc(c.actor)}" class="text-left bg-surface-container-low p-space-sm rounded-xl flex items-center gap-space-sm hover:bg-surface-container transition-colors group">
+      <span class="w-10 h-10 shrink-0 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-medium pointer-events-none">${esc(iniciales(c.actor))}</span>
+      <span class="flex flex-col min-w-0 pointer-events-none"><span class="font-medium text-on-surface group-hover:text-primary truncate">${esc(c.actor)}</span>
+      <span class="text-label-sm text-on-surface-variant">${c.veces} ${c.veces === 1 ? 'película' : 'películas'}</span></span>
+    </button>`).join('')}
+  </div>
+  <div class="flex items-center gap-space-sm mt-space-xl mb-space-lg">
+    <span class="material-symbols-outlined text-primary text-[24px]">timeline</span>
+    <h3 class="font-serif text-headline-lg text-on-surface">Filmografía cronológica</h3>
+  </div>
+  <div class="relative pl-8 space-y-space-lg before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-container-high">
+    ${anios.map((a, i) => `<div class="relative">
+      <div class="absolute -left-8 top-1 w-5 h-5 rounded-full ${i ? 'bg-surface-container-highest' : 'bg-primary'} ring-4 ring-background"></div>
+      <span class="font-serif text-headline-sm ${i ? 'text-on-surface' : 'text-primary'} font-bold">${a}</span>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm mt-space-sm">
+        ${porAnio[a].map(t => `<div class="bg-surface-container-low p-space-md rounded-xl font-serif text-headline-sm text-on-surface">${esc(t)}</div>`).join('')}
+      </div></div>`).join('')}
+  </div>`;
+}
+$('f-actor').onsubmit = e => { e.preventDefault(); actor(e.target.nombre.value.trim()); };
+$('a-res').onclick = e => e.target.dataset.actor && actor(e.target.dataset.actor);
+
+// --- Conexión ---
 $('f-camino').onsubmit = async e => {
   e.preventDefault();
   const r = await api('/api/camino', datos(e.target));
-  $('r-camino').innerHTML = r.error ? esc(r.error) :
-    `<p>${r.grados} grado(s) de separación:</p><p>` +
-    r.camino.map(p => p.actor ? `<b>${esc(p.actor)}</b>` : ` → <i>${esc(p.pelicula)}</i> (${p.anio}) → `).join('') + '</p>';
+  if (r.error) { $('c-res').innerHTML = error('Sin camino, o algún actor no existe'); return; }
+  const ultimo = r.camino.length - 1;
+  const pasos = r.camino.map((p, i) => p.actor
+    ? `<div class="flex md:flex-col items-center gap-space-sm md:w-28 shrink-0">
+        <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-serif text-headline-md font-bold shadow-lg ring-2 ${i === 0 || i === ultimo ? 'ring-primary' : 'ring-surface-container-highest'}">${esc(iniciales(p.actor))}</div>
+        <div class="md:text-center"><div class="font-medium">${esc(p.actor)}</div>
+        <div class="text-label-sm text-on-surface-variant uppercase">${i === 0 ? 'Inicio' : i === ultimo ? 'Destino' : 'Enlace'}</div></div>
+      </div>`
+    : `<div class="flex md:flex-1 items-center relative pl-8 md:pl-0 md:px-2 md:min-w-[150px]">
+        <div class="absolute bg-surface-container-highest left-8 top-0 bottom-0 w-0.5 md:left-0 md:right-0 md:top-1/2 md:bottom-auto md:w-auto md:h-0.5"></div>
+        <div class="relative ml-space-lg my-space-sm md:mx-auto md:my-0 bg-surface-container p-space-sm rounded-xl shadow-lg border border-surface-container-highest md:text-center md:max-w-[170px]">
+          <div class="font-serif font-bold">${esc(p.pelicula)}</div>
+          <div class="text-body-sm text-on-surface-variant">${p.anio}</div>
+        </div>
+      </div>`).join('');
+  $('c-res').innerHTML = `
+    <span class="text-label-sm uppercase text-primary font-semibold">Resultado de Prolog</span>
+    <h2 class="font-serif text-headline-lg text-on-background font-bold mt-1 mb-space-lg">${r.grados} ${r.grados === 1 ? 'grado' : 'grados'} de separación</h2>
+    <div class="bg-surface-container-low p-space-lg md:p-space-xl rounded-xl overflow-x-auto shadow-2xl">
+      <div class="flex flex-col md:flex-row md:items-center">${pasos}</div>
+    </div>`;
 };
-api('/api/generos', {}).then(r => $('r-generos').innerHTML =
-  r.slice(0, 15).map(g => `<li>${esc(g.genero)}: ${g.peliculas}</li>`).join(''));
+
+// --- Géneros ---
+let generosListos = false;
+async function generos() {
+  if (generosListos) return;
+  const r = await api('/api/generos', {});
+  generosListos = true;
+  $('g-total').textContent = r.length;
+  const max = r[0].peliculas;
+  $('g-res').innerHTML = r.slice(0, 15).map((g, i) => `<div class="group">
+    <div class="flex justify-between text-body-sm mb-1">
+      <span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2">
+        <span class="text-xs text-on-surface-variant font-mono">${String(i + 1).padStart(2, '0')}</span>${esc(g.genero)}</span>
+      <span class="text-primary font-mono font-semibold">${miles(g.peliculas)}</span>
+    </div>
+    <div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden p-0.5">
+      <div class="h-full bg-primary-container rounded-full group-hover:bg-primary transition-colors" style="width:${(100 * g.peliculas / max).toFixed(2)}%"></div>
+    </div></div>`).join('');
+}
+
+tab('buscar');
 </script>
 </body>
 </html>
