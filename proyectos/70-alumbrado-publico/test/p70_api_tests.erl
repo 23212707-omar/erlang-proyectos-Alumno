@@ -35,7 +35,9 @@ api_test_() ->
     fun direccion_invalida_inexistente_o_ambigua/1,
     fun metricas_prometheus/1,
     fun metricas_con_falla_reparada/1,
-    fun diagnostico_con_recon/1]}.
+    fun diagnostico_con_recon/1,
+    fun websocket_recibe_eventos/1,
+    fun websocket_cerrado_se_da_de_baja/1]}.
 
 post_crea_falla({_Sup, Puerto}) ->
   ?_test(begin
@@ -244,6 +246,59 @@ diagnostico_con_recon({_Sup, Puerto}) ->
                    <<"mas_memoria">> := [#{<<"proceso">> := _, <<"valor">> := _} | _],
                    <<"mas_cola_mensajes">> := _}, Datos)
   end).
+
+%% GET /ws: la conexion avisa "conectado" y despues manda cada evento de la bitacora.
+%% Se usa un socket TCP crudo: los marcos de texto del servidor van sin enmascarar, asi
+%% que el JSON aparece tal cual en los bytes recibidos.
+websocket_recibe_eventos({_Sup, Puerto}) ->
+  ?_test(begin
+    Sock = ws_conectar(Puerto),
+    {ok, Visto} = ws_esperar(Sock, <<>>, <<"101 Switching Protocols">>),
+    {ok, Visto2} = ws_esperar(Sock, Visto, <<"\"tipo\":\"conectado\"">>),
+    {201, _} = peticion(post, Puerto, "/api/lamparas/L-0007/falla", "{\"prioridad\":\"alta\"}"),
+    {ok, Visto3} = ws_esperar(Sock, Visto2, <<"\"luminaria\":\"L-0007\"">>),
+    ?assertNotEqual(nomatch, binary:match(Visto3, <<"\"tipo\":\"evento\"">>)),
+    ?assertNotEqual(nomatch, binary:match(Visto3, <<"\"tipo\":\"nueva\"">>)),
+    gen_tcp:close(Sock)
+  end).
+
+%% Al cerrar la conexion, su proceso termina y el canal lo da de baja.
+websocket_cerrado_se_da_de_baja({_Sup, Puerto}) ->
+  ?_test(begin
+    Sock = ws_conectar(Puerto),
+    {ok, _} = ws_esperar(Sock, <<>>, <<"\"tipo\":\"conectado\"">>),
+    ?assertEqual(1, length(p70_eventos:suscriptores())),
+    gen_tcp:close(Sock),
+    ?assertEqual(ok, ws_esperar_sin_suscriptores(40))
+  end).
+
+ws_conectar(Puerto) ->
+  {ok, Sock} = gen_tcp:connect({127,0,0,1}, Puerto, [binary, {active, false}]),
+  Pedido = "GET /ws HTTP/1.1\r\nHost: 127.0.0.1\r\nUpgrade: websocket\r\n"
+           "Connection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+           "Sec-WebSocket-Version: 13\r\n\r\n",
+  ok = gen_tcp:send(Sock, Pedido),
+  Sock.
+
+%% Lee del socket hasta que lo recibido contenga Buscado; devuelve todo lo recibido.
+ws_esperar(Sock, Recibido, Buscado) ->
+  case binary:match(Recibido, Buscado) of
+    nomatch ->
+      case gen_tcp:recv(Sock, 0, 3000) of
+        {ok, Datos} -> ws_esperar(Sock, <<Recibido/binary, Datos/binary>>, Buscado);
+        {error, Razon} -> {error, Razon, Recibido}
+      end;
+    _ ->
+      {ok, Recibido}
+  end.
+
+ws_esperar_sin_suscriptores(0) ->
+  error;
+ws_esperar_sin_suscriptores(N) ->
+  case p70_eventos:suscriptores() of
+    [] -> ok;
+    _ -> timer:sleep(50), ws_esperar_sin_suscriptores(N - 1)
+  end.
 
 %% Como peticion/4 pero devuelve el cuerpo tal cual (texto, no JSON).
 peticion_texto(Puerto, Ruta) ->

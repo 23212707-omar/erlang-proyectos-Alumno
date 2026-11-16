@@ -11,6 +11,8 @@ start_link() ->
 %% Si p70_falla_sup se reinicia, el registro se reinicia tambien y no queda con pids
 %% muertos. El orden de la lista es el orden de arranque. p70_bitacora, p70_catalogo y
 %% p70_simulador van al final: si fallan, solo se reinician ellos y no se pierden las fallas en curso.
+%% p70_eventos (canal de tiempo real) va en ultimo lugar: si cae, solo se pierden las suscripciones
+%% y las conexiones WebSocket se vuelven a suscribir solas en su siguiente latido.
 init([]) ->
   Children = [
     #{id => p70_alumbrado_publico_server,
@@ -40,6 +42,11 @@ init([]) ->
       type => worker},
     #{id => p70_simulador,
       start => {p70_simulador, start_link, []},
+      restart => permanent,
+      shutdown => 5000,
+      type => worker},
+    #{id => p70_eventos,
+      start => {p70_eventos, start_link, []},
       restart => permanent,
       shutdown => 5000,
       type => worker}

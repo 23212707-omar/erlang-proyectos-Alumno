@@ -12,7 +12,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ## Estado
 
-**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. **Actualización del 15 de noviembre:** se agregaron prioridad por antigüedad, rutas de cuadrilla por cercanía, falla de circuito única, reincidencia que sube la prioridad, mapa real y reconocimiento de direcciones escritas distinto para agrupar duplicados; ahora son 49 pruebas en verde, con métricas `/metrics` y diagnóstico con recon. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
+**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. **Actualización del 15 de noviembre:** se agregaron prioridad por antigüedad, rutas de cuadrilla por cercanía, falla de circuito única, reincidencia que sube la prioridad, mapa real y reconocimiento de direcciones escritas distinto para agrupar duplicados; ahora son 55 pruebas en verde, con métricas `/metrics`, diagnóstico con recon y avisos en tiempo real por WebSocket. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
 
 | Qué | Dónde |
 |---|---|
@@ -25,7 +25,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ```bash
 rebar3 compile
-rebar3 eunit          # 49 tests, 0 failures
+rebar3 eunit          # 55 tests, 0 failures
 rebar3 shell          # API e interfaz en http://localhost:8080
 ```
 
@@ -49,9 +49,11 @@ p70_alumbrado_publico_sup        (rest_for_one)
 ├── p70_registro                 (gen_server: una falla abierta por luminaria)
 ├── p70_bitacora                 (gen_server: últimos 200 eventos)
 ├── p70_catalogo                 (gen_server dueño de una tabla ETS: 5,000 luminarias simuladas)
-└── p70_simulador                (gen_server: reportes, cuadrillas y escenarios de la demo)
+├── p70_simulador                (gen_server: reportes, cuadrillas y escenarios de la demo)
+└── p70_eventos                  (gen_server: suscriptores de los avisos en tiempo real)
 
 cowboy (p70_http) → p70_api_h    (un proceso por request)
+                  → p70_ws_h     (un proceso por conexión WebSocket, en /ws)
 p70_rutas                        (módulo sin procesos: distancias y rutas de cuadrilla)
 p70_direccion                    (módulo sin procesos: normaliza direcciones escritas a mano)
 p70_metricas                     (módulo sin procesos: métricas Prometheus y diagnóstico con recon)
@@ -66,6 +68,7 @@ p70_metricas                     (módulo sin procesos: métricas Prometheus y d
 - **Rutas de cuadrilla:** `p70_rutas` es un módulo puro (sin proceso, porque no tiene estado). El simulador asigna cada falla a la cuadrilla con lugar que ya tiene trabajo más cercano (una cuadrilla vacía cuenta como distancia 0, así las cuatro empiezan antes de agrupar), y cada ruta empieza por su falla más urgente y sigue por la más cercana (vecino más cercano, distancia haversine). Es una heurística: no resuelve el problema del agente viajero.
 - **Duplicados por dirección:** `p70_direccion` (módulo puro) reduce un texto como `AVENIDA REVOLUCIÓN No. 1234, Col. Centro` a una clave `{calle, número}` más las palabras del sector: quita acentos, mayúsculas, puntuación, el tipo de vía (av, blvd, calle, paseo) y palabras de relleno. La clave se busca en un índice del catálogo (se arma una vez y se guarda en `persistent_term`). Con la luminaria resuelta, el reporte sigue el flujo normal y se agrupa con la falla abierta. Si dos postes comparten la dirección, la API responde 409 con las candidatas en vez de adivinar.
 - **Métricas y diagnóstico:** `p70_metricas` (módulo puro) arma `GET /metrics` en el formato de texto de Prometheus, sin dependencias nuevas: lámparas apagadas (una falla de circuito cuenta sus 40 luminarias), fallas por estado, por sector y por prioridad efectiva, la falla abierta más antigua, el resumen del tiempo de reparación y datos de la VM (procesos, memoria, cola de mensajes más larga). `GET /api/diagnostico` usa recon para listar los procesos con más memoria y con más cola. Se calculan al consultar, leyendo el registro de fallas.
+- **Tiempo real por WebSocket:** `p70_eventos` es un gen_server que guarda los suscriptores (con monitor, así que un cliente que se desconecta se da de baja solo). `p70_bitacora` publica cada evento (nueva, agrupada, asignada, reparada) y `p70_eventos` lo reenvía a los procesos `p70_ws_h` de `/ws`, que lo mandan al navegador como `{"tipo":"evento",...}`. Cada 10 s el handler manda un ping y vuelve a suscribirse, de modo que si `p70_eventos` se reinicia (por `rest_for_one`) las conexiones se recuperan. `p70_eventos` va al final del árbol: su caída no reinicia a nadie más. En la interfaz, el indicador de la cabecera dice "Tiempo real" o "Sin conexión"; al llegar un evento se refresca la vista con 1 s de espera para juntar ráfagas, se reintenta la conexión con espera creciente y, mientras no hay socket, se vuelve al refresco cada 5 s.
 - **Contorno aproximado:** las coordenadas se mantienen al sur de la frontera y al este de la costa (valores aproximados, calibrados con un mapa de la ciudad).
 - **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito caído de 40 luminarias) se ejecutan bajo demanda.
 
@@ -77,6 +80,7 @@ p70_metricas                     (módulo sin procesos: métricas Prometheus y d
 | `GET /metrics` | Métricas en formato de texto de Prometheus (lámparas apagadas, fallas por estado, sector y prioridad, tiempo de reparación, VM). |
 | `GET /api/diagnostico` | Estado de la VM visto con recon: procesos, schedulers, memoria y los 5 procesos con más memoria y con más cola de mensajes. |
 | `POST /api/reportes` | Reporta por dirección escrita a mano: `{"direccion":"Av. Revolución 1234","prioridad":...,"fuente":...}`. La normaliza y busca la luminaria; 201 o 200 como el reporte por id, 400 si faltan calle y número, 404 si no existe, 409 con `candidatas` si varias luminarias comparten la dirección. |
+| `GET /ws` | WebSocket de avisos en tiempo real: manda `{"tipo":"conectado"}` al abrir y un `{"tipo":"evento","evento":{...}}` por cada evento de la bitácora. |
 | `GET /api/mapa/fallas` | Fallas vigentes (estado, prioridad, reportes, fuentes, cuadrilla, horas). |
 | `GET /api/cuadrillas/rutas` | Ruta de cada cuadrilla con fallas asignadas: paradas en orden de visita (luminaria, lat, lon, prioridad) y `distancia_km`. |
 | `GET /api/fallas/:id` | Detalle de la falla de una luminaria, con reincidencias. |
@@ -94,14 +98,14 @@ p70_metricas                     (módulo sin procesos: métricas Prometheus y d
 
 ## Interfaz
 
-Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa real de Tijuana (Leaflet con teselas de OpenStreetMap; si no hay internet se usa un mapa SVG de respaldo) con las 5,000 luminarias y las fallas encima (rojo reportada, ámbar asignada, azul reparada), una tarjeta del simulador y una tarjeta de rutas de cuadrilla (en el mapa, líneas punteadas de un color por cuadrilla). El detalle muestra la ubicación con un mini mapa. Carga Tailwind, las fuentes, Leaflet y las teselas del mapa desde internet.
+Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y `app.js`, sin dependencias de compilación). Cuatro vistas: mapa y fallas, detalle, reportar y bitácora. En Mapa y Fallas hay un mapa real de Tijuana (Leaflet con teselas de OpenStreetMap; si no hay internet se usa un mapa SVG de respaldo) con las 5,000 luminarias y las fallas encima (rojo reportada, ámbar asignada, azul reparada), una tarjeta del simulador y una tarjeta de rutas de cuadrilla (en el mapa, líneas punteadas de un color por cuadrilla). El detalle muestra la ubicación con un mini mapa. La cabecera muestra si hay conexión en tiempo real (WebSocket); sin ella la vista se actualiza cada 5 s. Carga Tailwind, las fuentes, Leaflet y las teselas del mapa desde internet.
 
 ## Estructura
 
 | Ruta | Contenido |
 |---|---|
-| `src/` | Aplicación OTP, fallas, registro, bitácora, catálogo, simulador, rutas y API |
-| `test/` | Pruebas eunit (fallas, registro, bitácora, catálogo, simulador y API con `httpc`) |
+| `src/` | Aplicación OTP, fallas, registro, bitácora, eventos, WebSocket, catálogo, simulador, rutas y API |
+| `test/` | Pruebas eunit (fallas, registro, bitácora, eventos, catálogo, simulador y API con `httpc`, incluido el WebSocket) |
 | `priv/www/` | Interfaz web |
 | `deploy/` | Unidad de systemd del servicio |
 | `design/` | Exportación de Google Stitch y su `DESIGN.md` |
@@ -140,7 +144,7 @@ La cookie de `config/vm.args` del repositorio es un valor de ejemplo (`cambiar_e
 
 ## Prueba de caos
 
-Se grabó con asciinema en la Raspberry Pi 4 virtual: [ver la grabación](https://asciinema.org/a/W83DW4wpUhF5mrbH) (respaldo en `evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo` y `p70_simulador`.
+Se grabó con asciinema en la Raspberry Pi 4 virtual: [ver la grabación](https://asciinema.org/a/W83DW4wpUhF5mrbH) (respaldo en `evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo`, `p70_simulador` y `p70_eventos`.
 
 | # | Qué se mató | Qué se esperaba | Qué ocurrió |
 |---|---|---|---|
@@ -170,7 +174,7 @@ Conclusiones:
 
 - Enlazar la falla de circuito con las fallas individuales de sus luminarias.
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
-- Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
+- Persistencia (ETS o PostgreSQL) para no perder las fallas al reiniciar el nodo.
 - Contadores históricos (reparaciones totales, reincidencias) y exportarlos con prometheus.erl, con un Prometheus real consultando `/metrics`.
 
 ## Uso de IA

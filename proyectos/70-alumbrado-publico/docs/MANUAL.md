@@ -73,6 +73,7 @@ Reinicio automático: `sudo systemctl kill -s KILL p70-alumbrado` mata la VM; co
 | `POST /api/reportes` | Reporta por dirección escrita a mano: `{"direccion":"Av. Revolución 1234","prioridad":"media","fuente":"ciudadano"}` | 201 o 200; 400 sin calle y número; 404 si no existe; 409 con `candidatas` si varias luminarias comparten la dirección |
 | `GET /metrics` | Métricas en formato de texto de Prometheus | 200 `text/plain` |
 | `GET /api/diagnostico` | Estado de la VM visto con recon | 200 con procesos, schedulers, memoria y los 5 procesos con más memoria y con más cola |
+| `GET /ws` | WebSocket de avisos en tiempo real (la interfaz lo abre sola) | 101 al conectar; manda `conectado` y un `evento` por cada cambio |
 | `GET /api/mapa/fallas` | Lista las fallas vigentes | 200 con `{"fallas":[...]}` |
 | `GET /api/fallas/:id` | Detalle de la falla de una luminaria (con reincidencias) | 200, o 404 |
 | `PATCH /api/fallas/:id` | `{"accion":"asignar","cuadrilla":"cuadrilla_1"}` o `{"accion":"reparar"}` | 200, 404 o 409 si la transición no es válida |
@@ -95,7 +96,7 @@ Con el nodo corriendo, la interfaz está en `http://localhost:8080`. Si la Pi es
 
 | Vista | Qué permite |
 |---|---|
-| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); tarjeta de rutas de cuadrilla (paradas en orden y km) con líneas punteadas en el mapa; lista ordenada por urgencia (actualización cada 5 s) |
+| Mapa y Fallas | Contadores por estado; tarjeta del simulador (iniciar, detener, 15 reportes en un poste, falla de circuito); mapa con las fallas por color (al tocar un punto se ve su dirección); filtros por estado y prioridad que también filtran el mapa; el mapa es real (Leaflet + OpenStreetMap); tarjeta de rutas de cuadrilla (paradas en orden y km) con líneas punteadas en el mapa; lista ordenada por urgencia (se actualiza sola con los avisos en tiempo real; sin conexión, cada 5 s) |
 | Detalle | Ubicación con mini mapa, reportes agrupados por fuente, reincidencias, ciclo de vida y acciones (asignar, reparar) |
 | Reportar | Formulario que acepta el ID de la luminaria o su dirección, con aviso de si el reporte creó una falla nueva, se agrupó o fue reincidencia (y qué dirección se reconoció) |
 | Bitácora | Eventos reales con búsqueda por ID y filtros |
@@ -236,6 +237,16 @@ curl -s localhost:8080/api/diagnostico
 ```
 
 Devuelve el número de procesos y schedulers, la memoria total y, con recon, los 5 procesos con más memoria y con más cola de mensajes. En la misma prueba los de más memoria fueron `p70_simulador` (unos 3.1 MB) y `p70_catalogo` (unos 2.9 MB), y la cola de mensajes de todos estaba en 0, es decir, sin nada atascado.
+
+### Avisos en tiempo real (WebSocket)
+
+La cabecera de la interfaz muestra **Tiempo real** cuando el WebSocket (`/ws`) está abierto y **Sin conexión** cuando no. Para probarlo:
+
+1. Abre `http://localhost:8080` en dos ventanas.
+2. En una, reporta una falla (formulario Reportar, o "Falla de circuito" en el simulador). En la otra, el mapa, los contadores y la lista cambian solos, sin recargar.
+3. Reconexión: con el nodo en `rebar3 shell`, escribe `q().`. El indicador pasa a **Sin conexión** y sale un aviso rojo. Al volver a levantar el nodo con `rebar3 shell`, el indicador regresa solo a **Tiempo real** (en la prueba tardó 1 o 2 segundos; el tope es de unos 30 s). Como el estado está en memoria, los contadores vuelven a 0.
+
+Si el WebSocket no se puede abrir (por ejemplo, un proxy que lo bloquee), la interfaz sigue funcionando con el refresco cada 5 s.
 
 ## 5. Detener el servicio
 

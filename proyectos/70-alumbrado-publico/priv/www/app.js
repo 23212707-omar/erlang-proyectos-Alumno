@@ -22,6 +22,12 @@ const PRIORIDADES = {
 
 let desfaseReloj = 0;        // diferencia entre el reloj del servidor y el de este navegador
 let temporizador = null;
+let refrescoVista = null;    // funcion que recarga la vista actual (la misma del sondeo cada 5 s)
+let socket = null;           // WebSocket de tiempo real (GET /ws)
+let socketAbierto = false;
+let reintentoWs = 0;
+let pendienteWs = null;      // refresco ya programado por un aviso del servidor
+let ultimaConexion = true;   // ultimo resultado de una peticion a la API
 let filtroEstado = 'todas';
 let filtroPrioridad = 'todas';
 let filtroBitacora = 'todos';
@@ -88,8 +94,47 @@ async function api(metodo, ruta, cuerpo) {
 }
 
 function marcarConexion(enLinea) {
-  $('#texto-conexion').textContent = enLinea ? 'En línea' : 'Sin conexión';
+  ultimaConexion = enLinea;
+  $('#texto-conexion').textContent = enLinea ? (socketAbierto ? 'Tiempo real' : 'En línea') : 'Sin conexión';
   $('#punto-conexion').className = 'w-1.5 h-1.5 rounded-full ' + (enLinea ? 'bg-secondary-fixed' : 'bg-error');
+}
+
+/* ---------- tiempo real (WebSocket) ---------- */
+
+// El servidor avisa de cada cambio por /ws y la vista se recarga al instante. El sondeo
+// cada 5 s sigue funcionando: si el socket falla, la interfaz se actualiza igual.
+function marcarSocket(abierto) {
+  socketAbierto = abierto;
+  marcarConexion(ultimaConexion);
+}
+
+function conectarTiempoReal() {
+  if (!('WebSocket' in window)) { return; }
+  const protocolo = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  try { socket = new WebSocket(protocolo + location.host + '/ws'); }
+  catch (e) { reintentarTiempoReal(); return; }
+  socket.onopen = () => { reintentoWs = 0; marcarSocket(true); };
+  socket.onmessage = (mensaje) => {
+    let dato = {};
+    try { dato = JSON.parse(mensaje.data); } catch (e) { return; }
+    if (dato.tipo === 'evento') { refrescarPorEvento(); }
+  };
+  socket.onclose = () => { marcarSocket(false); reintentarTiempoReal(); };
+  socket.onerror = () => { /* el cierre de la conexion dispara el reintento */ };
+}
+
+function reintentarTiempoReal() {
+  reintentoWs += 1;
+  setTimeout(conectarTiempoReal, Math.min(30000, 2000 * reintentoWs));
+}
+
+// Varios eventos seguidos (por ejemplo el simulador) se juntan en un solo refresco.
+function refrescarPorEvento() {
+  if (!refrescoVista || pendienteWs) { return; }
+  pendienteWs = setTimeout(() => {
+    pendienteWs = null;
+    if (refrescoVista) { refrescoVista(); }
+  }, 1000);
 }
 
 function ahoraSeg() { return (Date.now() + desfaseReloj) / 1000; }
@@ -298,6 +343,7 @@ function ruta() {
 function navegar() {
   clearInterval(temporizador);
   temporizador = null;
+  refrescoVista = null;
   const r = ruta();
   const activa = r.nombre === 'falla' ? 'detalle' : r.nombre;
   document.querySelectorAll('[data-nav]').forEach((a) => {
@@ -317,7 +363,7 @@ function navegar() {
   else { vistaMapa(); sondear(cargarMapa); }
 }
 
-function sondear(funcion) { temporizador = setInterval(funcion, INTERVALO_MS); }
+function sondear(funcion) { refrescoVista = funcion; temporizador = setInterval(funcion, INTERVALO_MS); }
 
 /* ---------- vista: mapa y fallas ---------- */
 
@@ -754,4 +800,5 @@ document.addEventListener('input', (ev) => {
 });
 
 window.addEventListener('hashchange', navegar);
+conectarTiempoReal();
 navegar(); 

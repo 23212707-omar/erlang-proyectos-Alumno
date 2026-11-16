@@ -32,6 +32,8 @@ handle_cast({registrar, Tipo, Luminaria, Detalle},
              luminaria => Luminaria,
              detalle => Detalle,
              hora => erlang:system_time(second)},
+  %% Cada evento tambien se publica en el canal de tiempo real (WebSocket).
+  p70_eventos:publicar(Evento),
   {noreply, State#{siguiente := Id + 1,
                    eventos := lists:sublist([Evento | Eventos], ?MAX)}};
 handle_cast(_Msg, State) ->

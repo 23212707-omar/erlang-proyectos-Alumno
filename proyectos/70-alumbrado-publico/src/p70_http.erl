@@ -10,6 +10,7 @@ start(Port) ->
     {"/api/lamparas/:id/falla", p70_api_h, falla},
     {"/api/reportes", p70_api_h, reporte},
     {"/metrics", p70_api_h, metricas},
+    {"/ws", p70_ws_h, []},
     {"/api/diagnostico", p70_api_h, diagnostico},
     {"/api/mapa/fallas", p70_api_h, mapa},
     {"/api/cuadrillas/rutas", p70_api_h, rutas},
