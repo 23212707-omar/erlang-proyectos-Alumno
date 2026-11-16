@@ -12,7 +12,7 @@ Volver al [README](../README.md) · [Manual de uso](../docs/MANUAL.md)
 
 | # | Archivo | Qué demuestra | Criterio |
 |---|---|---|---|
-| 1 | `01-pruebas-eunit.png` | `rebar3 compile` sin advertencias y `rebar3 eunit` con 34 tests y 0 fallos (los `killed` son pruebas que matan procesos a propósito). | Solución funcional, calidad del código |
+| 1 | `01-pruebas-eunit.png` | `rebar3 compile` sin advertencias y `rebar3 eunit` con 55 tests y 0 fallos (los `killed` son pruebas que matan procesos a propósito). | Solución funcional, calidad del código |
 | 2 | `02-nodo-en-la-pi.png` | El nodo corriendo en la Raspberry Pi virtual: versión de OTP, `rebar3 shell`, PID del beam y puerto 8080. | Ejecución en la VM |
 | 3 | `03-api-catalogo.png` | `curl` del catálogo: resumen (5,000 luminarias, 128 circuitos, 7 sectores), una luminaria y el 404 de `L-9999`. | Solución funcional |
 | 4 | `04-api-flujo-reporte.png` | `curl` del flujo de reporte: nueva, agrupada, asignar, reparar, detalle y bitácora. | Solución funcional, integración |
@@ -25,6 +25,12 @@ Volver al [README](../README.md) · [Manual de uso](../docs/MANUAL.md)
 | 11 | `11-bitacora.png` | Bitácora de eventos, del más reciente al más antiguo, con búsqueda por ID y filtros. | Solución funcional |
 | 12 | `12-prueba-de-caos.png` | Se mata una falla con `exit(P, kill)`: el conteo de hijos baja de 41 a 40, el supervisor lo reporta sin reiniciarla y `p70_registro:buscar/1` ya no la encuentra; las demás siguen vivas. | Solución funcional (tolerancia a fallos), argumentación técnica |
 | 13 | `13a`–`13e` (`13a-opencode-plan.png`, `13b-opencode-plan-pasos.png`, `13c-opencode-resumen.png`, `13d-opencode-resumen-tabla.png`, `13e-opencode-advertencias.png`) | Flujo con el agente de apoyo (Paso 7c-1): plan primero, aprobación de cada comando, y resumen final con pruebas y advertencias. | Uso de IA |
+| 14 | `14-rutas-cuadrilla.png` | Tarjeta de rutas de cuadrilla (paradas en orden y km por cuadrilla) y líneas punteadas de colores en el mapa. | Solución funcional (rutas) |
+| 15 | `15-prioridad-antiguedad.png` | `GET /api/fallas/L-0300`: la misma falla pasa de `baja` a `media` y a `alta` (cada 120 s) con `prioridad_base` fija en `baja`. | Solución funcional (prioridad) |
+| 16 | `16a`–`16c` (`16a-direccion-nueva.png`, `16b-direccion-agrupada.png`, `16c-direccion-ambigua.png`) | Reporte por dirección escrita distinto: crea falla nueva, se agrupa con la abierta y, si dos postes comparten dirección, avisa con las candidatas (409). | Solución funcional (duplicados) |
+| 17 | `17a-metrics.png`, `17b-diagnostico.png` | `GET /metrics` (formato Prometheus) y `GET /api/diagnostico` (procesos con más memoria y cola, con recon). | Solución funcional, argumentación técnica |
+| 18 | `18-systemd-reinicio.png` | Servicio de systemd: `kill -9` a la VM, systemd la levanta sola (PID 4898 → 5055) y la API responde. | Ejecución en la VM, tolerancia a fallos |
+| 19 | `19a`–`19c` (`19a-tiempo-real-circuito.png`, `19b-sin-conexion.png`, `19c-reconexion.png`) | WebSocket: una falla de circuito aparece en otra ventana sin recargar; al apagar el nodo el indicador dice "Sin conexión" y al volver regresa a "Tiempo real". | Integración backend / interfaz |
 
 ### 01. Pruebas
 
@@ -88,15 +94,49 @@ Esta captura es de una primera prueba (matar una falla). La prueba completa, con
 
 ![advertencias](13e-opencode-advertencias.png)
 
+### 14. Rutas de cuadrilla
+
+![rutas de cuadrilla](14-rutas-cuadrilla.png)
+
+### 15. Prioridad por antigüedad
+
+![prioridad por antiguedad](15-prioridad-antiguedad.png)
+
+### 16. Reporte por dirección
+
+![direccion nueva](16a-direccion-nueva.png)
+
+![direccion agrupada](16b-direccion-agrupada.png)
+
+![direccion ambigua](16c-direccion-ambigua.png)
+
+### 17. Métricas y diagnóstico
+
+![metrics](17a-metrics.png)
+
+![diagnostico](17b-diagnostico.png)
+
+### 18. Servicio de systemd
+
+![systemd reinicio](18-systemd-reinicio.png)
+
+### 19. Tiempo real (WebSocket)
+
+![tiempo real](19a-tiempo-real-circuito.png)
+
+![sin conexion](19b-sin-conexion.png)
+
+![reconexion](19c-reconexion.png)
+
 ## Cobertura de la rúbrica
 
 | Criterio | Dónde se cubre |
 |---|---|
-| Solución funcional en Erlang | `src/`, `test/`; capturas 01, 03, 04, 08, 09, 11 y 12 |
-| Ejecución en la máquina virtual | Raspberry Pi 4 virtual (Corellium); captura 02 y video |
+| Solución funcional en Erlang | `src/`, `test/`; capturas 01, 03, 04, 08, 09, 11, 12, 14, 15, 16 y 17 |
+| Ejecución en la máquina virtual | Raspberry Pi 4 virtual (Corellium); capturas 02 y 18, y video |
 | Demo | [Video en Loom](https://www.loom.com/share/7e4e065c5a2d4c8fa7ebc59dfeba7b6c) y presentación en clase |
 | Interfaz en Google Stitch | `design/` y captura 05; interfaz integrada en `priv/www` |
 | Manual de uso | [`docs/MANUAL.md`](../docs/MANUAL.md) |
-| Calidad del código | Un módulo por responsabilidad, 34 pruebas eunit, compilación sin advertencias (captura 01) |
-| Integración backend / VM / interfaz | Capturas 06, 07 y 10: la interfaz lee la API real del nodo en la Pi |
+| Calidad del código | Un módulo por responsabilidad, 55 pruebas eunit, compilación sin advertencias (captura 01) |
+| Integración backend / VM / interfaz | Capturas 06, 07, 10 y 19: la interfaz lee la API real del nodo en la Pi |
 | Presentación y argumentación técnica | Decisiones de diseño en el [README](../README.md) y exposición en clase |
