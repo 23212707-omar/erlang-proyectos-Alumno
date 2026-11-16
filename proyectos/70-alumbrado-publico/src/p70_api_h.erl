@@ -6,6 +6,8 @@
 %%   POST  /api/reportes             reporta por DIRECCION escrita a mano; cuerpo: {"direccion":"Av. Revolucion 1234",
 %%                                   "prioridad":..., "fuente":...}. Se normaliza y se busca en el catalogo:
 %%                                   404 si no existe, 409 si hay varias luminarias con esa direccion.
+%%   GET   /metrics                  metricas en formato Prometheus (texto)
+%%   GET   /api/diagnostico          estado de la VM visto con recon (procesos con mas memoria y cola)
 %%   GET   /api/mapa/fallas          lista las fallas vigentes
 %%   GET   /api/cuadrillas/rutas     ruta de cada cuadrilla: sus fallas asignadas por cercania, con km
 %%   GET   /api/fallas/:id           detalle de una falla (:id = id de luminaria)
@@ -62,6 +64,11 @@ atender(reporte, <<"POST">>, Req0) ->
     {error, Req1} ->
       responder(400, #{error => <<"json invalido">>}, Req1)
   end;
+atender(metricas, <<"GET">>, Req) ->
+  cowboy_req:reply(200, #{<<"content-type">> => <<"text/plain; version=0.0.4; charset=utf-8">>},
+                   p70_metricas:texto(), Req);
+atender(diagnostico, <<"GET">>, Req) ->
+  responder(200, p70_metricas:diagnostico(), Req);
 atender(mapa, <<"GET">>, Req) ->
   Fallas = [Resumen || {Luminaria, Pid} <- maps:to_list(p70_registro:activas()),
                        {ok, Resumen} <- [resumen(Luminaria, Pid)]],

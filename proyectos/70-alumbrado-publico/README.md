@@ -12,7 +12,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ## Estado
 
-**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. **Actualización del 15 de noviembre:** se agregaron prioridad por antigüedad, rutas de cuadrilla por cercanía, falla de circuito única, reincidencia que sube la prioridad, mapa real y reconocimiento de direcciones escritas distinto para agrupar duplicados; ahora son 46 pruebas en verde. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
+**Entrega de la presentación DEMO (9 de noviembre de 2026).** Backend, API, interfaz con mapa y simulador de reportes integrados, con 34 pruebas eunit en verde. **Actualización del 15 de noviembre:** se agregaron prioridad por antigüedad, rutas de cuadrilla por cercanía, falla de circuito única, reincidencia que sube la prioridad, mapa real y reconocimiento de direcciones escritas distinto para agrupar duplicados; ahora son 49 pruebas en verde, con métricas `/metrics` y diagnóstico con recon. Probado en una Raspberry Pi 4 virtual (Corellium, Debian 11, OTP 27). Los datos son **simulados** (catálogo de 5,000 luminarias y contorno de la ciudad aproximado; no son datos reales del municipio).
 
 | Qué | Dónde |
 |---|---|
@@ -25,7 +25,7 @@ Sistema que consolida reportes ciudadanos y señales de telemetría de luminaria
 
 ```bash
 rebar3 compile
-rebar3 eunit          # 46 tests, 0 failures
+rebar3 eunit          # 49 tests, 0 failures
 rebar3 shell          # API e interfaz en http://localhost:8080
 ```
 
@@ -54,6 +54,7 @@ p70_alumbrado_publico_sup        (rest_for_one)
 cowboy (p70_http) → p70_api_h    (un proceso por request)
 p70_rutas                        (módulo sin procesos: distancias y rutas de cuadrilla)
 p70_direccion                    (módulo sin procesos: normaliza direcciones escritas a mano)
+p70_metricas                     (módulo sin procesos: métricas Prometheus y diagnóstico con recon)
 ```
 
 - **Un proceso por falla:** cada una tiene su estado; si una muere, las demás siguen.
@@ -64,6 +65,7 @@ p70_direccion                    (módulo sin procesos: normaliza direcciones es
 - **Prioridad por criticidad y antigüedad:** la base depende del tipo de lugar (avenida, cruce escolar y hospital: alta; calle: media; andador: baja) y la reincidencia la sube un nivel. Además, una falla abierta sube un nivel por cada 120 s (2 días simulados, 48 h, antes de la meta de 72 h) hasta alta; al repararse deja de envejecer. El despacho y la interfaz usan la prioridad efectiva, y la API devuelve también `prioridad_base`. Así se equilibra la criticidad del lugar con la antigüedad: un andador olvidado acaba rebasando a una calle reciente.
 - **Rutas de cuadrilla:** `p70_rutas` es un módulo puro (sin proceso, porque no tiene estado). El simulador asigna cada falla a la cuadrilla con lugar que ya tiene trabajo más cercano (una cuadrilla vacía cuenta como distancia 0, así las cuatro empiezan antes de agrupar), y cada ruta empieza por su falla más urgente y sigue por la más cercana (vecino más cercano, distancia haversine). Es una heurística: no resuelve el problema del agente viajero.
 - **Duplicados por dirección:** `p70_direccion` (módulo puro) reduce un texto como `AVENIDA REVOLUCIÓN No. 1234, Col. Centro` a una clave `{calle, número}` más las palabras del sector: quita acentos, mayúsculas, puntuación, el tipo de vía (av, blvd, calle, paseo) y palabras de relleno. La clave se busca en un índice del catálogo (se arma una vez y se guarda en `persistent_term`). Con la luminaria resuelta, el reporte sigue el flujo normal y se agrupa con la falla abierta. Si dos postes comparten la dirección, la API responde 409 con las candidatas en vez de adivinar.
+- **Métricas y diagnóstico:** `p70_metricas` (módulo puro) arma `GET /metrics` en el formato de texto de Prometheus, sin dependencias nuevas: lámparas apagadas (una falla de circuito cuenta sus 40 luminarias), fallas por estado, por sector y por prioridad efectiva, la falla abierta más antigua, el resumen del tiempo de reparación y datos de la VM (procesos, memoria, cola de mensajes más larga). `GET /api/diagnostico` usa recon para listar los procesos con más memoria y con más cola. Se calculan al consultar, leyendo el registro de fallas.
 - **Contorno aproximado:** las coordenadas se mantienen al sur de la frontera y al este de la costa (valores aproximados, calibrados con un mapa de la ciudad).
 - **Simulador:** 80 reportes por día simulado (un día = 1 minuto), 4 cuadrillas con hasta 3 fallas cada una, las más urgentes primero. Los escenarios (15 reportes en un poste, circuito caído de 40 luminarias) se ejecutan bajo demanda.
 
@@ -72,6 +74,8 @@ p70_direccion                    (módulo sin procesos: normaliza direcciones es
 | Método y ruta | Descripción |
 |---|---|
 | `POST /api/lamparas/:id/falla` | Reporta una falla. Cuerpo opcional: `{"prioridad":"alta\|media\|baja","fuente":"ciudadano\|telemetria"}`. 201 si abre una nueva, 200 si se agrupa. |
+| `GET /metrics` | Métricas en formato de texto de Prometheus (lámparas apagadas, fallas por estado, sector y prioridad, tiempo de reparación, VM). |
+| `GET /api/diagnostico` | Estado de la VM visto con recon: procesos, schedulers, memoria y los 5 procesos con más memoria y con más cola de mensajes. |
 | `POST /api/reportes` | Reporta por dirección escrita a mano: `{"direccion":"Av. Revolución 1234","prioridad":...,"fuente":...}`. La normaliza y busca la luminaria; 201 o 200 como el reporte por id, 400 si faltan calle y número, 404 si no existe, 409 con `candidatas` si varias luminarias comparten la dirección. |
 | `GET /api/mapa/fallas` | Fallas vigentes (estado, prioridad, reportes, fuentes, cuadrilla, horas). |
 | `GET /api/cuadrillas/rutas` | Ruta de cada cuadrilla con fallas asignadas: paradas en orden de visita (luminaria, lat, lon, prioridad) y `distancia_km`. |
@@ -143,6 +147,7 @@ Conclusiones:
 - **Sin persistencia.** Si el nodo se reinicia se pierde el estado de las fallas y la bitácora (el catálogo se regenera igual). Los hijos de `p70_falla_sup` son `temporary` por esa razón.
 - **Rutas heurísticas.** El vecino más cercano no es óptimo: una cuadrilla puede recorrer distancias largas porque su primera parada es la falla más urgente aunque esté lejos. No se considera el tráfico ni la base de la cuadrilla.
 - **Duplicados por dirección.** Se reconoce calle y número, con o sin sector, tolerando abreviaturas, acentos y mayúsculas. No corrige errores de ortografía, no entiende calles escritas con número ("Calle 10") ni geocodifica direcciones que no estén en el catálogo simulado.
+- **Métricas calculadas al consultar.** No hay contadores históricos: el tiempo de reparación solo incluye las fallas reparadas que siguen siendo la vigente de su luminaria (se pierden al reiniciar el nodo o al llegar otro reporte de esa luminaria), y las métricas no se guardan entre consultas. Las tomaría un Prometheus que consulte `/metrics`; aquí no hay uno configurado.
 - **Cifras del problema.** Verificadas en su mayoría (ver la sección anterior); la capacidad de 8 a 15 luminarias por cuadrilla al día no tiene fuente y es un supuesto.
 - El simulador usa números aleatorios: sus contadores cambian en cada corrida.
 
@@ -151,7 +156,7 @@ Conclusiones:
 - Enlazar la falla de circuito con las fallas individuales de sus luminarias.
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
-- Métricas `/metrics` con prometheus.erl y diagnóstico con recon.
+- Contadores históricos (reparaciones totales, reincidencias) y exportarlos con prometheus.erl, con un Prometheus real consultando `/metrics`.
 - Release con relx y servicio systemd.
 
 ## Uso de IA

@@ -33,6 +33,8 @@ setsid nohup rebar3 shell --name p70_alumbrado_publico@127.0.0.1 \
 |---|---|---|
 | `POST /api/lamparas/:id/falla` | Reporta una falla. Cuerpo opcional: `{"prioridad":"alta\|media\|baja","fuente":"ciudadano\|telemetria"}` | 201 si abre una nueva, 200 si se agrupa, 400 si algo es inválido |
 | `POST /api/reportes` | Reporta por dirección escrita a mano: `{"direccion":"Av. Revolución 1234","prioridad":"media","fuente":"ciudadano"}` | 201 o 200; 400 sin calle y número; 404 si no existe; 409 con `candidatas` si varias luminarias comparten la dirección |
+| `GET /metrics` | Métricas en formato de texto de Prometheus | 200 `text/plain` |
+| `GET /api/diagnostico` | Estado de la VM visto con recon | 200 con procesos, schedulers, memoria y los 5 procesos con más memoria y con más cola |
 | `GET /api/mapa/fallas` | Lista las fallas vigentes | 200 con `{"fallas":[...]}` |
 | `GET /api/fallas/:id` | Detalle de la falla de una luminaria (con reincidencias) | 200, o 404 |
 | `PATCH /api/fallas/:id` | `{"accion":"asignar","cuadrilla":"cuadrilla_1"}` o `{"accion":"reparar"}` | 200, 404 o 409 si la transición no es válida |
@@ -156,6 +158,46 @@ Otros resultados:
 | `Paseo de los Héroes #3848, Zona Centro` | 409: dirección ambigua, candidatas `L-0027` y `L-3432` |
 
 Cuando dos postes comparten calle, número y sector, la API no adivina: devuelve las candidatas y el reporte se hace con el ID del poste correcto (por ejemplo `L-0027`, que abrió una falla nueva).
+
+### Métricas y diagnóstico
+
+Con una falla de circuito (40 luminarias), una falla en L-0100 y L-0101 ya reparada:
+
+```
+curl -s localhost:8080/metrics
+```
+
+Salida real (recortada):
+
+```
+# TYPE p70_lamparas_apagadas gauge
+p70_lamparas_apagadas 41
+# TYPE p70_fallas gauge
+p70_fallas{estado="reportada"} 2
+p70_fallas{estado="asignada"} 0
+p70_fallas{estado="reparada"} 1
+# TYPE p70_fallas_abiertas_por_sector gauge
+p70_fallas_abiertas_por_sector{sector="Zona Centro"} 1
+p70_fallas_abiertas_por_sector{sector="Zona Este"} 1
+p70_fallas_abiertas_por_sector{sector="Zona Río"} 0
+# TYPE p70_fallas_abiertas_por_prioridad gauge
+p70_fallas_abiertas_por_prioridad{prioridad="alta"} 2
+# TYPE p70_reparacion_segundos summary
+p70_reparacion_segundos_sum 17
+p70_reparacion_segundos_count 1
+# TYPE p70_beam_procesos gauge
+p70_beam_procesos 140
+p70_beam_memoria_bytes{tipo="total"} 60143608
+p70_beam_cola_mensajes_maxima 0
+```
+
+Se calculan al consultar, con lo que hay en el registro de fallas: la lámpara apagada de un circuito cuenta las 40 luminarias, y el tiempo de reparación solo incluye las fallas reparadas que siguen vigentes. Las siete zonas salen siempre, aunque estén en cero.
+
+```
+curl -s localhost:8080/api/diagnostico
+```
+
+Devuelve el número de procesos y schedulers, la memoria total y, con recon, los 5 procesos con más memoria y con más cola de mensajes. En la misma prueba los de más memoria fueron `p70_simulador` (unos 3.1 MB) y `p70_catalogo` (unos 2.9 MB), y la cola de mensajes de todos estaba en 0, es decir, sin nada atascado.
 
 ## 5. Detener el servicio
 
