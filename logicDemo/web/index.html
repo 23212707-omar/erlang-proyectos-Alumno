@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Películas en Prolog</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.1rem; margin-top: 2rem; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; }
+  input { flex: 1; min-width: 140px; padding: 8px; font: inherit; }
+  button { padding: 8px 14px; font: inherit; cursor: pointer; }
+  ul { padding-left: 1.2rem; }
+  li { margin: 4px 0; }
+  small { color: #666; }
+  a { cursor: pointer; color: #0645ad; text-decoration: underline; }
+</style>
+</head>
+<body>
+<h1>Películas en Prolog</h1>
+<p><small>La página solo pregunta; todas las respuestas las deduce el servidor Prolog.</small></p>
+
+<h2>Buscar por título</h2>
+<form id="f-buscar"><input name="q" placeholder="matrix" required minlength="2"><button>Buscar</button></form>
+<ul id="r-buscar"></ul>
+
+<h2>Actor o actriz</h2>
+<form id="f-actor"><input name="nombre" placeholder="Tom Hanks" required><button>Ver</button></form>
+<div id="r-actor"></div>
+
+<h2>Camino entre dos actores</h2>
+<form id="f-camino">
+  <input name="de" placeholder="Kevin Bacon" required>
+  <input name="a" placeholder="Meryl Streep" required>
+  <button>Conectar</button>
+</form>
+<div id="r-camino"></div>
+
+<h2>Géneros</h2>
+<ul id="r-generos"></ul>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = async (ruta, params) => (await fetch(ruta + '?' + new URLSearchParams(params))).json();
+const datos = f => Object.fromEntries(new FormData(f));
+const peli = p => `<li><b>${esc(p.titulo)}</b> (${p.anio}) <small>${esc(p.generos.join(', '))}</small>
+  ${p.puntos ? `<small>· ${p.puntos} puntos</small>` : `· <a data-id="${p.id}">parecidas</a>`}
+  <br><small>${esc(p.reparto.join(', '))}</small></li>`;
+
+$('f-buscar').onsubmit = async e => {
+  e.preventDefault();
+  const r = await api('/api/buscar', datos(e.target));
+  $('r-buscar').innerHTML = r.map(peli).join('') || '<li>Sin resultados</li>';
+};
+$('r-buscar').onclick = async e => {
+  if (!e.target.dataset.id) return;
+  const r = await api('/api/similares', {id: e.target.dataset.id});
+  $('r-buscar').innerHTML = r.map(peli).join('');
+};
+$('f-actor').onsubmit = async e => {
+  e.preventDefault();
+  const r = await api('/api/actor', datos(e.target));
+  $('r-actor').innerHTML = r.error ? esc(r.error) :
+    `<p>${r.peliculas} películas, de ${r.primer} a ${r.ultimo}.</p>
+     <p>Trabajó más con: ${r.companeros.map(c => `${esc(c.actor)} (${c.veces})`).join(', ')}</p>
+     <ul>${r.filmografia.map(p => `<li>${p.anio} — ${esc(p.titulo)}</li>`).join('')}</ul>`;
+};
+$('f-camino').onsubmit = async e => {
+  e.preventDefault();
+  const r = await api('/api/camino', datos(e.target));
+  $('r-camino').innerHTML = r.error ? esc(r.error) :
+    `<p>${r.grados} grado(s) de separación:</p><p>` +
+    r.camino.map(p => p.actor ? `<b>${esc(p.actor)}</b>` : ` → <i>${esc(p.pelicula)}</i> (${p.anio}) → `).join('') + '</p>';
+};
+api('/api/generos', {}).then(r => $('r-generos').innerHTML =
+  r.slice(0, 15).map(g => `<li>${esc(g.genero)}: ${g.peliculas}</li>`).join(''));
+</script>
+</body>
+</html>
