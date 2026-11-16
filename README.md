@@ -51,6 +51,7 @@ entrega la última unidad de un producto.
 | [`PROYECTOS.md`](PROYECTOS.md) | Catálogo de temas, roles del equipo y niveles sugeridos. |
 | [`demos/`](demos/) | Demos de Erlang: Cowboy, supervisión, código en caliente y behaviours. |
 | [`logicDemo/`](logicDemo/) | Demo de Prolog: 36 000 películas consultadas con SWI-Prolog, con servidor web y tutorial. |
+| [`logicDemo2/`](logicDemo2/) | Continuación de la demo: Prolog llama a Python con Janus para graficar y analizar grafos. |
 | [`exposicion/`](exposicion/) | Diapositivas de la exposición. |
 
 Dentro de cada proyecto:
