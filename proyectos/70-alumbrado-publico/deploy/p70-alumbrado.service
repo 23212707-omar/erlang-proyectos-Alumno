@@ -1,0 +1,16 @@
+[Unit]
+Description=Alumbrado publico Tijuana (proyecto 70, Erlang/OTP)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/p70_alumbrado_publico
+ExecStart=/opt/p70_alumbrado_publico/bin/p70_alumbrado_publico foreground
+ExecStop=/opt/p70_alumbrado_publico/bin/p70_alumbrado_publico stop
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

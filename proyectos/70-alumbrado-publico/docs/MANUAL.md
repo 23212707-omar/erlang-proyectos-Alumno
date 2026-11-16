@@ -27,6 +27,44 @@ setsid nohup rebar3 shell --name p70_alumbrado_publico@127.0.0.1 \
   > /tmp/p70.log 2>&1 < /dev/null &
 ```
 
+### Instalación como servicio (systemd)
+
+Para que la API arranque sola con la Pi y se levante si la VM muere. Se hace una vez, desde la carpeta del proyecto, con el nodo de `rebar3 shell` detenido (usan el mismo puerto 8080):
+
+```
+rebar3 release
+rebar3 tar
+sudo mkdir -p /opt/p70_alumbrado_publico
+sudo tar -xzf _build/default/rel/p70_alumbrado_publico/p70_alumbrado_publico-0.1.0.tar.gz -C /opt/p70_alumbrado_publico
+sudo chown -R pi:pi /opt/p70_alumbrado_publico
+```
+
+El `vm.args` del repositorio trae una cookie de ejemplo; en la copia instalada se cambia por una propia, sin mostrarla:
+
+```
+sed -i "s/cambiar_en_produccion/$(openssl rand -hex 16)/" /opt/p70_alumbrado_publico/releases/0.1.0/vm.args
+```
+
+Después se instala la unidad que está en `deploy/` y se arranca:
+
+```
+sudo cp deploy/p70-alumbrado.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now p70-alumbrado
+```
+
+Comprobaciones (salida real en la Pi):
+
+```
+/opt/p70_alumbrado_publico/bin/p70_alumbrado_publico ping      # pong
+curl -s localhost:8080/api/catalogo/resumen                    # total 5000, 128 circuitos, 7 sectores
+journalctl -u p70-alumbrado -n 15 --no-pager                   # arranque sin errores
+```
+
+Reinicio automático: `sudo systemctl kill -s KILL p70-alumbrado` mata la VM; con `Restart=on-failure` systemd la levanta unos segundos después. En la prueba el PID pasó de 1906 a 2209, el servicio quedó `active` y la API volvió a responder. Para detenerlo: `sudo systemctl stop p70-alumbrado`.
+
+**Ojo con la cookie:** la línea de comando del proceso incluye `-setcookie`, así que no se debe publicar la salida de `systemctl status` ni de `ps` (ni en capturas ni en el informe).
+
 ## 3. Endpoints
 
 | Método y ruta | Descripción | Respuesta |

@@ -103,6 +103,7 @@ Diseñada en Google Stitch (`design/`) e integrada en `priv/www` (`index.html` y
 | `src/` | Aplicación OTP, fallas, registro, bitácora, catálogo, simulador, rutas y API |
 | `test/` | Pruebas eunit (fallas, registro, bitácora, catálogo, simulador y API con `httpc`) |
 | `priv/www/` | Interfaz web |
+| `deploy/` | Unidad de systemd del servicio |
 | `design/` | Exportación de Google Stitch y su `DESIGN.md` |
 | `problema/` | Enunciado del problema |
 | `config/` | `sys.config` y `vm.args` |
@@ -124,6 +125,19 @@ Verificación hecha el 14 de noviembre de 2026. Las cifras del documento del pro
 
 **Supuestos propios.** Se simulan 5,000 luminarias (una escala de la ciudad, que tiene unas 77 mil), 80 reportes por día simulado, 4 cuadrillas y un máximo de 3 fallas asignadas a la vez por cuadrilla. Un día simulado dura un minuto. La prioridad depende del tipo de lugar y la reincidencia sube un nivel.
 
+## Despliegue como servicio
+
+El proyecto trae un release de `relx` (`rebar.config`: aplicación, `sasl` y `recon`, con `config/vm.args` y `config/sys.config`) y una unidad de systemd en [`deploy/p70-alumbrado.service`](deploy/p70-alumbrado.service). Se armó y probó en la Raspberry Pi 4 virtual:
+
+```bash
+rebar3 release        # arma _build/default/rel/p70_alumbrado_publico
+rebar3 tar            # tarball de unos 19 MB, incluye su propia VM (erts)
+```
+
+El tarball se extrae en `/opt/p70_alumbrado_publico` y el servicio corre con el usuario `pi` (`Type=simple`, `foreground`, `Restart=on-failure`, `LimitNOFILE=65536`). Los pasos están en el [manual](docs/MANUAL.md#instalación-como-servicio-systemd). Resultado en la Pi: el servicio queda `active (running)` y habilitado, `ping` responde `pong`, la API devuelve las 5,000 luminarias y `/metrics` responde. Si se mata la VM con `SIGKILL`, systemd la levanta sola (el PID cambió de 1906 a 2209) y la API vuelve a responder en menos de 8 segundos.
+
+La cookie de `config/vm.args` del repositorio es un valor de ejemplo (`cambiar_en_produccion`); en la copia instalada se sustituye por una aleatoria que no se guarda en el repositorio.
+
 ## Prueba de caos
 
 Se grabó con asciinema en la Raspberry Pi 4 virtual: [ver la grabación](https://asciinema.org/a/W83DW4wpUhF5mrbH) (respaldo en `evidencias/caos.cast`; la captura 12 es de una primera prueba, que corresponde al escenario 1): un nodo corriendo con el catálogo de 5,000 luminarias, tres procesos matados con `exit(Pid, kill)` desde el shell de Erlang y las respuestas de la API comprobadas con `curl`. La estrategia del supervisor raíz es `rest_for_one`; el orden de arranque es servidor, `p70_falla_sup`, `p70_registro`, `p70_bitacora`, `p70_catalogo` y `p70_simulador`.
@@ -137,6 +151,7 @@ Se grabó con asciinema en la Raspberry Pi 4 virtual: [ver la grabación](https:
 Conclusiones:
 - Una falla individual puede morir sin afectar a las demás: es la razón de usar un proceso por falla y de que los hijos sean `temporary` (una falla muerta se reemplaza con el siguiente reporte, no se revive con un estado viejo).
 - Matar `p70_falla_sup` es el caso más caro: se pierden las fallas en curso y la bitácora, porque no hay persistencia. El sistema se recupera solo y sigue atendiendo, pero ese estado no vuelve (ver limitaciones).
+- A nivel de sistema operativo, matar la VM completa con `SIGKILL` bajo systemd (ver "Despliegue como servicio") la levanta de nuevo con otro PID y sin intervención. Eso se comprobó con el servicio instalado y no forma parte de la grabación.
 - El orden del árbol cumple su propósito: el catálogo y el simulador pueden fallar sin tocar las fallas en curso.
 - Los escenarios del documento del problema se cubren con tests y simulador: 15 reportes del mismo poste se agrupan en una sola falla (`escenarios/poste`), y reportar la misma luminaria escrita distinto también (`POST /api/reportes`).
 
@@ -157,7 +172,6 @@ Conclusiones:
 - Capacidad diaria de las cuadrillas (8 a 15 luminarias) y meta de atención.
 - Persistencia (ETS o PostgreSQL) y WebSocket o SSE en lugar del refresco cada 5 s.
 - Contadores históricos (reparaciones totales, reincidencias) y exportarlos con prometheus.erl, con un Prometheus real consultando `/metrics`.
-- Release con relx y servicio systemd.
 
 ## Uso de IA
 
