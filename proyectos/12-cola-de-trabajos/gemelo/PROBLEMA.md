@@ -8,7 +8,7 @@
 
 En la parte de Erlang simulaste la cola: trabajos que entran, trabajadores que los
 toman, fallas y reintentos. Esa simulación responde «¿qué está pendiente, en ejecución,
-fallido o muerto?». Quien opera la cola necesita algo más: «¿en qué orden puede correr
+fallido o muerto?». Quien responde por la cola necesita algo más: «¿en qué orden puede correr
 todo esto, qué ya no va a correr nunca, y por qué?».
 
 El gemelo digital es el **modelo lógico** de la cola: hechos que reflejan su estado y
@@ -18,11 +18,16 @@ saber decir «no lo sé».
 
 ## La cola que se clona
 
-La cola de una aplicación web (correos, reportes, imágenes, llamadas a una API externa),
-reducida a 12 trabajos de 3 tipos, 4 trabajadores y 1 servicio externo.
+La cola del sistema de inscripciones de una preparatoria de Mexicali, en semana de
+inscripciones: correos a las familias, fichas y listas (reportes), fotos de credencial
+(imágenes) y la confirmación de pagos con el banco (la API externa). Se reduce a 12
+trabajos de 3 tipos, 4 trabajadores y 1 servicio externo. La cola y sus cifras son las
+del problema original; **la preparatoria y sus personas no existen: las plantea esta
+extensión** para darle dueño y consecuencias al problema.
 
 | Parte | Contenido |
 |---|---|
+| Personas | la coordinadora de control escolar (opera la cola y responde por ella), el personal de ventanilla, las familias que pagan y esperan su ficha |
 | Entidades | tipo de trabajo → trabajo; dependencias entre trabajos; trabajadores; un servicio externo |
 | Estado por trabajo | tipo (dura 50 ms, 2 s o 60 s), prioridad, de qué trabajos depende, si usa el servicio externo, su hora programada si la tiene, y su historia: cuándo se encoló, cuándo lo tomó un trabajador, cuándo terminó o falló |
 | Estado del sistema | cuántos trabajadores hay (tope de 4, por los 4 núcleos del equipo) y si el servicio externo responde o está caído, y desde cuándo |
@@ -32,47 +37,58 @@ reducida a 12 trabajos de 3 tipos, 4 trabajadores y 1 servicio externo.
 ## Situaciones que tu gemelo debe razonar
 
 Las cuatro primeras salen del problema original; la quinta usa sus datos para plantear
-algo que el original no pide: revisar el registro. En cada una, tu gemelo debe llegar a
-una decisión **y poder explicarla**.
+algo que el original no pide: revisar el registro. La preparatoria, sus trámites y sus
+personas los pone esta extensión. En cada una, tu gemelo debe llegar a una decisión **y
+poder explicarla**.
 
 ### Situación 1 — El orden que respeta las dependencias
 
-- **Qué pasa.** Hay trabajos que dependen de otros: el correo que envía un reporte no
-  sale antes de que el reporte exista. Si A depende de B y B de A, ninguno puede empezar.
+- **Qué pasa.** Es semana de inscripciones. La ficha de un alumno no se genera antes de
+  que el banco confirme su pago, y el correo a la familia no sale antes de que la ficha
+  exista. Alguien configuró que la confirmación espere a la ficha «para adjuntarla»: si
+  A depende de B y B de A, ninguno empieza y la familia hace fila sin saber por qué.
 - **Qué datos hay.** Los trabajos encolados y, para cada uno, de cuáles depende.
 - **Qué debe deducir.** Un orden en el que ningún trabajo va antes que aquellos de los
   que depende, directa o indirectamente; y si existe un ciclo, qué trabajos lo forman.
 - **Qué debe contestar.** El plan completo; si hay varios órdenes válidos, cuáles son;
-  y, cuando no hay ninguno, el ciclo que lo impide en vez de un simple «no».
+  y, cuando no hay ninguno, el ciclo que lo impide en vez de un simple «no», para que
+  la coordinadora sepa qué trámite corregir.
 - **Por qué es lógica.** «Depende de», directa o indirectamente, es una relación que
   se define una vez y se recorre en cualquier dirección. Es un problema de grafos.
 
 ### Situación 2 — El trabajo muerto y los que esperaban por él
 
-- **Qué pasa.** Un trabajo «envenenado» falla siempre y, tras N intentos, termina en la
-  cola de muertos. Los que dependían de él siguen como pendientes, pero ya no van a
-  correr. Si en cambio el servicio externo se cae 5 minutos, lo que lo usa solo se retrasa.
+- **Qué pasa.** La foto de un alumno está dañada: su credencial falla siempre y, tras N
+  intentos, termina en la cola de muertos. Su ficha y su correo siguen como
+  «pendientes», pero ya no van a correr, y nadie le avisa a la familia. Ese mismo día el
+  banco se cae 5 minutos: los pagos que lo usan solo se retrasan. En el panel, los dos
+  grupos se ven iguales.
 - **Qué datos hay.** Las dependencias, los fallos de cada trabajo, cuáles usan el
   servicio externo y el estado de ese servicio. Ningún dato dice «bloqueado».
-- **Qué debe deducir.** Qué trabajos quedaron detenidos para siempre, cuáles solo están
-  retrasados y cuáles no resultan afectados, siguiendo la red hasta el final.
+- **Qué debe deducir.** En cadena: por qué falló el origen, luego qué trabajos dependen
+  de él hasta el final de la red, y luego cuáles quedaron detenidos para siempre, cuáles
+  solo retrasados y cuáles no resultan afectados.
 - **Qué debe contestar.** La lista de afectados con la causa de origen de cada uno y el
-  camino de dependencias que lo conecta con ella.
+  camino de dependencias que lo conecta con ella; y a qué familias hay que llamar hoy
+  porque su trámite no va a terminar solo.
 - **Por qué es lógica.** El bloqueo no es un dato de ningún trabajo: es una conclusión
   que se propaga por la red, y cambia según la razón por la que falló el origen.
 
 ### Situación 3 — Urgente, pero depende de uno lento
 
 - **Qué pasa.** Sin prioridades, los trabajos largos (60 s) bloquean a los cortos
-  (50 ms), y solo hay 4 trabajadores. Pero un trabajo corto y urgente puede depender de
-  uno largo; y uno programado para «dentro de 3 horas» puede llegar a su hora con un
-  requisito sin terminar.
+  (50 ms), y solo hay 4 trabajadores. La coordinadora necesita ya las listas de grupo,
+  que son largas, porque mañana empiezan las clases. En ventanilla, una madre espera un
+  comprobante corto y urgente que depende de un reporte largo. Y el aviso programado
+  para «dentro de 3 horas» llega a su hora con un requisito sin terminar. Las dos
+  tienen razón y no hay trabajadores para ambas.
 - **Qué datos hay.** Prioridad, tipo, dependencias, hora programada, hora actual y
   trabajadores ocupados.
 - **Qué debe deducir.** Qué regla manda cuando chocan la prioridad, la dependencia, la
   hora programada y el tope de trabajadores; y qué trabajos ocupan los lugares libres.
 - **Qué debe contestar.** Quién corre ahora y quién espera; para cada uno que espera,
-  la regla que lo detuvo y qué tendría que pasar para que le toque.
+  la regla que lo detuvo y qué tendría que pasar para que le toque; y a quién se le
+  falla, la coordinadora o la ventanilla, y por qué.
 - **Por qué es lógica.** Las prioridades entre reglas se declaran una vez y valen para
   todos los casos, también para los que nadie previó.
 
@@ -81,26 +97,32 @@ una decisión **y poder explicarla**.
 - **Qué pasa.** El sistema se reinicia con trabajos en ejecución. La entrega es «al
   menos una vez»: si un trabajador no confirma en el tiempo de visibilidad (30 s), otro
   toma el trabajo y puede ejecutarse dos veces. Uno de 60 s rebasa ese tiempo siempre.
+  Entre los que quedaron a medias hay un cobro de inscripción y un correo. Lo intuitivo
+  es volver a lanzar todo lo que no confirmó: con el correo, la familia recibe dos
+  avisos; con el cobro, paga dos veces.
 - **Qué datos hay.** Cuándo se tomó cada trabajo, si hay confirmación de que terminó,
   cuánto dura su tipo y la hora actual. Nadie registra «se ejecutó a medias».
 - **Qué debe deducir.** Si el trabajo terminó, si no terminó o si no se puede saber; si
   repetirlo es inofensivo o peligroso; y qué pasa con los que dependen de él.
 - **Qué debe contestar.** Tres respuestas distintas: «terminó», «no terminó» y «no lo
-  sé». Para los dudosos, si se vuelven a lanzar o se retienen, y la razón.
+  sé». Para los dudosos, si se vuelven a lanzar o se retienen, y la razón; y por qué
+  relanzar, que parece lo seguro, es lo que no se debe hacer con algunos.
 - **Por qué es lógica.** «No hay confirmación» no significa «no se ejecutó». Y la duda
   se hereda: quien depende de un trabajo dudoso tampoco tiene su turno asegurado.
 
 ### Situación 5 — El registro que cuenta una historia imposible
 
-- **Qué pasa.** El panel muestra qué está pendiente, en ejecución, fallido o muerto,
-  pero el registro puede contar algo que no pudo ocurrir: un trabajo que terminó sin
-  que nadie lo tomara, uno muerto que vuelve a ejecutarse, uno que corrió antes que su
-  requisito, o un reintento lanzado antes de su espera (1 s, 2 s, 4 s, 8 s...).
+- **Qué pasa.** Un padre reclama que le cobraron y nunca recibió la ficha. La
+  coordinadora abre el registro para responderle, pero el registro puede contar algo que
+  no pudo ocurrir: un trabajo que terminó sin que nadie lo tomara, uno muerto que vuelve
+  a ejecutarse, uno que corrió antes que su requisito, o un reintento lanzado antes de
+  su espera (1 s, 2 s, 4 s, 8 s...). Si el registro miente, la respuesta al padre también.
 - **Qué datos hay.** Los eventos de cada trabajo con su instante y las dependencias.
 - **Qué debe deducir.** Si la historia de cada trabajo es una secuencia válida de
   estados y, si no lo es, cuál es el primer paso que la rompe.
-- **Qué debe contestar.** Qué trabajos tienen una historia inconsistente y por qué; y,
-  para cualquier trabajo, cuáles son los siguientes pasos válidos desde donde está.
+- **Qué debe contestar.** Qué trabajos tienen una historia inconsistente y por qué; para
+  cualquier trabajo, cuáles son los siguientes pasos válidos desde donde está; y qué se
+  le puede afirmar al padre y qué no.
 - **Por qué es lógica.** La misma descripción de «qué puede seguir a qué» sirve para
   revisar una historia, para generar los pasos permitidos y para rendir cuentas.
 
@@ -151,6 +173,8 @@ programa.
 - Tú defines las dependencias y prioridades; el N de «N intentos», que el original no
   da; qué tipos se pueden repetir sin daño; qué regla gana en cada choque; y desde
   cuándo un trabajo tomado y sin confirmar está en duda. Decláralo como supuesto.
+- La preparatoria de Mexicali, sus trámites (pago, ficha, credencial, correo, listas) y
+  sus personas son del ejercicio, no del problema original.
 
 ## Extensiones posibles
 

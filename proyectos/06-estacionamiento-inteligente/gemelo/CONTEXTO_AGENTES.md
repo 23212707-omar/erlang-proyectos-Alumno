@@ -88,8 +88,11 @@ Sin valores exactos a propósito: el estudiante fija su escenario y sus umbrales
    sabe», distinto de «ocupado» y de «libre», con la evidencia.
 3. **Conteos.** En un nivel donde rampas y cajones no cuadran, el gemelo reporta la
    diferencia, la fuente que eligió y la razón; donde cuadran, lo confirma.
+   La fuente elegida puede ser distinta en cada nivel y la explicación dice por qué.
 4. **Reserva.** Una reserva vigente bloquea el cajón; una expirada lo libera. Un cajón
    reservado y ocupado produce una situación propia, no se trata como ocupación normal.
+   La respuesta nombra a quién se le falla, la regla que lo decidió y el cajón que se
+   le ofrece; si no se puede saber quién lo ocupó, lo dice.
 5. **Saturación.** La ocupación de una zona se calcula con una política declarada sobre
    reservados, dudosos y fuera de servicio; la consulta inversa dice cuántos cajones
    faltan para cruzar el límite, y funciona con llegadas supuestas.

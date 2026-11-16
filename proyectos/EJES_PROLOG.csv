@@ -75,7 +75,7 @@ n,proyecto,eje_principal,eje_secundario,nivel,fuente_nivel,foco
 74,Radio o streaming,politicas,-,Inicial,propuesto,Votos; elegibilidad y orden de reproduccion
 75,Carreras simuladas,transiciones,politicas,Intermedio,propuesto,Eventos validos de carrera y pagos de apuestas
 76,Mesa de domino o loteria en linea,transiciones,politicas,Intermedio,propuesto,Jugada legal y deteccion de fin de mano
-77,Valle de Guadalupe, bodega,transiciones,experto,Intermedio,propuesto,Fases de fermentacion y alertas por tanque
+77,"Valle de Guadalupe, bodega",transiciones,experto,Intermedio,propuesto,Fases de fermentacion y alertas por tanque
 78,Cultivo de fresa o tomate,politicas,grafos,Intermedio,propuesto,Trazabilidad de cosecha hasta el lote
 79,Acuacultura,experto,-,Intermedio,propuesto,Oxigeno/temperatura y decision de alimentar
 80,Cerveceria artesanal,transiciones,restricciones,Intermedio,propuesto,Etapas del lote y ocupacion de fermentadores

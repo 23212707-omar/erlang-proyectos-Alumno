@@ -33,10 +33,9 @@ grupos y salones son ejemplos de esta extensión.
 ## Situaciones que tu gemelo debe razonar
 
 Cuatro de las cinco salen del problema original; la 1 añade un complemento derivado (un
-grupo con alumnos de otra carrera). La 5 plantea algo nuevo: toma del original que un
-aviso informativo puede agruparse y que la gente silencia lo que la satura, y del foco
-del eje, que las reglas se heredan entre campus, carrera y grupo. En cada una, tu
-gemelo debe llegar a una decisión **y poder explicarla**.
+grupo con alumnos de otra carrera). La 5 es nueva: toma del original el resumen de
+informativos y el silencio por saturación, y del foco, la herencia de reglas entre
+niveles. En cada una, tu gemelo debe llegar a una decisión **y poder explicarla**.
 
 ### Situación 1 — Una carrera, un grupo prestado
 
@@ -51,15 +50,13 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   le toca».
 - **Qué debe deducir.** La audiencia de cada aviso a partir de su destino y de la
   pertenencia; quién la alcanza por más de un camino; y quién está en un grupo de una
-  carrera que no es la suya. Lo intuitivo es que el grupo de sistemas es todo de
-  sistemas y que la audiencia de una carrera es la suma de sus grupos; es sospechoso
-  porque estar en un grupo no es ser de esa carrera.
+  carrera que no es la suya. Lo intuitivo es que la audiencia de una carrera es la suma
+  de sus grupos; pero estar en un grupo no es ser de esa carrera.
 - **Qué debe contestar.** Para cada aviso, quiénes lo reciben y por qué camino; quiénes
   lo alcanzarían dos veces y se les entrega una; y qué alumnos quedan en la frontera,
   con la razón.
-- **Por qué es lógica.** «A quien le corresponde» no se guarda en ningún lado: se
-  deduce de relaciones, y la misma deducción sirve para preguntar por un aviso o por un
-  alumno.
+- **Por qué es lógica.** «A quien le corresponde» no se guarda en ningún lado: se deduce
+  de relaciones, y la misma deducción sirve para preguntar por un aviso o por un alumno.
 
 ### Situación 2 — Lo silencié, pero hoy sí me importa
 
@@ -68,7 +65,7 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   silenció los avisos de su grupo y los informativos; su decisión es legítima. Pero si
   no se entera, sale de casa hacia un campus cerrado. Ese día, un docente marca como
   urgente un aviso sobre un quiz para que todos lo vean. Si todo lo urgente es
-  intocable, nadie puede silenciar nada y todos acabarán silenciándolo todo.
+  intocable, todos acabarán silenciándolo todo.
 - **Qué datos hay.** Las preferencias de campus, de carrera, de grupo y de cada alumno,
   con quién las fijó; la prioridad declarada de cada aviso; el rol y el ámbito de quien
   lo publicó; el estado de la conexión.
@@ -76,9 +73,8 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   cuáles chocan con la prioridad del aviso; y si la urgencia declarada es creíble dado
   quién la declara y a quién se dirige.
 - **Qué debe contestar.** Cómo se entrega cada aviso (de inmediato, en resumen, solo al
-  abrir o no se entrega), la regla que cedió, a quién se le falla (al alumno o a la
-  escuela) y qué le cuesta; y qué tendría que cambiar para que el aviso del quiz sí
-  pudiera silenciarse.
+  abrir o no se entrega), la regla que cedió y a quién se le falla; y qué tendría que
+  cambiar para que el aviso del quiz sí pudiera silenciarse.
 - **Por qué es lógica.** Dos partes tienen razón y la prioridad entre ellas se declara
   una vez, con su justificación, en lugar de improvisarse aviso por aviso.
 
@@ -88,23 +84,20 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   en el salón X, y deja programado un recordatorio para el jueves. El martes corrige:
   ahora es en el salón Y. El miércoles retira la corrección porque el examen se aplaza
   y aún no hay fecha. El viernes abre la app Iván, que no se conectaba desde hace una
-  semana. Quien leyó el aviso del lunes sigue creyendo que es en X; si Iván o su grupo
-  llegan a un salón equivocado o a un examen que no existe, pierden un día y la
-  confianza en el tablero.
+  semana. Quien leyó el aviso del lunes sigue creyendo que es en X; llegar a un salón
+  equivocado o a un examen que no existe cuesta un día y la confianza en el tablero.
 - **Qué datos hay.** Los eventos de cada aviso con su instante (publicado, programado,
   corregido, retirado, vencido), cuál sustituye a cuál, quién lo leyó y cuándo, y la
   última conexión de cada alumno.
-- **Qué debe deducir.** En cadena: el aviso del martes sustituye al del lunes; luego el
-  del lunes ya no es vigente; el del martes se retiró, luego tampoco lo es; luego sobre
-  el examen no hay ninguno vigente; luego el recordatorio del jueves ya no procede; y
-  luego quien leyó alguno de los dos tiene información caduca. Lo intuitivo es que al
-  retirar la corrección «vuelve» el original, o que lo retirado simplemente
-  desaparece; ambas cosas son sospechosas.
+- **Qué debe deducir.** En cadena: qué aviso sustituye a cuál, luego cuáles siguen
+  vigentes, luego si el recordatorio programado aún procede, y luego quién se quedó con
+  información caduca. Lo intuitivo es que al retirar la corrección «vuelve» el original,
+  o que lo retirado simplemente desaparece; ambas cosas son sospechosas.
 - **Qué debe contestar.** Qué ve Iván al abrir: lo vigente, lo retirado que le atañe y
   lo vencido que ya no necesita; qué pasa con el recordatorio programado; y a quiénes
   hay que avisar que lo que leyeron dejó de valer.
 - **Por qué es lógica.** Lo vigente no es un campo de cada aviso: se concluye de la
-  historia de todos los avisos relacionados, y una respuesta que parece obvia está mal.
+  historia de todos los avisos relacionados.
 
 ### Situación 4 — Entregado no es leído
 
@@ -114,7 +107,7 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   envío y aun así figura como entregado. Ana mandó un acuse de «leído» con un instante
   anterior a la publicación, porque su reloj está desfasado. Luis tiene la app abierta,
   sin tocarla hace horas. Elena nunca se conectó. Omitir a quien no se enteró de una
-  contingencia es un riesgo; llamar a todos le quita sentido a la llamada.
+  contingencia es un riesgo; llamar a todos no es posible.
 - **Qué datos hay.** Los eventos de conexión con su instante, el instante de publicación
   y los acuses (entregado, visto, leído) con el instante que reporta cada dispositivo.
 - **Qué debe deducir.** Por alumno, si se enteró; qué acuses son imposibles y por qué; y
@@ -132,7 +125,7 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   quiere que su aviso informativo salga de inmediato. Un alumno de arquitectura, en un
   grupo de sistemas, pidió silenciar los avisos de sistemas. A media jornada, industrial
   cambia su política. Quien no se entera pierde la calificación de esa entrega; quien
-  recibe todo suelto silencia todo y se pierde el próximo aviso urgente.
+  recibe todo suelto silencia todo.
 - **Qué datos hay.** Las reglas de cada nivel con quién las fijó y desde cuándo; las
   preferencias de cada alumno; los avisos del día con su tipo, prioridad y emisor; y
   cuántos avisos ha recibido ya cada alumno hoy.
@@ -143,7 +136,7 @@ gemelo debe llegar a una decisión **y poder explicarla**.
   niveles chocan, cuál ganó y a quién se le falla; y, si industrial revierte su cambio
   mañana, qué alumnos verían cambiar algo y cuáles no.
 - **Por qué es lógica.** La herencia se declara una vez y vale para todos los grupos; lo
-  excepcional se escribe como excepción, no como un caso más en un código aparte.
+  excepcional se escribe como excepción.
 
 ## Por qué no basta un script
 
@@ -193,10 +186,8 @@ programa.
   contra 12 carreras, 120 grupos y 3,000 alumnos; un día de 8 avisos contra 40.
 - Inventado por esta extensión y sin cifras: los nombres de personas, grupos, materias y
   salones; los grupos con alumnos de otra carrera; los avisos que se sustituyen unos a
-  otros; y las políticas de carrera y las preferencias por nivel. Son datos del
-  ejercicio, no hechos del mundo.
-- El «ahora» es un hecho del modelo, no el reloj del sistema, para que las respuestas
-  se puedan repetir.
+  otros; y las políticas de carrera y las preferencias por nivel.
+- El «ahora» es un hecho del modelo, no el reloj del sistema.
 - Tú defines y declaras como supuesto: quién puede declarar un aviso urgente; si algo
   no puede silenciarse ni anularse y qué; qué nivel gana cuando la política de la
   carrera choca con la del campus; cuántos avisos en un día saturan a un alumno y qué
@@ -207,12 +198,10 @@ programa.
 
 ## Extensiones posibles
 
-Para quien quiera ir más lejos. Estas situaciones no vienen del problema original:
-investiga y cita tus fuentes antes de fijar cifras.
+Fuera del problema original: investiga y cita tus fuentes antes de fijar cifras.
 
 - Avisos de asociaciones estudiantiles que requieren visto bueno antes de llegar a miles.
-- Avisos que dependen de otros (la inscripción depende de que el calendario esté
-  publicado).
+- Avisos que dependen de otros (la inscripción, del calendario publicado).
 - Alumnos en baja temporal, de intercambio o egresados: quién sigue recibiendo qué.
 - Accesibilidad: avisos que deben llegar por más de un medio.
 

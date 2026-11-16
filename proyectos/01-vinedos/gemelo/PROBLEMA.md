@@ -28,64 +28,96 @@ Una finca del Valle de Guadalupe, reducida a 3 parcelas con 4 hileras cada una.
 
 ## Situaciones que tu gemelo debe razonar
 
-Las cinco salen del problema original. En cada una, tu gemelo debe llegar a una decisión
-**y poder explicarla**.
+Las cinco salen del problema original. Las personas (la viticultora, el capataz, la
+enóloga) las pone esta extensión para que se vea quién pierde cuando el gemelo se
+equivoca. En cada una, tu gemelo debe llegar a una decisión **y poder explicarla**.
 
 ### Situación 1 — El mildiu que nadie ve venir
 
 - **Qué pasa.** Tras días húmedos, un hongo (*Plasmopara viticola*) infecta las hojas.
-  Cuando se ven las manchas ya es tarde: el fungicida sirve antes, no después.
+  Cuando se ven las manchas ya es tarde: el fungicida sirve antes, no después. Fumigar
+  toda la finca «por si acaso» le cuesta a la viticultora producto y jornales; no fumigar
+  la hilera correcta le cuesta la cosecha. Lo intuitivo es fumigar donde más llovió.
 - **Qué datos hay.** Lluvia, temperatura mínima, largo del brote y horas de hoja mojada.
   Ningún sensor mide «hongo».
 - **Qué debe deducir.** Qué hileras están en riesgo según la regla agronómica de «los
   tres 10» (unos 10 mm de lluvia, 10 °C de temperatura mínima y brotes de 10 cm) y según
   la hoja mojada continua por 6 a 8 horas o más con 18 a 25 °C.
 - **Qué debe contestar.** Dónde aplicar fungicida y por qué; qué hileras están a un solo
-  criterio de entrar en riesgo, y cuál es ese criterio.
+  criterio de entrar en riesgo, y cuál es ese criterio; y por qué la hilera más mojada
+  de la finca puede quedar fuera de la lista.
 - **Por qué es lógica.** El riesgo nace de que varias variables coincidan, no de una
-  sola que esté alta.
+  sola que esté alta: la que más alarma a simple vista puede no cumplir las demás.
 
 ### Situación 2 — La helada depende de la etapa
 
 - **Qué pasa.** Una noche la temperatura baja 1.5 °C por hora. Entre 0 y -2 °C se queman
   los brotes y se puede perder buena parte de la producción del año, pero solo si la
-  planta ya brotó (marzo-abril).
-- **Qué datos hay.** Temperatura por hilera y etapa de la planta.
-- **Qué debe deducir.** En qué hileras la helada es una emergencia y en cuáles no importa.
-- **Qué debe contestar.** Qué hileras proteger, cuáles no, y la razón de cada caso.
-- **Por qué es lógica.** La misma lectura significa cosas distintas según el contexto.
+  planta ya brotó (marzo-abril). El capataz tiene una sola cuadrilla despierta y no
+  alcanza a proteger toda la finca: cada hilera que protege de más es una que deja sin
+  proteger. Lo intuitivo es mandarla a la hilera más fría.
+- **Qué datos hay.** Temperatura por hilera con su hora, etapa de la planta, posición
+  de la parcela (alta o baja) y la hora actual. No hay un dato que diga «en peligro».
+- **Qué debe deducir.** En cadena: hacia dónde va la temperatura de cada hilera con el
+  ritmo de la noche, luego si llegará a la franja que quema, luego si la planta de esa
+  hilera tiene brotes que perder, y por último en qué orden atenderlas.
+- **Qué debe contestar.** Qué hileras proteger primero, cuáles no y la razón de cada
+  caso; por qué la más fría puede quedar al final; y a cuál se le falla si la cuadrilla
+  no alcanza.
+- **Por qué es lógica.** La misma lectura significa cosas distintas según la etapa, y la
+  emergencia es una conclusión de varios hechos, no la lectura más baja.
 
 ### Situación 3 — Regar o no regar
 
 - **Qué pasa.** Una hilera tiene el suelo seco y al mismo tiempo hay alerta de helada.
-  Además, en vid de vino se riega por debajo de la demanda a propósito: regar de más
-  baja la calidad y desperdicia agua de un acuífero sobreexplotado.
-- **Qué datos hay.** Humedad, temperatura y etapa.
-- **Qué debe deducir.** Qué regla manda cuando dos se contradicen.
-- **Qué debe contestar.** La decisión, la regla que la bloqueó y qué tendría que cambiar
-  para poder regar.
-- **Por qué es lógica.** Las prioridades se declaran una vez y valen para todos los casos.
+  El capataz quiere regarla ya: teme perder plantas. La enóloga quiere que siga seca: en
+  vid de vino se riega por debajo de la demanda a propósito, y regar de más baja la
+  calidad y desperdicia agua de un acuífero sobreexplotado. Los dos tienen razón. Para
+  colmo, el sistema se reinició a mitad de un riego y nadie sabe si la válvula quedó
+  abierta.
+- **Qué datos hay.** Humedad, temperatura y etapa de la hilera; la última orden dada a
+  la válvula con su hora y el instante del reinicio. No hay lectura del estado real de
+  la válvula.
+- **Qué debe deducir.** Qué regla manda cuando la sequía, la helada y el riego
+  deficitario se contradicen; y si esa hilera está siendo regada, no lo está o no se
+  puede saber.
+- **Qué debe contestar.** La decisión, la regla que bloqueó a las otras, a quién se le
+  falla (capataz o enóloga) y qué pierde; qué tendría que cambiar para poder regar; y,
+  sobre la válvula, «abierta», «cerrada» o «no lo sé», con lo que habría que revisar.
+- **Por qué es lógica.** Las prioridades se declaran una vez y valen para todos los
+  casos, y la última orden enviada no es lo mismo que lo que la válvula hizo.
 
 ### Situación 4 — El dato que no se puede creer
 
 - **Qué pasa.** Un sensor marca 400 % de humedad. Otro lleva horas sin reportar: los
-  nodos fallan por batería, polvo y roedores.
-- **Qué datos hay.** Lecturas con su hora y el rango físico de cada variable.
-- **Qué debe deducir.** Si un dato es válido, imposible o viejo; y si el silencio de un
-  sensor es una falla o simplemente que nada cambió.
+  nodos fallan por batería, polvo y roedores. Un tercero reporta puntual, pero con un
+  salto que ningún suelo da de una lectura a la siguiente. Si el gemelo riega o alerta
+  por cualquiera de ellos, la viticultora paga agua o una noche de cuadrilla por nada;
+  si los descarta todos, deja hileras sin cuidar.
+- **Qué datos hay.** Lecturas con su hora, el rango físico de cada variable y la hora
+  actual.
+- **Qué debe deducir.** Si un dato es válido, imposible o viejo; si el silencio de un
+  sensor es una falla o simplemente que nada cambió; y si el sensor que sí reporta es de
+  fiar.
 - **Qué debe contestar.** Tres respuestas distintas: «sí», «no» y «no lo sé». Nunca
-  regar ni alertar por una lectura corrupta.
-- **Por qué es lógica.** «No se cumple» y «no tengo cómo saberlo» no son lo mismo.
+  regar ni alertar por una lectura corrupta, y decir qué dato sacaría a la hilera de la
+  duda.
+- **Por qué es lógica.** «No se cumple» y «no tengo cómo saberlo» no son lo mismo, y el
+  sensor más puntual no es por eso el más creíble.
 
 ### Situación 5 — La hilera callada y sus vecinas
 
 - **Qué pasa.** El aire frío se acumula en las partes bajas: dos hileras a 200 m pueden
-  diferir 2 o 3 °C. Esa noche, el 10 % de los sensores no reporta.
-- **Qué datos hay.** Qué hileras son vecinas, cuáles están en zona baja y las lecturas
-  de las que sí reportan.
-- **Qué debe deducir.** El estado probable de una hilera sin dato a partir de sus vecinas.
+  diferir 2 o 3 °C. Esa noche, el 10 % de los sensores no reporta, y entre las calladas
+  hay hileras ya brotadas. Tratarlas como «sin alerta» puede costar la cosecha de esa
+  parcela; tratarlas todas como emergencia agota a la cuadrilla.
+- **Qué datos hay.** Qué hileras son vecinas, cuáles están en zona baja, su etapa y las
+  lecturas de las que sí reportan.
+- **Qué debe deducir.** En cadena: qué vecinas tienen dato creíble, qué dicen de la
+  hilera callada según su posición, y si con su etapa eso la vuelve una emergencia.
 - **Qué debe contestar.** La inferencia, marcada como inferencia y no como lectura, con
-  las vecinas que la sustentan.
+  las vecinas que la sustentan; y cuándo la respuesta honesta es «no lo sé» porque las
+  vecinas tampoco tienen dato o no se parecen a ella.
 - **Por qué es lógica.** Es razonar sobre relaciones entre entidades, no sobre un valor.
 
 ## Por qué no basta un script
@@ -132,6 +164,9 @@ programa.
   se puedan repetir.
 - Las etapas de la planta y la relación de vecindad entre hileras son datos que tú
   defines en el escenario.
+- La viticultora, el capataz, la enóloga y la cuadrilla única son personas del
+  ejercicio, no del problema original. Tú decides cuánto silencio vuelve sospechoso a un
+  sensor, qué salto es imposible y qué regla gana en cada choque; decláralo.
 
 ## Extensiones posibles
 

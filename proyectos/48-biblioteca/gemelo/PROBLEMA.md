@@ -14,17 +14,14 @@ le toca el libro, cuánto debe, y por qué?».
 
 El gemelo digital es el **modelo lógico** de la biblioteca: hechos que reflejan dónde está
 cada ejemplar y quién espera por él, y reglas que reflejan cómo se decide en el mostrador.
-Se escribe en Prolog porque lo que hay que resolver aquí no es contar días, sino deducir
-quién tiene derecho a qué, justificar a quién se le falla cuando hay un solo libro para
-muchos, y distinguir «no debe» de «no sé si debe».
+Se escribe en Prolog porque aquí no se cuentan días: se deduce quién tiene derecho a qué,
+se justifica a quién se le falla y se distingue «no debe» de «no sé si debe».
 
 ## La biblioteca que se clona
 
 Una biblioteca universitaria de Tijuana, reducida a unos 8 títulos con unos 12 ejemplares,
-unos 8 alumnos, 2 mostradores y una cola de unas 6 reservas. Es una simulación planteada
-por el problema original; lo que se añade (calendario de días inhábiles, mostrador que
-captura cada registro, avisos con estado, revisión de los ejemplares) está marcado en las
-situaciones.
+unos 8 alumnos, 2 mostradores y una cola de unas 6 reservas. Es la simulación del problema
+original; lo que se añade está listado en «Supuestos».
 
 | Parte | Contenido |
 |---|---|
@@ -46,10 +43,8 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
 
 - **Qué pasa.** Un alumno con multa pendiente intenta pedir un libro, como en el escenario
   del original. Su último préstamo venció hace unos días y en medio hubo días en que la
-  biblioteca no abrió. El original deja abierto cómo calcular multas con días inhábiles y
-  menciona que algunas bibliotecas bloquean el servicio al acumular adeudo. Para colmo, el
-  alumno jura que ya devolvió ese libro y el registro de devolución no aparece. En juego
-  están una multa que quizá no corresponde y un alumno sin libro en víspera de examen.
+  biblioteca no abrió. Para colmo, jura que ya devolvió ese libro y el registro no
+  aparece. En juego: una multa que quizá no corresponde y un alumno sin libro ante examen.
 - **Qué datos hay.** Préstamos con su fecha de salida, el material de cada ejemplar,
   renovaciones concedidas, el calendario de días inhábiles, devoluciones registradas con su
   instante, pagos de multa y la tarifa. Ningún dato dice «debe» ni «bloqueado».
@@ -58,14 +53,10 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
   bloqueado, y si lo que pide ahora se le puede prestar.
 - **Qué debe contestar.** Prestar, no prestar o «no se sabe» (la devolución sin registro no
   se da por cierta ni por falsa), con cada préstamo que pesa en la respuesta, y qué
-  tendría que pasar para desbloquearlo: cuánto pagar o qué registro aclarar. Lo intuitivo
-  es restar dos fechas y multiplicar por la tarifa; es sospechoso porque el calendario de
-  la biblioteca no es el del almanaque y porque el vencimiento mismo cambia con el
-  material y las renovaciones.
+  tendría que pasar para desbloquearlo. Lo intuitivo es restar dos fechas y multiplicar
+  por la tarifa; pero el calendario de la biblioteca no es el del almanaque.
 - **Por qué es lógica.** El adeudo no es un dato: se deduce en cadena (vencimiento, días
-  que cuentan, multa, adeudo neto, bloqueo, elegibilidad). Si el gemelo se equivoca, alguien
-  paga de más o la biblioteca presta a quien no debía. Y «no debe» no es «no consta que
-  deba».
+  que cuentan, multa, adeudo neto, bloqueo). Y «no debe» no es «no consta que deba».
 
 ### Situación 2 — Dos mostradores, un solo ejemplar
 
@@ -73,8 +64,7 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
   difícil del original). Cada alumno salió convencido de que lo tiene, pero físicamente
   solo uno lo trae. Cada mostrador capturó su registro con su propia hora, y el sistema
   los recibió en un orden que no necesariamente es el de lo ocurrido. Mientras tanto, otro
-  alumno apartó ese título. En juego están dos alumnos de buena fe, de los cuales uno
-  pierde, y la confianza en el inventario.
+  alumno apartó ese título. Hay dos alumnos de buena fe y uno de ellos pierde.
 - **Qué datos hay.** Los eventos del ejemplar con su hora, su mostrador y el orden en que
   llegaron, el último estado del ejemplar antes del conflicto (si se devolvió y se revisó),
   las reservas del título y, si ya lo hubo, el resultado de buscarlo físicamente.
@@ -83,21 +73,18 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
   según lo que se sabe y qué es lo que no se sabe.
 - **Qué debe contestar.** El estado del ejemplar («prestado a tal alumno» o «en conflicto:
   no se sabe») y, para el alumno que no se queda con el libro, qué se le dice y qué lugar
-  de la cola le toca. Lo intuitivo es «gana el registro con la hora más temprana»; es
-  sospechoso porque son dos relojes de dos mostradores, y lo que llegó primero al sistema
-  no es lo que ocurrió primero en la ventanilla.
+  de la cola le toca. Lo intuitivo es «gana el registro con la hora más temprana»; pero
+  son dos relojes, y lo que llegó primero al sistema no es lo que ocurrió primero.
 - **Por qué es lógica.** Una secuencia válida de estados es una restricción, y dos hechos
-  incompatibles no se resuelven sumándolos. El gemelo debe detectar la contradicción, decir
-  qué parte consta y qué parte no, y justificar a quién se le falla.
+  incompatibles no se resuelven sumándolos: hay que decir qué consta y qué no.
 
 ### Situación 3 — Veinticinco esperan un libro
 
 - **Qué pasa.** Un título con un solo ejemplar y 25 reservas, como en el escenario del
   original; en finales hay más de 10 personas por ejemplar. El ejemplar está prestado y
   vence en unos días. La alumna del último lugar pregunta «¿cuándo me toca?». Cuando el
-  libro regresa, puede volver dañado; o puede no volver y declararse perdido (segunda
-  pregunta guía del original). Y a quien iba primero en la cola ya le cayó un bloqueo o
-  ya trae el máximo de libros. En juego están las semanas de preparación de 25 alumnos.
+  libro regresa, puede volver dañado; o puede no volver y declararse perdido. Y a quien
+  iba primero en la cola ya le cayó un bloqueo o ya trae el máximo de libros.
 - **Qué datos hay.** Reservas con su instante, el préstamo vigente del ejemplar y su
   vencimiento, el resultado de la revisión del ejemplar al regresar, los préstamos y
   bloqueos de cada alumno que espera, y cuántos ejemplares tiene el título.
@@ -106,32 +93,26 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
   tocarle como pronto a cada una y qué cambia si el ejemplar regresa dañado o no regresa.
 - **Qué debe contestar.** Por reserva: su lugar, quién es la siguiente que sí puede
   recibirlo y un rango de espera o «no se sabe»; y, si el libro se pierde, qué pasa con
-  las 25 y por qué. Lo intuitivo es «la alumna 25 espera 25 plazos»; es sospechoso porque
-  el orden de la lista no es el orden de entrega y porque un ejemplar dañado o perdido no
-  se entrega a nadie.
+  las 25 y por qué. Lo intuitivo es «la alumna 25 espera 25 plazos»; pero el orden de la
+  lista no es el de entrega, y un ejemplar dañado o perdido no se entrega a nadie.
 - **Por qué es lógica.** La espera no se mide con ningún dato: se deduce de la cola, del
-  vencimiento, de las renovaciones y de quién puede recibir el libro. Es además un dilema:
-  respetar el orden de solicitud o no entregar a quien no puede recibir, y alguien con
-  razón sale perdiendo.
+  vencimiento, de las renovaciones y de quién puede recibir el libro.
 
 ### Situación 4 — La reserva que nadie recogió
 
 - **Qué pasa.** El libro regresó y se avisó a la siguiente de la cola; se le apartó por 48
   horas (caso difícil del original). Pasó ese plazo y no llegó. Pero en el intervalo hubo
   días con la biblioteca cerrada y el aviso consta como «enviado», no como «recibido». El
-  alumno que sigue en la cola tiene examen pronto. En juego están la alumna que quizá nunca
-  se enteró y el que lleva semanas esperando.
+  alumno que sigue en la cola lleva semanas esperando y tiene examen pronto.
 - **Qué datos hay.** La reserva con su estado, el aviso con su estado y su instante, el
   calendario de días inhábiles, la cola detrás de ella y el «ahora».
 - **Qué debe deducir.** Si el plazo realmente venció, si la alumna no recogió o no se
   enteró, a quién pasa el ejemplar y qué hacer si ella aparece después de que se liberó.
 - **Qué debe contestar.** Conservar, liberar al siguiente o «no se sabe», con la razón; y,
   si se liberó, qué lugar le toca a quien llega tarde. Lo intuitivo es «pasaron 48 horas,
-  se libera»; es sospechoso porque no todas esas horas fueron horas en que se podía
-  recoger, y porque un aviso enviado no es un aviso recibido.
-- **Por qué es lógica.** Es un dilema real (las dos partes tienen razón) y una secuencia de
-  estados de la reserva: en espera, apartada, recogida o liberada. «No recogió» y «no pudo
-  enterarse» llevan a respuestas distintas, y el gemelo no debe confundirlas.
+  se libera»; pero no en todas esas horas se podía recoger, y enviado no es recibido.
+- **Por qué es lógica.** Las dos partes tienen razón, y «no recogió» y «no pudo
+  enterarse» llevan a respuestas distintas que el gemelo no debe confundir.
 
 ### Situación 5 — Renovar el libro que otros esperan
 
@@ -139,21 +120,17 @@ señalados. En cada una, tu gemelo debe llegar a una decisión **y poder explica
   que cada alumno tiene un tope de libros a la vez. Un alumno pide renovar un libro de
   texto en semana de exámenes. Las reservas se hacen por título, no por ejemplar: ninguna
   señala su ejemplar, pero el título tiene reservas pendientes. Hay otro ejemplar «libre»
-  en el estante, que resulta ser de sala o estar en revisión. En juego están el alumno
-  que lo necesita una semana más y los que esperan.
+  en el estante, que resulta ser de sala o estar en revisión.
 - **Qué datos hay.** El préstamo y sus renovaciones previas, el material y estado de cada
   ejemplar del título, las reservas pendientes, el vencimiento actual, y las multas y los
   libros que trae el alumno.
 - **Qué debe deducir.** Cuántos ejemplares del título se pueden prestar de verdad, si las
-  reservas de verdad quedan sin atender si renueva, y si el alumno cumple todo lo demás
-  para renovar.
+  reservas quedan sin atender si renueva, y si el alumno cumple lo demás para renovar.
 - **Qué debe contestar.** Renovar, negar o «no se sabe» (ejemplar en revisión sin
   resultado), con la causa, y qué tendría que cambiar para que se pudiera. Lo intuitivo es
-  «hay un ejemplar en el estante, así que renovar no estorba a nadie»; es sospechoso
-  porque estar en el estante no es estar disponible.
+  «hay un ejemplar en el estante»; pero estar en el estante no es estar disponible.
 - **Por qué es lógica.** Choca el derecho de quien ya tiene el libro con el de quien
-  espera, y la respuesta correcta sale de varias condiciones a la vez, no de una sola.
-  Las prioridades se declaran una vez y valen para todos los casos.
+  espera, y las prioridades se declaran una vez y valen para todos los casos.
 
 ## Por qué no basta un script
 
@@ -200,24 +177,21 @@ programa.
 - Escala reducida: unos 8 títulos, unos 12 ejemplares, unos 8 alumnos, 2 mostradores y
   una cola de unas 6 reservas, contra los 10,000 ejemplares, 3,000 usuarios, 300 préstamos
   al día y 25 reservas del escenario original.
-- El «ahora» es un hecho del modelo, en horas, no el reloj del sistema, para que las
-  respuestas se puedan repetir.
-- Los identificadores y cantidades de los ejemplos («alumno 5», «título A») son
-  ilustrativos, no datos del escenario.
+- El «ahora» es un hecho del modelo, en horas, no el reloj del sistema. Los
+  identificadores de los ejemplos («alumno 5», «título A») son ilustrativos.
 - El calendario concreto de días inhábiles, el mostrador que captura cada registro, los
   avisos con estado, la revisión de los ejemplares y la mezcla de ejemplares de sala y
   generales dentro de un título son complementos de esta extensión, no del original.
 - Los define y verifica el estudiante, porque el original no los da: el plazo exacto de
-  cada material dentro de su rango, la tarifa dentro del rango del original, el tope de
-  libros dentro del rango del original, a partir de qué adeudo se bloquea, si los días
+  cada material, la tarifa y el tope de libros dentro de los rangos del original, a
+  partir de qué adeudo se bloquea, si los días
   inhábiles generan multa, cuántas renovaciones caben, cuándo un libro vencido se da por
   perdido, qué cuenta como horas de plazo de una reserva, y cómo se ordena lo que llega a
   la vez de dos mostradores.
 
 ## Extensiones posibles
 
-Para quien quiera ir más lejos. Estas situaciones no vienen del problema original:
-investiga y cita tus fuentes antes de fijar cifras.
+Fuera del problema original: investiga y cita tus fuentes antes de fijar cifras.
 
 - Distintos tipos de usuario (alumno, docente) con límites diferentes.
 - Reposición de un libro perdido o pago de su valor, y qué pasa con la multa acumulada.

@@ -106,20 +106,23 @@ una decisión **y poder explicarla**.
 - **Por qué es lógica.** La respuesta sale de encadenar tres cosas: quién acusó, a qué
   hora terminó su turno y si hubo traspaso; el tablero y el mundo se contradicen.
 
-### Situación 5 — El hueco del reinicio
+### Situación 5 — Veinte minutos que nadie anotó
 
-- **Qué pasa.** El sistema se cae y se levanta con llamadas abiertas. Durante el hueco
-  no se registró ningún evento: no se sabe si llegaron avisos, si alguien acudió o si
-  se pulsaron llamadas nuevas.
-- **Qué datos hay.** Los eventos antes de la caída y después del reinicio, los minutos
-  de ambos y las llamadas abiertas.
-- **Qué debe deducir.** El nivel al que cada llamada ya tuvo que llegar por el tiempo
-  corrido, qué avisos están pendientes y qué se ignora (si hubo acuse en el hueco).
+- **Qué pasa.** El tablero se apaga y vuelve con llamadas abiertas, una de ellas de
+  línea detenida, que cuesta cientos o miles de dólares por minuto. De ese hueco no hay
+  ningún evento. El líder dice que sí acudió; el operador, que nadie llegó. El gerente
+  de área pregunta por qué no se le avisó, y el equipo de mejora necesita un tiempo de
+  respuesta que no sea inventado. Lo intuitivo es retomar cada llamada donde se quedó.
+- **Qué datos hay.** Los eventos anteriores al hueco y los posteriores, con sus
+  minutos, las llamadas abiertas y lo que afirma cada persona, sin registro.
+- **Qué debe deducir.** En cadena: cuánto tiempo corrió para cada llamada, luego a qué
+  nivel tuvo que llegar por ese tiempo, luego qué avisos se deben hoy, y qué se ignora
+  (si hubo acuse o atención en el hueco).
 - **Qué debe contestar.** Por llamada, el nivel alcanzado, el aviso que se debe enviar
-  hoy y lo que **no se sabe**; y una hipótesis: qué pasaría con la llamada si el
-  supervisor hubiera acudido durante la caída.
-- **Por qué es lógica.** El tiempo corrido sí obliga, el acuse perdido no se puede
-  inventar, y las tres consecuencias se encadenan; no saber no es lo mismo que «no».
+  hoy y lo que **no se sabe**; qué se le puede afirmar al gerente y qué no; y una
+  hipótesis: qué cambiaría si el líder de verdad acudió durante el hueco.
+- **Por qué es lógica.** El tiempo corrido sí obliga aunque nadie lo haya anotado, la
+  palabra de una persona no es un evento, y no saber no es lo mismo que «no».
 
 ## Por qué no basta un script
 
@@ -164,7 +167,8 @@ programa.
   nivel, contra las 40 estaciones y 3 líderes del escenario original.
 - La maquiladora, el área, los nombres, las estaciones numeradas y los tipos de
   llamada de los ejemplos son datos ilustrativos; el cambio de turno y el reinicio son
-  casos que tú ubicas en tu escenario.
+  casos que tú ubicas en tu escenario. Los «veinte minutos» del título de la
+  situación 5 son un número del ejemplo: la duración del hueco la fijas tú.
 - El «ahora» es un hecho del modelo, en minutos, no el reloj del sistema, para que las
   respuestas se puedan repetir.
 - Los tiempos objetivo de cada nivel los fijas tú dentro de los rangos del original (1 a

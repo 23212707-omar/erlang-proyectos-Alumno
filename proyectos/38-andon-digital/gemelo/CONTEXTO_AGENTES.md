@@ -111,10 +111,10 @@ Sin valores exactos a propósito: el estudiante fija su escenario y sus umbrales
    aparece sin responsable aunque el tablero la muestre atendida; la evidencia lista
    las tres cosas encadenadas y los pasos válidos que siguen. Con traspaso registrado,
    la misma llamada sí tiene responsable.
-5. **Reinicio.** Para las llamadas abiertas durante un hueco de eventos, el gemelo da
+5. **Hueco sin registro.** Para las llamadas abiertas durante un hueco de eventos, el gemelo da
    el nivel alcanzado por el tiempo corrido y el aviso que corresponde hoy, y marca
    como «no se sabe» si hubo acuse en el hueco; nunca lo da por hecho ni por
-   inexistente. La hipótesis sobre una atención durante la caída cambia el veredicto.
+   inexistente. La hipótesis sobre una atención durante el hueco cambia el veredicto.
 6. **Las cinco preguntas** de «Por qué no basta un script» se contestan con consultas
    sobre las mismas reglas, sin predicados duplicados por pregunta.
 

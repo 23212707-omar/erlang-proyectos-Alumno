@@ -24,6 +24,8 @@ de bodega. Es una simulación planteada por esta extensión sobre el problema or
 | Parte | Contenido |
 |---|---|
 | Entidades | unidad (camión o cámara) → sondas; lote de producto con su rango de temperatura; envío con destinatario y fecha límite |
+| Personas | el chofer (anota la puerta a mano y a veces se olvida), la responsable de calidad (libera o retiene lotes y responde ante la autoridad), el jefe de tráfico (decide entregas y rutas), los clientes: un hospital con campaña de vacunación, clínicas y mercados |
+| Reglamento (inventado) | (a) un lote no pasa más de 2 horas acumuladas entre 4 °C y 60 °C, sumando todas las unidades por las que pasó (la cifra es del original); (b) calidad no libera un lote sin evidencia completa de su recorrido; (c) el registro de temperaturas es evidencia legal: no se corrige ni se rellena, y una lectura que llega tarde vale por el instante en que se midió; (d) una sonda con error conocido no gobierna el compresor ni sirve sola como evidencia; (e) todo lote termina con un destino declarado y con quien lo decidió |
 | Estado por unidad | temperatura de cada sonda, punto de ajuste del compresor, puerta abierta o cerrada, señal presente o perdida |
 | Estado por sonda | su verificación más reciente y el error que se le encontró |
 | Estado por lote | por qué unidades pasó y en qué horas, tiempo acumulado fuera de rango |
@@ -176,6 +178,8 @@ programa.
 - La distribuidora, el hospital, el chofer que anota la puerta, las dos sondas por caja,
   los lotes, los tramos y los números de unidad de los ejemplos los plantea esta
   extensión; no vienen del original. Cada situación puede usar su propio conjunto de datos.
+- El reglamento de la tabla lo redacta esta extensión a partir del original; solo la regla
+  de 2 horas trae cifra. Cómo se resuelven los choques entre sus incisos lo decides tú.
 - Unidad del tiempo: el minuto. El «ahora» es un hecho del modelo, no el reloj del sistema,
   para que las respuestas se puedan repetir.
 - Tú defines: cuánto dura una apertura normal antes de ser sospechosa; qué tolerancia de

@@ -59,6 +59,7 @@ rango(Variable, Minimo, Maximo).
 lectura(Hilera, Variable, Valor, Minuto).
 lluvia(Parcela, Milimetros).
 temp_minima(Parcela, Grados).
+evento(Hilera, Tipo, Minuto).          % riego_ordenado | riego_detenido | reinicio
 ```
 
 ## Contrato del gemelo
@@ -79,9 +80,11 @@ Sin valores exactos a propósito: el estudiante fija su escenario y sus umbrales
    lista los tres criterios. Una a la que le falta uno solo aparece como «vigilar» y
    dice cuál falta. Hoja mojada prolongada fuera de 18-25 °C no cuenta como infección.
 2. **Helada y etapa.** La misma temperatura bajo cero produce alerta en una hilera en
-   brotación y no en una en dormancia.
+   brotación y no en una en dormancia; la hilera más fría no es por eso la primera. Si
+   la cuadrilla no alcanza, la respuesta nombra a qué hilera se le falla y por qué.
 3. **Conflicto.** Suelo seco con helada activa: no se riega, y la explicación nombra la
-   helada como la causa. La consulta inversa devuelve qué tendría que cambiar.
+   helada como la causa y a quién se le falla. La consulta inversa devuelve qué tendría
+   que cambiar. Una válvula con orden enviada y reinicio posterior da «no se sabe».
 4. **Dato dudoso.** Una lectura fuera de rango y un sensor sin reportar dan «no se
    sabe», distinto de «no se cumple», y nunca producen riego ni alerta.
 5. **Vecinas.** Una hilera sin dato en zona baja, con vecinas en helada, recibe una

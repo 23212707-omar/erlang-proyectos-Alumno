@@ -36,6 +36,10 @@ intentos (el original no da N); trabajos de 50 ms frente a un reporte de 10 minu
 caído 5 minutos y reinicio con 200 trabajos en ejecución; un trabajo programado para
 «dentro de 3 horas».
 
+El escenario (una preparatoria de Mexicali en semana de inscripciones, con su
+coordinadora, su ventanilla y las familias) es inventado por la extensión: no aporta
+cifras, solo nombres a los trabajos (pago, ficha, credencial, correo, listas).
+
 ## Arquitectura (obligatoria)
 
 - **Todo en SWI-Prolog**: estado, reglas, explicación y servidor web
@@ -103,6 +107,7 @@ Sin valores exactos a propósito: el estudiante fija su escenario y sus umbrales
    explicación nombra la dependencia como la causa. Nunca hay más trabajos corriendo
    que trabajadores. Un trabajo programado no corre antes de su hora. La consulta
    inversa devuelve qué tendría que pasar para que le toque.
+   Cuando no caben todos, la respuesta nombra a quién se le falla y la regla que lo decidió.
 4. **Dato dudoso.** Un trabajo tomado y sin confirmación da «no se sabe», distinto de
    «terminó» y de «no terminó», y el mismo tiempo sin confirmar no significa lo mismo
    en un tipo corto que en uno largo. Volverlo a lanzar o retenerlo depende de si
